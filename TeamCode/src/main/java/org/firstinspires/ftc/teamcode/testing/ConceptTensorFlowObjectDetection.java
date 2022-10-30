@@ -29,11 +29,13 @@
 
 package org.firstinspires.ftc.teamcode.testing;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -51,7 +53,7 @@ import java.util.List;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@TeleOp(name = "Concept: TensorFlow Object Detection", group = "Concept")
+@Autonomous(name = "Concept: TensorFlow Object Detection", group = "Concept")
 //@Disabled
 public class ConceptTensorFlowObjectDetection extends LinearOpMode {
 
@@ -97,6 +99,10 @@ public class ConceptTensorFlowObjectDetection extends LinearOpMode {
      * Detection engine.
      */
     private TFObjectDetector tfod;
+
+
+
+
 
     @Override
     public void runOpMode() {
@@ -165,6 +171,7 @@ public class ConceptTensorFlowObjectDetection extends LinearOpMode {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
         parameters.cameraDirection = CameraDirection.BACK;
 
         //  Instantiate the Vuforia engine

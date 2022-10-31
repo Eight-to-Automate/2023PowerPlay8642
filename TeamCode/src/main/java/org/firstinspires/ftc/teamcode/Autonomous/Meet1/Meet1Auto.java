@@ -46,7 +46,6 @@ public class Meet1Auto extends LinearOpMode {
         double tileDistance = 48;
 
         if (route == 1) {
-
             robot.GoDistance(tileDistance, testingPower,  false, this);// drive 1 tile forward
             robot.Strafe(106, testingPower, this, false);// strafe 1.5 tiles right
             //robot.lifterA(topLifterTicks, 0.5, this);// raise lifter fully

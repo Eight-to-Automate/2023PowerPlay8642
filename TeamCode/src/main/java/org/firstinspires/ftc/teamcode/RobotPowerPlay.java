@@ -141,6 +141,7 @@ public class RobotPowerPlay {
         frontRightMotor = hwMap.get(DcMotor.class, "rightFront");
         backLeftMotor = hwMap.get(DcMotor.class, "leftRear");
         backRightMotor = hwMap.get(DcMotor.class, "rightRear");
+        lifter = hwMap.get(DcMotor.class, "lifter");
         intake = hwMap.get(Servo.class,"intake_servo");
         DcMotor[] driveMotors = {frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor};
 

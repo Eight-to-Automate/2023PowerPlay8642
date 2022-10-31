@@ -69,7 +69,7 @@ public class MotorTest extends OpMode {
 
     telemetry.addData("Status", "Run Time: " + runtime.toString());
 
-    constant = gamepad2.right_stick_y;
+    constant = gamepad2.left_stick_y;
 
     constant = Range.clip(constant, 0, 1.0);
 
@@ -79,8 +79,9 @@ public class MotorTest extends OpMode {
 
     lifterPower = Range.clip(lifterPower, -1.0, 1.0);
 
-    robot.lifter.setPower(lifterPower * constant);
+    robot.lifter.setPower(lifterPower);
 
+    telemetry.addLine("Number of ticks: " + robot.lifter.getCurrentPosition());
     telemetry.update();
 
   }

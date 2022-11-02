@@ -2,10 +2,12 @@ package org.firstinspires.ftc.teamcode.Autonomous;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
+@Disabled
 @Autonomous(name="strafetest", group="Motion")
 public class strafetest extends LinearOpMode {
     RobotPowerPlay robot = new RobotPowerPlay();

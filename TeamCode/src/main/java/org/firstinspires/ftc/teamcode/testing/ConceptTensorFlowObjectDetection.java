@@ -54,7 +54,7 @@ import java.util.List;
  * is explained below.
  */
 @Autonomous(name = "Concept: TensorFlow Object Detection", group = "Concept")
-//@Disabled
+@Disabled
 public class ConceptTensorFlowObjectDetection extends LinearOpMode {
 
     /*

@@ -53,18 +53,29 @@ public class RobotPowerPlay {
             "3 Panel"
     };
 
-    public RobotFreightFrenzy.lightsStates LEDColor = RobotFreightFrenzy.lightsStates.Off;
-    public RobotFreightFrenzy.lightsStates lastLEDColorBox = RobotFreightFrenzy.lightsStates.Off;
-    public RobotFreightFrenzy.lightsStates LEDColorBox = RobotFreightFrenzy.lightsStates.Off;
-    public RobotFreightFrenzy.lightsStates lastLEDColor = RobotFreightFrenzy.lightsStates.Off;
+    public RobotPowerPlay.lightsStates LEDColor = RobotPowerPlay.lightsStates.Off;
+    public RobotPowerPlay.lightsStates lastLEDColorBox = RobotPowerPlay.lightsStates.Off;
+    public RobotPowerPlay.lightsStates LEDColorBox = RobotPowerPlay.lightsStates.Off;
+    public RobotPowerPlay.lightsStates lastLEDColor = RobotPowerPlay.lightsStates.Off;
     public DigitalChannel redLED;
     public DigitalChannel greenLED;
+
+    public enum lightsStates {
+        Off, Red, Green, Amber
+    }
 
 
     HardwareMap hwMap;
     public BNO055IMU imu;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
     public Orientation angles;
+
+
+    public final int lifterMinimum = 0;
+    public final int lifterLevelOne = -1050; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
+    public final int lifterLevelTwo = -1600; //Old: -1700  11/1/2022  New: -1550
+    public final int lifterLevelThree = -2600;//Old: -2600  11/1/2022 New: -2450
+    public final int lowJunctionPos = -250;  //Old: -400    11/1/2022 New: -250
 
     //Init Methods *********************************************************************************
     public void initAuto(HardwareMap hwMapIn, OpMode systemToolsIn) {
@@ -130,6 +141,9 @@ public class RobotPowerPlay {
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
+        //intake.setPosition(1);
+
+
         stopAllMotors();
         startDriveEncoderless();
     }
@@ -144,9 +158,13 @@ public class RobotPowerPlay {
         lifter = hwMap.get(DcMotor.class, "lifter");
         intake = hwMap.get(Servo.class,"intake_servo");
         DcMotor[] driveMotors = {frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor};
-
-        //lifter = hwMap.get(DcMotor.class, "lifter");
+        redLED = hwMap.get(DigitalChannel.class, "red_LED");
+        greenLED = hwMap.get(DigitalChannel.class, "green_LED");
+        lifter = hwMap.get(DcMotor.class, "lifter");
+        redLED.setMode(DigitalChannel.Mode.OUTPUT);
+        greenLED.setMode(DigitalChannel.Mode.OUTPUT);
     }
+
 
     //Autonomous Movement Commands (forward, turn, strafe, lifter, ect.)
 
@@ -676,9 +694,9 @@ public class RobotPowerPlay {
 
     public void updateLightsTele(boolean flashFreezeActive) {
         if (flashFreezeActive) {
-            LEDColor = RobotFreightFrenzy.lightsStates.Red;
+            LEDColor = RobotPowerPlay.lightsStates.Red;
         } else {
-            LEDColor = RobotFreightFrenzy.lightsStates.Green;
+            LEDColor = RobotPowerPlay.lightsStates.Green;
         }
         if (LEDColor != lastLEDColor) {
             setLightsState(LEDColor);
@@ -687,12 +705,12 @@ public class RobotPowerPlay {
 
     }
 
-    public void setLightsState(RobotFreightFrenzy.lightsStates state) {
+    public void setLightsState(RobotPowerPlay.lightsStates state) {
         LEDColor = state;
-        if (LEDColor == RobotFreightFrenzy.lightsStates.Red) {
+        if (LEDColor == RobotPowerPlay.lightsStates.Red) {
             redLED.setState(true);
             greenLED.setState(false);
-        } else if (LEDColor == RobotFreightFrenzy.lightsStates.Green) {
+        } else if (LEDColor == RobotPowerPlay.lightsStates.Green) {
             redLED.setState(false);
             greenLED.setState(true);
         }

@@ -2,12 +2,14 @@ package org.firstinspires.ftc.teamcode.Autonomous.Meet1;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
 
+@Disabled
 @Autonomous(name="Meet1Auto", group="Motion")
 public class Meet1Auto extends LinearOpMode {
 

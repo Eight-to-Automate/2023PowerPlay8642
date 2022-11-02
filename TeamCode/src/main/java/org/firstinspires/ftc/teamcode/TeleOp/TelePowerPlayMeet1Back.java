@@ -7,12 +7,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.RobotFreightFrenzy;
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
-@Disabled
-@TeleOp(name="TeleMeet1_back", group="Iterative Opmode")
 
-public class TelePowerPlayMeet1 extends OpMode {
+@TeleOp(name="TeleMeet1Back", group="Iterative Opmode")
+@Disabled
+public class TelePowerPlayMeet1Back extends OpMode {
     RobotPowerPlay robot = new RobotPowerPlay();
 
     // Declare OpMode members
@@ -169,11 +168,11 @@ public class TelePowerPlayMeet1 extends OpMode {
             if (!movingLifter) {
                 //robot.storage.setPosition(0); // closes storage automatically - caused issues sometimes
                 if (lifterLocation != lifterStates.Home) {
-                    movingLifter = true;
-                    robot.lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    robot.lifter.setTargetPosition(robot.lifterMinimum);
-                    robot.lifter.setPower(1);
-                    targetLifterLocation = lifterStates.Home;
+                        movingLifter = true;
+                        robot.lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        robot.lifter.setTargetPosition(robot.lifterMinimum);
+                        robot.lifter.setPower(1);
+                        targetLifterLocation = lifterStates.Home;
                 }
             }
         }
@@ -305,4 +304,3 @@ public class TelePowerPlayMeet1 extends OpMode {
     }
 
 }
-

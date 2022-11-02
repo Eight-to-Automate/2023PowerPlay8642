@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode.testing;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import java.util.List;
@@ -175,6 +176,7 @@ public class ConceptTensorFlowObjectDetectionWebcam2 extends LinearOpMode {
     /**
      * Initialize the TensorFlow Object Detection engine.
      */
+    @Disabled
     private void initTfod() {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());

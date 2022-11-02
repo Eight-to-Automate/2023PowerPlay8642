@@ -75,7 +75,7 @@ public class RobotPowerPlay {
     public final int lifterLevelOne = -1050; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
     public final int lifterLevelTwo = -1600; //Old: -1700  11/1/2022  New: -1550
     public final int lifterLevelThree = -2600;//Old: -2600  11/1/2022 New: -2450
-    public final int lowJunctionPos = -250;  //Old: -400    11/1/2022 New: -250
+    public final int lowJunctionPos = -400;  //Old: -400    11/1/2022 New: -250
 
     //Init Methods *********************************************************************************
     public void initAuto(HardwareMap hwMapIn, OpMode systemToolsIn) {

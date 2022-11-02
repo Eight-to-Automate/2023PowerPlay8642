@@ -204,31 +204,33 @@ public class Meet1RightAuto extends LinearOpMode{
             telemetry.update();
             //trajectory
         }
-
+        robot.intake.setPosition(0);// close grabber  added 11-1-22
         robot.asynchLift(-400,  1, this); //raise lifter slightly -> prevent cone scraping against ground
         robot.wait(400, this);
         robot.GoDistance(46.5, testingPower,  false, this);// drive 1 tile forward
         robot.Strafe(-3, 0.5, this, false);
         robot.wait(400, this);
-        robot.Strafe(111, 0.3, this, false);// strafe 1.5 tiles right
+        robot.Strafe(108, 0.3, this, false);// strafe 1.5 tiles right  was  11-2=22
         robot.GoDistance(-2, testingPower, false, this);
-        robot.asynchLift(-2150,  1, this); //raise lifter until top  (top = 2600 ticks from bottom)
+        robot.asynchLift(-2180,  1, this); //raise lifter until top  (top = 2600 ticks from bottom)
         robot.wait(2000, this);
         robot.GoDistance(8, testingPower, false, this);// drive forward small amount
         robot.intake.setPosition(1);// release grabber
-        robot.wait(2000,this);
+        robot.wait(1500,this);
         robot.GoDistance(-8, testingPower, false, this); // back up same small amount
-        robot.asynchLift(2600, 0.7, this);
 
+        robot.asynchLift(2600, 0.7, this);
+        robot.wait(2000, this);
+        robot.Strafe(-36, testingPower, this, false);//was -39
         if (route == 1){
-            robot.Strafe(-39, testingPower, this, false);
+            //robot.Strafe(-39, testingPower, this, false);
         }
         else if (route == 2){
-            robot.Strafe(-39, testingPower, this, false);
+            //robot.Strafe(-39, testingPower, this, false);
             robot.GoDistance(-tileDistance, 0.4, false, this);
         }
         else {
-            robot.Strafe(-39, testingPower, this, false);
+            //robot.Strafe(-39, testingPower, this, false);
             robot.GoDistance(-2*tileDistance, 0.4, false, this);
         }
 

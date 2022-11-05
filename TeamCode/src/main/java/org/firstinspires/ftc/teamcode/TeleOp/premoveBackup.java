@@ -19,6 +19,7 @@ Checkpoint 9/24/22: Rewrote nudge dpad and joystick functions.  Fixed Dpad, joys
 */
 package org.firstinspires.ftc.teamcode.TeleOp;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -32,7 +33,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 @TeleOp(name="premoveBackup", group="testing")
-
+@Disabled
 public class premoveBackup extends OpMode {
 
     RobotPowerPlay robot = new RobotPowerPlay();

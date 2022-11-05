@@ -33,7 +33,7 @@ import java.lang.reflect.Array;
 import java.util.*;
 
 @TeleOp(name="premove", group="testing")
-
+@Disabled
 public class premove extends OpMode {
 
     RobotPowerPlay robot = new RobotPowerPlay();

@@ -24,6 +24,7 @@ package org.firstinspires.ftc.teamcode.Autonomous.Meet1;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -205,10 +206,11 @@ public class Meet1RightAuto extends LinearOpMode{
             //trajectory
         }
         robot.intake.setPosition(0);// close grabber  added 11-1-22
+        robot.wait(1000, this);
         robot.asynchLift(-400,  1, this); //raise lifter slightly -> prevent cone scraping against ground
         robot.wait(400, this);
         robot.GoDistance(46.5, testingPower,  false, this);// drive 1 tile forward
-        robot.Strafe(-3, 0.5, this, false);
+        robot.Strafe(-3, 0.3, this, false);
         robot.wait(400, this);
         robot.Strafe(108, 0.3, this, false);// strafe 1.5 tiles right  was  11-2=22
         robot.GoDistance(-2, testingPower, false, this);
@@ -233,6 +235,12 @@ public class Meet1RightAuto extends LinearOpMode{
             //robot.Strafe(-39, testingPower, this, false);
             robot.GoDistance(-2*tileDistance, 0.4, false, this);
         }
+        /*
+        robot.lifter.setTargetPosition(0);
+        robot.lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.lifter.setPower(0.6);
+        robot.wait(2000, this);
+        robot.lifter.setPower(0);*/
 
     }
 

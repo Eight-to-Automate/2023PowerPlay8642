@@ -53,15 +53,18 @@ public class RobotPowerPlay {
             "3 Panel"
     };
 
-    public RobotPowerPlay.lightsStates LEDColor = RobotPowerPlay.lightsStates.Off;
+    public RobotPowerPlay.lightsStates LEDColor = RobotPowerPlay.lightsStates.Off;1
+    public RobotPowerPlay.lightsStates lifterLEDColor = RobotPowerPlay.lightsStates.Off;
     public RobotPowerPlay.lightsStates lastLEDColorBox = RobotPowerPlay.lightsStates.Off;
     public RobotPowerPlay.lightsStates LEDColorBox = RobotPowerPlay.lightsStates.Off;
     public RobotPowerPlay.lightsStates lastLEDColor = RobotPowerPlay.lightsStates.Off;
     public DigitalChannel redLED;
     public DigitalChannel greenLED;
+    public DigitalChannel upLED;
+    public DigitalChannel downLED;
 
     public enum lightsStates {
-        Off, Red, Green, Amber
+        Off, Red, Green, Amber, White
     }
 
 
@@ -72,9 +75,9 @@ public class RobotPowerPlay {
 
 
     public final int lifterMinimum = 0;
-    public final int lifterLevelOne = -1050; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
-    public final int lifterLevelTwo = -1600; //Old: -1700  11/1/2022  New: -1550
-    public final int lifterLevelThree = -2600;//Old: -2600  11/1/2022 New: -2450
+    public final int lifterLevelOne = -900; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
+    public final int lifterLevelTwo = -1500; //Old: -1700  11/1/2022  New: -1550
+    public final int lifterLevelThree = -2400;//Old: -2600  11/1/2022 New: -2450
     public final int lowJunctionPos = -400;  //Old: -400    11/1/2022 New: -250
 
     //Init Methods *********************************************************************************
@@ -160,9 +163,13 @@ public class RobotPowerPlay {
         DcMotor[] driveMotors = {frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor};
         redLED = hwMap.get(DigitalChannel.class, "red_LED");
         greenLED = hwMap.get(DigitalChannel.class, "green_LED");
+        upLED = hwMap.get(DigitalChannel.class, "up_LED");
+        downLED = hwMap.get(DigitalChannel.class, "down_LED");
         lifter = hwMap.get(DcMotor.class, "lifter");
         redLED.setMode(DigitalChannel.Mode.OUTPUT);
         greenLED.setMode(DigitalChannel.Mode.OUTPUT);
+        upLED.setMode(DigitalChannel.Mode.OUTPUT);
+        downLED.setMode(DigitalChannel.Mode.OUTPUT);
     }
 
 
@@ -206,8 +213,8 @@ public class RobotPowerPlay {
 
         if (!Handoff) stopDriveMotors();
     }
-    public void intake(boolean up) {
-        if (up) {
+    public void intake(boolean close) {
+        if (close) {
             intake.setPosition(0);
         } else {
             intake.setPosition(1);
@@ -702,7 +709,25 @@ public class RobotPowerPlay {
             setLightsState(LEDColor);
             lastLEDColor = LEDColor;
         }
-
+        if(lifter.getCurrentPosition()>(lifterMinimum-20)){
+            lifterLEDColor = RobotPowerPlay.lightsStates.Green;
+        }else {
+            if (lifter.getCurrentPosition() < lifterLevelThree) {
+                lifterLEDColor = RobotPowerPlay.lightsStates.Red;
+            }else{
+                lifterLEDColor = lightsStates.Amber;
+            }
+        }
+        if (lifterLEDColor == RobotPowerPlay.lightsStates.Red) {
+            upLED.setState(true);
+            downLED.setState(false);
+        } else if (lifterLEDColor == RobotPowerPlay.lightsStates.Green) {
+            upLED.setState(false);
+            downLED.setState(true);
+        }else if(lifterLEDColor == RobotPowerPlay.lightsStates.Amber){
+            upLED.setState(true);
+            downLED.setState(true);
+        }
     }
 
     public void setLightsState(RobotPowerPlay.lightsStates state) {

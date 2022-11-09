@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -17,6 +19,8 @@ public class TelePowerPlayMeet1 extends OpMode {
     // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();
     double initialST; // Initial time for storage button timer
+    double slowTime; // initial time for slowmode timeout
+    double slowTime2; // initial time for super slowmode timeout
 
     // set up variables for motor powers
     double frontLeftPower;
@@ -38,6 +42,8 @@ public class TelePowerPlayMeet1 extends OpMode {
     // Setup booleans for state machines
     boolean lowSpeedActivated = false;
     boolean leftBumperDown = false;
+    boolean superLowSpeedActivated = false;
+    boolean leftTriggerPressed = false;
 
     // intake variables
     double initialin;
@@ -85,6 +91,10 @@ public class TelePowerPlayMeet1 extends OpMode {
     public void init() {
         robot.initTele(hardwareMap, this);
         telemetry.addData("Status", "Initialized");
+        robot.resetDriveEncoders();
+        // run using encoders makes it slower but drive very straight
+        robot.startDriveEncoders();
+        //robot.startDriveEncoderless();
         // robot.lifter.setMode(DcMotor.ZeroPowerBehavior.BRAKE);    // needed for 20:1 motor
     }
 
@@ -97,28 +107,45 @@ public class TelePowerPlayMeet1 extends OpMode {
     public void loop() {
 
         // controller variables
-        double y = exponential(gamepad1.left_stick_y, 1);
-        double x = exponential(-gamepad1.left_stick_x, 1); //* strafingConstant; // coefficient counteracts imperfect strafing
-        double rx = exponential(-gamepad1.right_stick_x, 1);
+        double y = gamepad1.left_stick_y;
+        double x = -gamepad1.left_stick_x; //* strafingConstant; // coefficient counteracts imperfect strafing
+        double rx = -gamepad1.right_stick_x;
         double ry2 = gamepad2.left_stick_y;
 
         //**********************************************************************************************************************
         // FlashFreeze
 
         // Toggle for FlashFreeze
-        if (gamepad1.left_bumper) {
-            if (!leftBumperDown) {
-                leftBumperDown = true;
-                lowSpeedActivated = !lowSpeedActivated;
-            }
-        } else {
+        if (gamepad1.left_bumper && !leftBumperDown) {
+            leftBumperDown = true;
+            lowSpeedActivated = !lowSpeedActivated;
+            superLowSpeedActivated = false;
+            slowTime = getRuntime();
+        }
+        else if (getRuntime() - slowTime > 0.3) {
             leftBumperDown = false;
         }
+
+        //activate or deactivate super slow speed when left trigger receives any input (code includes debounce as well)
+        if (gamepad1.left_trigger > 0 && !leftTriggerPressed){
+            leftTriggerPressed = true;
+            superLowSpeedActivated = !superLowSpeedActivated;
+            lowSpeedActivated = false;
+            slowTime2 = getRuntime();
+        }
+        else if (getRuntime() - slowTime2 > 0.3) {
+            leftTriggerPressed = false;
+        }
+
+
 
         // REDUCED TURNING SPEED
         if (lowSpeedActivated) {
             rx = rx/1.5;
         }
+
+        if (superLowSpeedActivated) rx /= 2.5;
+
 
         //****************************************************************************************
         // Calculate motor power
@@ -143,11 +170,18 @@ public class TelePowerPlayMeet1 extends OpMode {
             frontRightPower *= .6;
             backLeftPower *= .6;
             backRightPower *= .6;}
+
+        else if (superLowSpeedActivated){
+            frontLeftPower *= .3;
+            frontRightPower *= .3;
+            backLeftPower *= .3;
+            backRightPower *= .3;
+        }
         //    robot.setLightsState(RobotPowerPlay.lightsStates.Red);
         //}else{
         //    robot.setLightsState(RobotPowerPlay.lightsStates.Green);
         //}
-        robot.updateLightsTele(lowSpeedActivated);
+        robot.updateLightsTele(lowSpeedActivated, superLowSpeedActivated);
         //******************************************************************************************
 
         // Set all the drive motors power
@@ -293,6 +327,16 @@ public class TelePowerPlayMeet1 extends OpMode {
 
         telemetry.addData("Lifter Power: ", lifterPower);
         telemetry.addData("Lifter Ticks: ", robot.lifter.getCurrentPosition());
+
+        // update telemetry of drive motors in order to figure out why the robot is not driving straight 11/8/22
+        telemetry.addData("front left ticks", robot.frontLeftMotor.getCurrentPosition());
+        telemetry.addData("back left ticks", robot.backLeftMotor.getCurrentPosition());
+        telemetry.addData("front right ticks", robot.frontRightMotor.getCurrentPosition());
+        telemetry.addData("back right ticks", robot.backRightMotor.getCurrentPosition());
+
+        // flash freeze states
+        telemetry.addData("slow mode?", lowSpeedActivated);
+        telemetry.addData("super slow mode?", superLowSpeedActivated);
 
         // Update telemetry at end
         telemetry.update();

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 import static java.lang.Math.abs;
 
 import android.graphics.Color;
@@ -53,7 +54,7 @@ public class RobotPowerPlay {
             "3 Panel"
     };
 
-    public RobotPowerPlay.lightsStates LEDColor = RobotPowerPlay.lightsStates.Off;1
+    public RobotPowerPlay.lightsStates LEDColor = RobotPowerPlay.lightsStates.Off;
     public RobotPowerPlay.lightsStates lifterLEDColor = RobotPowerPlay.lightsStates.Off;
     public RobotPowerPlay.lightsStates lastLEDColorBox = RobotPowerPlay.lightsStates.Off;
     public RobotPowerPlay.lightsStates LEDColorBox = RobotPowerPlay.lightsStates.Off;
@@ -75,7 +76,7 @@ public class RobotPowerPlay {
 
 
     public final int lifterMinimum = 0;
-    public final int lifterLevelOne = -900; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
+    public final int lifterLevelOne = -1000; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
     public final int lifterLevelTwo = -1500; //Old: -1700  11/1/2022  New: -1550
     public final int lifterLevelThree = -2400;//Old: -2600  11/1/2022 New: -2450
     public final int lowJunctionPos = -400;  //Old: -400    11/1/2022 New: -250
@@ -611,7 +612,6 @@ public class RobotPowerPlay {
 //        for (DcMotor motor : driveMotors) {
 //             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        }
-        // DISABLED FOR LIFTER TESTING
         frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -620,7 +620,7 @@ public class RobotPowerPlay {
 
     public void startDriveEncoderless() {
         // DISABLED FOR LIFTER TESTING
-        //frontLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -699,9 +699,11 @@ public class RobotPowerPlay {
 
     } //end RotateDegTele
 
-    public void updateLightsTele(boolean flashFreezeActive) {
+    public void updateLightsTele(boolean flashFreezeActive, boolean superFlashFreezeActive) {
         if (flashFreezeActive) {
             LEDColor = RobotPowerPlay.lightsStates.Red;
+        } else if (superFlashFreezeActive) {
+            LEDColor = lightsStates.Amber;
         } else {
             LEDColor = RobotPowerPlay.lightsStates.Green;
         }
@@ -709,24 +711,26 @@ public class RobotPowerPlay {
             setLightsState(LEDColor);
             lastLEDColor = LEDColor;
         }
-        if(lifter.getCurrentPosition()>(lifterMinimum-20)){
-            lifterLEDColor = RobotPowerPlay.lightsStates.Green;
-        }else {
-            if (lifter.getCurrentPosition() < lifterLevelThree) {
-                lifterLEDColor = RobotPowerPlay.lightsStates.Red;
-            }else{
+
+        double lifterPos = lifter.getCurrentPosition();
+
+        if(lifterPos>(lifterMinimum) || lifterPos<(lifterLevelThree)){
+            lifterLEDColor = RobotPowerPlay.lightsStates.Red;
+        } else if (lifterPos < lifterMinimum && lifterPos > lowJunctionPos - 20) {
                 lifterLEDColor = lightsStates.Amber;
-            }
+        } else {
+            lifterLEDColor = lightsStates.Green;
         }
+
         if (lifterLEDColor == RobotPowerPlay.lightsStates.Red) {
             upLED.setState(true);
             downLED.setState(false);
-        } else if (lifterLEDColor == RobotPowerPlay.lightsStates.Green) {
+        } if (lifterLEDColor == RobotPowerPlay.lightsStates.Green) {
             upLED.setState(false);
             downLED.setState(true);
-        }else if(lifterLEDColor == RobotPowerPlay.lightsStates.Amber){
-            upLED.setState(true);
-            downLED.setState(true);
+        } if(lifterLEDColor == RobotPowerPlay.lightsStates.Amber){
+            upLED.setState(false);
+            downLED.setState(false);
         }
     }
 
@@ -738,6 +742,9 @@ public class RobotPowerPlay {
         } else if (LEDColor == RobotPowerPlay.lightsStates.Green) {
             redLED.setState(false);
             greenLED.setState(true);
+        } else if (LEDColor == lightsStates.Amber) {
+            redLED.setState(false);
+            greenLED.setState(false);
         }
     }
 

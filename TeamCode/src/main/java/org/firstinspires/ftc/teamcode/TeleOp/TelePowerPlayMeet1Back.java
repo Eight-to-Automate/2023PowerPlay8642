@@ -147,7 +147,10 @@ public class TelePowerPlayMeet1Back extends OpMode {
         //}else{
         //    robot.setLightsState(RobotPowerPlay.lightsStates.Green);
         //}
-        robot.updateLightsTele(lowSpeedActivated);
+
+        // commented out as this method changed after new slow mode was added - 11/8/22
+        //robot.updateLightsTele(lowSpeedActivated);
+
         //******************************************************************************************
 
         // Set all the drive motors power

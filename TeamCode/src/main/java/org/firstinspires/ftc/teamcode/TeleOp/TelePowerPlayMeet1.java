@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.tel
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -36,7 +37,7 @@ public class TelePowerPlayMeet1 extends OpMode {
     }
 
     enum lifterStates {
-        Home, Low, Middle, High, Manual, Junction
+        Home, Low, Middle, High, Manual, Junction, Stack
     }
 
     // Setup booleans for state machines
@@ -95,7 +96,8 @@ public class TelePowerPlayMeet1 extends OpMode {
         // run using encoders makes it slower but drive very straight
         robot.startDriveEncoders();
         //robot.startDriveEncoderless();
-        // robot.lifter.setMode(DcMotor.ZeroPowerBehavior.BRAKE);    // needed for 20:1 motor
+        // robot.lifter.setMode(DcMotorEx.ZeroPowerBehavior.BRAKE);    // needed for 20:1 motor
+        robot.lifter.setTargetPositionTolerance(15);
     }
 
     @Override
@@ -126,7 +128,7 @@ public class TelePowerPlayMeet1 extends OpMode {
             leftBumperDown = false;
         }
 
-        //activate or deactivate super slow speed when left trigger receives any input (code includes debounce as well)
+        //activate or deacti  vate super slow speed when left trigger receives any input (code includes debounce as well)
         if (gamepad1.left_trigger > 0 && !leftTriggerPressed){
             leftTriggerPressed = true;
             superLowSpeedActivated = !superLowSpeedActivated;
@@ -136,7 +138,6 @@ public class TelePowerPlayMeet1 extends OpMode {
         else if (getRuntime() - slowTime2 > 0.3) {
             leftTriggerPressed = false;
         }
-
 
 
         // REDUCED TURNING SPEED
@@ -158,24 +159,24 @@ public class TelePowerPlayMeet1 extends OpMode {
         lifterPower = ry2;
 
         // Make sure driving power is -1 to 1 and set max/min values
-        frontLeftPower = Range.clip(frontLeftPower, -1.0, 1.0);
-        frontRightPower = Range.clip(frontRightPower, -1.0, 1.0);
-        backLeftPower = Range.clip(backLeftPower, -1.0, 1.0);
-        backRightPower = Range.clip(backRightPower, -1.0, 1.0);
-        lifterPower = Range.clip(lifterPower, -1.0, 1.0);
+        frontLeftPower = Range.clip(frontLeftPower, -1, 1);
+        frontRightPower = Range.clip(frontRightPower, -1, 1);
+        backLeftPower = Range.clip(backLeftPower, -1, 1);
+        backRightPower = Range.clip(backRightPower, -1, 1);
+        lifterPower = Range.clip(lifterPower, -1, 1);
 
         // Reducing power for each drive motor to one third of its original power for flash freeze
         if (lowSpeedActivated) { // was divison by 1.5 - 2/3, now times .8
-            frontLeftPower *= .6;
-            frontRightPower *= .6;
-            backLeftPower *= .6;
-            backRightPower *= .6;}
+            frontLeftPower /= 0.6;
+            frontRightPower /= 0.6;
+            backLeftPower /= 0.6;
+            backRightPower /= 0.6;}
 
         else if (superLowSpeedActivated){
-            frontLeftPower *= .3;
-            frontRightPower *= .3;
-            backLeftPower *= .3;
-            backRightPower *= .3;
+            frontLeftPower /= 2;
+            frontRightPower /= 2;
+            backLeftPower /= 2;
+            backRightPower /= 2;
         }
         //    robot.setLightsState(RobotPowerPlay.lightsStates.Red);
         //}else{
@@ -185,7 +186,7 @@ public class TelePowerPlayMeet1 extends OpMode {
         //******************************************************************************************
 
         // Set all the drive motors power
-        robot.setDrivePower(frontLeftPower, frontRightPower, backRightPower, backLeftPower);
+        robot.setDrivePower(frontLeftPower * 0.6, frontRightPower * 0.6, backRightPower * 0.6, backLeftPower * 0.6);
 
 
         //******************************************************************************************
@@ -203,7 +204,7 @@ public class TelePowerPlayMeet1 extends OpMode {
                 //robot.storage.setPosition(0); // closes storage automatically - caused issues sometimes
                 if (lifterLocation != lifterStates.Home) {
                         movingLifter = true;
-                        robot.lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                         robot.lifter.setTargetPosition(robot.lifterMinimum);
                         robot.lifter.setPower(1);
                         targetLifterLocation = lifterStates.Home;
@@ -216,7 +217,7 @@ public class TelePowerPlayMeet1 extends OpMode {
                 if (lifterLocation != lifterStates.High || targetLifterLocation == lifterStates.Home) { // Don't go to a currently set state
                     movingLifter = true;
                     robot.lifter.setTargetPosition(robot.lifterLevelThree);   // Now using 20:1 motor was 6100 with 40:1 motor.
-                    robot.lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     robot.lifter.setPower(-1.0);
                     targetLifterLocation = lifterStates.High;
                 }
@@ -227,7 +228,7 @@ public class TelePowerPlayMeet1 extends OpMode {
                 if (lifterLocation != lifterStates.Middle) {
                     movingLifter = true;
                     robot.lifter.setTargetPosition(robot.lifterLevelTwo); // May be changed later  Now using 20:1 motor was 4500 with 40:1 motor.
-                    robot.lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     if (robot.lifter.getCurrentPosition() > robot.lifterLevelTwo) { // Set the power to match with the goal direction
                         robot.lifter.setPower(-1.0);
                     } else {
@@ -242,7 +243,7 @@ public class TelePowerPlayMeet1 extends OpMode {
                 if (lifterLocation != lifterStates.Low) {
                     movingLifter = true;
                     robot.lifter.setTargetPosition(robot.lifterLevelOne); // Now using 20:1 motor was 3000 with 40:1 motor.
-                    robot.lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     if (robot.lifter.getCurrentPosition() > robot.lifterLevelOne) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
@@ -256,13 +257,27 @@ public class TelePowerPlayMeet1 extends OpMode {
                 if (lifterLocation != lifterStates.Junction) {
                     movingLifter = true;
                     robot.lifter.setTargetPosition(robot.lowJunctionPos); // Now using 20:1 motor was 3000 with 40:1 motor.
-                    robot.lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     if (robot.lifter.getCurrentPosition() > robot.lowJunctionPos) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
                         robot.lifter.setPower(-1.0);
                     }
                     targetLifterLocation = lifterStates.Junction;
+                }
+            }
+        } else if (gamepad2.left_bumper) {// stack level
+            if (!movingLifter) {
+                if (lifterLocation != lifterStates.Stack) {
+                    movingLifter = true;
+                    robot.lifter.setTargetPosition(robot.stackPos); // Now using 20:1 motor was 3000 with 40:1 motor.
+                    robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    if (robot.lifter.getCurrentPosition() > robot.stackPos) { // Set the power to match with the goal direction
+                        robot.lifter.setPower(1.0);
+                    } else {
+                        robot.lifter.setPower(-1.0);
+                    }
+                    targetLifterLocation = lifterStates.Stack;
                 }
             }
         }
@@ -287,7 +302,7 @@ public class TelePowerPlayMeet1 extends OpMode {
             if (Math.abs(lifterPower) > 0.1) { // Clear automated state if moving manually
                 if (lifterLocation != lifterStates.Manual) {
                     lifterLocation = lifterStates.Manual;
-                    robot.lifter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    robot.lifter.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
                 }
                 robot.lifter.setPower(lifterPower);//
             }
@@ -295,6 +310,13 @@ public class TelePowerPlayMeet1 extends OpMode {
 
 
         //******************************************************************************************
+        //if(gamepad2.right_trigger>0){
+        //    robot.lifter.setTargetPosition(-350);
+        //}if(gamepad2.left_bumper){
+        //    robot.lifter.setTargetPosition(-513);
+        //}if(gamepad2.left_trigger>0){
+        //    robot.lifter.setTargetPosition(-513);
+        //}
 
         // Gripper stuff
 

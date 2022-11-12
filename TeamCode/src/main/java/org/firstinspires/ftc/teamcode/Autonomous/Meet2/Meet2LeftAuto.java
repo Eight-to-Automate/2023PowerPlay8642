@@ -202,35 +202,45 @@ public class Meet2LeftAuto extends LinearOpMode{
             //trajectory
         }
         robot.intake.setPosition(0);// close grabber  added 11-1-22
-        //robot.wait(1000, this);
+        //robot.wait(1000, this );
         robot.asynchLift(-400,  1, this); //raise lifter slightly -> prevent cone scraping against ground
         robot.wait(400, this);
 
-        robot.GoDistance(-116, 0.2, false, this);
-        robot.Strafe(3, 0.3, this, false);
-        robot.Strafe(-108, 0.3, this,false);
-
-        /*
+        robot.GoDistance(-126, 0.3, false, this);
+        robot.Strafe(6, 0.3, this, false);
+        robot.Strafe(-103, 0.3, this,false);
         robot.asynchLift(-2180,  1, this);
-        robot.wait(1500, this);
-        robot.GoDistance(8, 0.2, false, this);
+        robot.wait(500, this);  //changed from 1500
+        robot.GoDistance(9, 0.2, false, this);
         robot.intake.setPosition(1);
         robot.wait(1500,this);
         robot.GoDistance(-8, 0.2, false, this);
-        robot.Strafe(-36, 0.3, this,false);
-        */
+        robot.asynchLift(2050, 0.7, this);
+        robot.wait(1000, this);
+        robot.Strafe(-32, 0.3, this,false);
+        robot.GoDistance(3 * tileDistance + 8, 0.4, false, this);
+        robot.intake.setPosition(0);
+        robot.wait(1000,this);
+        robot.GoDistance(-3,0.2,false,this);
+        robot.asynchLift(-500,0.7,this);
+        robot.wait(500, this);
+        robot.GoDistance(-tileDistance - 8,0.2,false,this);
+        robot.Strafe(36, 0.3, this, false);
+        robot.GoDistance(11, 0.3, false, this);
+        robot.intake.setPosition(1);
+        robot.wait(1000,this);
+        robot.GoDistance(-11, 0.3, false,this);
 
 
         if (route == 3){
-            //robot.Strafe(35, testingPower, this, false); //was 35 11-1-22
+            robot.Strafe(40, 0.4, this, false); //was 35 11-1-22
+            robot.Strafe(-9, 0.4, this, false);
+            robot.GoDistance(tileDistance,0.4,false,this);
         }
-        else if (route == 2){
-           // robot.Strafe(35, testingPower, this, false); //was 35 11-1-22
-            robot.GoDistance(-tileDistance, 0.4, false, this);
-        }
-        else {
-           // robot.Strafe(35, testingPower, this, false);  //was 35 11-1-22
-            robot.GoDistance(-2*tileDistance, 0.4, false, this);
+        if (route == 1){
+            robot.Strafe(40, 0.4, this, false); //was 35 11-1-22
+            robot.Strafe(-9, 0.4, this, false);
+            robot.GoDistance(-tileDistance,0.4,false,this);
         }
         /*
         robot.lifter.setTargetPosition(0);

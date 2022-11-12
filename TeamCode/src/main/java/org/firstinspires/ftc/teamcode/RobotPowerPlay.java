@@ -9,6 +9,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -38,7 +39,7 @@ public class RobotPowerPlay {
     public DcMotor backLeftMotor = null;
     public DcMotor backRightMotor = null;
     public Servo intake = null;
-    public DcMotor lifter = null;
+    public DcMotorEx lifter = null;
 
     public OpMode systemTools;
 
@@ -77,9 +78,10 @@ public class RobotPowerPlay {
 
     public final int lifterMinimum = 0;
     public final int lifterLevelOne = -1000; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
-    public final int lifterLevelTwo = -1500; //Old: -1700  11/1/2022  New: -1550
-    public final int lifterLevelThree = -2400;//Old: -2600  11/1/2022 New: -2450
+    public final int lifterLevelTwo = -1600; //Old: -1700  11/1/2022  New: -1550 11/11/2022 new:-1600
+    public final int lifterLevelThree = -2500;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
     public final int lowJunctionPos = -400;  //Old: -400    11/1/2022 New: -250
+    public final int stackPos = -500;
 
     //Init Methods *********************************************************************************
     public void initAuto(HardwareMap hwMapIn, OpMode systemToolsIn) {
@@ -159,14 +161,14 @@ public class RobotPowerPlay {
         frontRightMotor = hwMap.get(DcMotor.class, "rightFront");
         backLeftMotor = hwMap.get(DcMotor.class, "leftRear");
         backRightMotor = hwMap.get(DcMotor.class, "rightRear");
-        lifter = hwMap.get(DcMotor.class, "lifter");
+        lifter = hwMap.get(DcMotorEx.class, "lifter");
         intake = hwMap.get(Servo.class,"intake_servo");
         DcMotor[] driveMotors = {frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor};
         redLED = hwMap.get(DigitalChannel.class, "red_LED");
         greenLED = hwMap.get(DigitalChannel.class, "green_LED");
         upLED = hwMap.get(DigitalChannel.class, "up_LED");
         downLED = hwMap.get(DigitalChannel.class, "down_LED");
-        lifter = hwMap.get(DcMotor.class, "lifter");
+        lifter = hwMap.get(DcMotorEx.class, "lifter");
         redLED.setMode(DigitalChannel.Mode.OUTPUT);
         greenLED.setMode(DigitalChannel.Mode.OUTPUT);
         upLED.setMode(DigitalChannel.Mode.OUTPUT);
@@ -700,12 +702,13 @@ public class RobotPowerPlay {
     } //end RotateDegTele
 
     public void updateLightsTele(boolean flashFreezeActive, boolean superFlashFreezeActive) {
+        // red and green have been switched due to the changes in teleop where slowmode is the default 11/11/22
         if (flashFreezeActive) {
-            LEDColor = RobotPowerPlay.lightsStates.Red;
+            LEDColor = RobotPowerPlay.lightsStates.Green;
         } else if (superFlashFreezeActive) {
             LEDColor = lightsStates.Amber;
         } else {
-            LEDColor = RobotPowerPlay.lightsStates.Green;
+            LEDColor = RobotPowerPlay.lightsStates.Red;
         }
         if (LEDColor != lastLEDColor) {
             setLightsState(LEDColor);

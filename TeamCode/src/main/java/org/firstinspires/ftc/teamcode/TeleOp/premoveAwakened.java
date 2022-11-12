@@ -44,6 +44,7 @@ public class premoveAwakened extends OpMode {
     @Override
     public void start() {
         runtime.reset();
+        boolean premoving = false;
     }
 
     @Override

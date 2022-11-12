@@ -23,6 +23,7 @@
 package org.firstinspires.ftc.teamcode.Autonomous.Meet2;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -36,7 +37,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
-
+@Disabled
 @Autonomous(name = "Meet2RightAuto", group = "motion")
 public class Meet2RightAuto extends LinearOpMode{
 

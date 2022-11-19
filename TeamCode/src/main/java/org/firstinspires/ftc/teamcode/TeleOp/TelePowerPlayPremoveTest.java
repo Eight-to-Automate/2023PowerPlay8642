@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,12 +7,13 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.RobotFreightFrenzy;
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
 
-@TeleOp(name="TeleMeet1", group="Iterative Opmode")
+import java.util.ArrayList;
 
-public class TelePowerPlayMeet1 extends OpMode {
+@TeleOp(name="TelePowerPlayPremoveTest", group="Iterative Opmode")
+
+public class TelePowerPlayPremoveTest extends OpMode {
     RobotPowerPlay robot = new RobotPowerPlay();
 
     // Declare OpMode members
@@ -39,6 +38,25 @@ public class TelePowerPlayMeet1 extends OpMode {
     enum lifterStates {
         Home, Low, Middle, High, Manual, Junction, Stack
     }
+    //TODO: Premove states
+    enum driveMode{
+        idle, premove, joystick, nudge
+    }
+    enum preMove{
+        Forward, Backward, Left, Right, TLeft, TRight
+    }
+
+    driveMode currStateDrive = driveMode.idle;
+
+    ArrayList<preMove> order = new ArrayList<>();
+
+    int FLtarget;
+    int FRtarget;
+    int BLtarget;
+    int BRtarget;
+    boolean start = true;
+
+
 
     // Setup booleans for state machines
     boolean lowSpeedActivated = false;
@@ -76,6 +94,11 @@ public class TelePowerPlayMeet1 extends OpMode {
     boolean carouselMovingBlue = false;
     boolean carouselMovingRed = false;
 
+
+    public void setLifterPos() {
+
+    }
+
     // Exponential drive values
     public double exponential(double value, int constant) {
         double cubed =  value*value*value;
@@ -103,101 +126,195 @@ public class TelePowerPlayMeet1 extends OpMode {
     @Override
     public void loop() {
 
-        // controller variables
-        double y = gamepad1.left_stick_y;
-        double x = -gamepad1.left_stick_x; //* strafingConstant; // coefficient counteracts imperfect strafing
-        double rx = -gamepad1.right_stick_x;
-        double ry2 = gamepad2.left_stick_y;
+        //TODO: Joystick Controller Override **********************************************************
+        if((gamepad1.left_stick_y != 0 || gamepad1.left_stick_x != 0 || gamepad1.right_stick_y != 0 || gamepad1.right_stick_x != 0) ) {
+            //if detects gamepad input
+            driveMode currStateDrive = driveMode.joystick;
+            order.clear();
+            robot.startDriveEncoderless(); //Prevent robot from continuing to hold its position after premove due to RUN_TO_POSITION
+            telemetry.addData("DriveMode", "Joystick");
 
-        //**********************************************************************************************************************
-        // FlashFreeze
+            // controller variables
+            double y = gamepad1.left_stick_y;
+            double x = -gamepad1.left_stick_x; //* strafingConstant; // coefficient counteracts imperfect strafing
+            double rx = -gamepad1.right_stick_x;
+            double ry2 = gamepad2.left_stick_y;
 
-        // Toggle for FlashFreeze
-        if (gamepad1.left_bumper && !leftBumperDown) {
-            leftBumperDown = true;
-            lowSpeedActivated = !lowSpeedActivated;
-            superLowSpeedActivated = false;
-            slowTime = getRuntime();
+            //**********************************************************************************************************************
+            // FlashFreeze
+
+            // Toggle for FlashFreeze
+            if (gamepad1.left_bumper && !leftBumperDown) {
+                leftBumperDown = true;
+                lowSpeedActivated = !lowSpeedActivated;
+                superLowSpeedActivated = false;
+                slowTime = getRuntime();
+            } else if (getRuntime() - slowTime > 0.3) {
+                leftBumperDown = false;
+            }
+
+            //activate or deactivate super slow speed when left trigger receives any input (code includes debounce as well)
+            if (gamepad1.left_trigger > 0 && !leftTriggerPressed) {
+                leftTriggerPressed = true;
+                superLowSpeedActivated = !superLowSpeedActivated;
+                lowSpeedActivated = false;
+                slowTime2 = getRuntime();
+            } else if (getRuntime() - slowTime2 > 0.3) {
+                leftTriggerPressed = false;
+            }
+
+
+            // REDUCED TURNING SPEED
+            if (lowSpeedActivated) {
+                rx = rx / 1.5;
+            }
+
+            if (superLowSpeedActivated) rx /= 2.5;
+
+
+            //****************************************************************************************
+            // Calculate motor power
+
+            frontLeftPower = y + x + rx;
+            frontRightPower = y - x - rx;
+            backLeftPower = y - x + rx;
+            backRightPower = y + x - rx;
+
+            lifterPower = ry2;
+
+            // Make sure driving power is -1 to 1 and set max/min values
+            frontLeftPower = Range.clip(frontLeftPower, -1, 1);
+            frontRightPower = Range.clip(frontRightPower, -1, 1);
+            backLeftPower = Range.clip(backLeftPower, -1, 1);
+            backRightPower = Range.clip(backRightPower, -1, 1);
+            lifterPower = Range.clip(lifterPower, -1, 1);
+
+            // Reducing power for each drive motor to one third of its original power for flash freeze
+            if (lowSpeedActivated) { // was divison by 1.5 - 2/3, now times .8
+                frontLeftPower /= 0.6;
+                frontRightPower /= 0.6;
+                backLeftPower /= 0.6;
+                backRightPower /= 0.6;
+            } else if (superLowSpeedActivated) {
+                frontLeftPower /= 2;
+                frontRightPower /= 2;
+                backLeftPower /= 2;
+                backRightPower /= 2;
+            }
+            //    robot.setLightsState(RobotPowerPlay.lightsStates.Red);
+            //}else{
+            //    robot.setLightsState(RobotPowerPlay.lightsStates.Green);
+            //}
+            robot.updateLightsTele(lowSpeedActivated, superLowSpeedActivated);
+            //******************************************************************************************
+            // Set all the drive motors power
+            robot.setDrivePower(frontLeftPower * 0.6, frontRightPower * 0.6, backRightPower * 0.6, backLeftPower * 0.6);
+
         }
-        else if (getRuntime() - slowTime > 0.3) {
-            leftBumperDown = false;
+        //TODO: Premove Queues****************************************************************************************
+        //detect dpad input and queue in arraylist
+        if (gamepad1.dpad_up) {
+            order.add(preMove.Forward);
+        }
+        if (gamepad1.dpad_down) {
+            order.add(preMove.Backward);
+        }
+        if (gamepad1.dpad_left) {
+            order.add(preMove.Left);
+        }
+        if (gamepad1.dpad_right) {
+            order.add(preMove.Right);
+        }
+        if (order.isEmpty()) {
+        }
+        if(currStateDrive != driveMode.premove && !order.isEmpty() && currStateDrive != driveMode.joystick){
+            //if not currently premoving and order is not empty and is not in joystick mode
+            //get first element in array and execute command
+            if(order.get(0) == preMove.Forward){
+                order.remove(0);//remove first element and shift all other elements index down 1
+                TeleGoDistance(60,0.4);//forward 1 tile (60cm per tile)
+            }
+            if(order.get(0) == preMove.Backward){
+                order.remove(0);
+                TeleGoDistance(-60,0.4);
+            }/* TODO: implement strafe if new telegodistance method works
+            if(order.get(0) == preMove.Left){
+                order.remove(0);
+
+            }
+            if(order.get(0) == preMove.Right){
+                order.remove(0);
+
+            }*/
+
+
+        }
+        if (start || (robot.frontLeftMotor.getMode() == DcMotor.RunMode.RUN_WITHOUT_ENCODER) || (FLtarget != robot.frontLeftMotor.getCurrentPosition()) && (FRtarget != robot.frontRightMotor.getCurrentPosition()) && (BLtarget != robot.backLeftMotor.getCurrentPosition()) && (BRtarget != robot.backRightMotor.getCurrentPosition())){
+            currStateDrive = driveMode.premove;
+            //if robot is not currently at the position it should be at then it is currently in premove and is not in RUN_WITH_ENCODER mode
+        }else{
+            currStateDrive = driveMode.idle;
         }
 
-        //activate or deacti  vate super slow speed when left trigger receives any input (code includes debounce as well)
-        if (gamepad1.left_trigger > 0 && !leftTriggerPressed){
-            leftTriggerPressed = true;
-            superLowSpeedActivated = !superLowSpeedActivated;
-            lowSpeedActivated = false;
-            slowTime2 = getRuntime();
-        }
-        else if (getRuntime() - slowTime2 > 0.3) {
-            leftTriggerPressed = false;
-        }
 
 
-        // REDUCED TURNING SPEED
-        if (lowSpeedActivated) {
-            rx = rx/1.5;
-        }
 
-        if (superLowSpeedActivated) rx /= 2.5;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         //****************************************************************************************
-        // Calculate motor power
 
-        frontLeftPower = y + x + rx;
-        frontRightPower = y - x - rx;
-        backLeftPower = y - x + rx;
-        backRightPower = y + x - rx;
 
-        lifterPower = ry2;
 
-        // Make sure driving power is -1 to 1 and set max/min values
-        frontLeftPower = Range.clip(frontLeftPower, -1, 1);
-        frontRightPower = Range.clip(frontRightPower, -1, 1);
-        backLeftPower = Range.clip(backLeftPower, -1, 1);
-        backRightPower = Range.clip(backRightPower, -1, 1);
-        lifterPower = Range.clip(lifterPower, -1, 1);
 
-        // Reducing power for each drive motor to one third of its original power for flash freeze
-        if (lowSpeedActivated) { // was divison by 1.5 - 2/3, now times .8
-            frontLeftPower /= 0.6;
-            frontRightPower /= 0.6;
-            backLeftPower /= 0.6;
-            backRightPower /= 0.6;}
 
-        else if (superLowSpeedActivated){
-            frontLeftPower /= 2;
-            frontRightPower /= 2;
-            backLeftPower /= 2;
-            backRightPower /= 2;
-        }
-        //    robot.setLightsState(RobotPowerPlay.lightsStates.Red);
-        //}else{
-        //    robot.setLightsState(RobotPowerPlay.lightsStates.Green);
-        //}
-        robot.updateLightsTele(lowSpeedActivated, superLowSpeedActivated);
-        //******************************************************************************************
 
-        // Set all the drive motors power
-        robot.setDrivePower(frontLeftPower * 0.6, frontRightPower * 0.6, backRightPower * 0.6, backLeftPower * 0.6);
+
+
+
+
+
+
 
 
         //******************************************************************************************
 
         // Lifter implementation
 
+        /* TODO:
+        preset buttons for location
+        nudge using bumpers
+        DONE - joystick that controls power
+         */
 
         if (gamepad2.b) { // Home Position
             if (!movingLifter) {
                 //robot.storage.setPosition(0); // closes storage automatically - caused issues sometimes
                 if (lifterLocation != lifterStates.Home) {
-                        movingLifter = true;
-                        robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                        robot.lifter.setTargetPosition(robot.lifterMinimum);
-                        robot.lifter.setPower(1);
-                        targetLifterLocation = lifterStates.Home;
+                    movingLifter = true;
+                    robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    robot.lifter.setTargetPosition(robot.lifterMinimum);
+                    robot.lifter.setPower(1);
+                    targetLifterLocation = lifterStates.Home;
                 }
             }
         }
@@ -354,6 +471,55 @@ public class TelePowerPlayMeet1 extends OpMode {
         telemetry.update();
 
     }
+    //TODO: GO DISTANCE METHOD ***************************************************
+    public void TeleGoDistance(double centimeters, double power) {
+        // holds the conversion factor for TICKS to centimeters
+        final double conversionFactor = 17.59; // Number came from testing, may need to be improved
+        // sets the power negative if the distance is negative
+        if (centimeters < 0 && power > 0) {
+            power = power * -1;
+        }
+
+        // calculates the target amount of motor TICKS
+        int TICKS = (int) Math.round(centimeters * conversionFactor);
+
+        robot.resetDriveEncoders();
+
+        //Calculate the target for each specific motor
+        int FLtarget = robot.frontLeftMotor.getCurrentPosition() + TICKS;
+        int FRtarget = robot.frontRightMotor.getCurrentPosition() + TICKS;
+        int BLtarget = robot.backLeftMotor.getCurrentPosition() + TICKS;
+        int BRtarget = robot.backRightMotor.getCurrentPosition() + TICKS;
+
+        start = false;
+
+
+
+
+
+
+        robot.setDriveTarget(FLtarget, FRtarget, BLtarget, BRtarget);
+
+        robot.startDriveEncodersTarget();
+
+        robot.setDrivePower(power, power, power, power);
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public void stop() {
         robot.stopAllMotors();

@@ -205,22 +205,31 @@ public class Meet1LeftAuto extends LinearOpMode{
         }
         robot.intake.setPosition(0);// close grabber  added 11-1-22
         //robot.wait(1000, this);
+        telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
         robot.asynchLift(-400,  1, this); //raise lifter slightly -> prevent cone scraping against ground
+        telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
         robot.wait(400, this);
-        robot.GoDistance(50, testingPower,  false, this);// drive 1 tile forward
+        telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
+        robot.GoDistance(53, 0.3,  false, this);// drive 1 tile forward
+        telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
         robot.Strafe(3, 0.3, this, false);  // square
+        telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
         robot.wait(400, this);
-        robot.Strafe(-108, 0.3, this, false);// strafe 1.5 tiles left   // changed more than right because gripper is asymetrical
-        robot.GoDistance(-2, testingPower, false, this);
+        telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
+        robot.Strafe(-105, 0.3, this, false);// strafe 1.5 tiles left   // changed more than right because gripper is asymetrical
+        telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
+        robot.GoDistance(-2, 0.3, false, this);
         robot.asynchLift(-2180,  1, this); //raise lifter until top  (top = 2600 ticks from bottom)
+        telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
         robot.wait(2000, this);
-        robot.GoDistance(8, testingPower, false, this);// drive forward small amount to deliver cone
+        robot.GoDistance(10, 0.3, false, this);// drive forward small amount to deliver cone
         robot.intake.setPosition(1);// release grabber
         robot.wait(1500,this);
-        robot.GoDistance(-8, testingPower, false, this); // back up same small amount after delivery
-        robot.asynchLift(2580, 0.7, this);
+        robot.GoDistance(-15, 0.3, false, this); // back up same small amount after delivery
+        robot.asynchLift(2180, 0.7, this);
         robot.wait(2000, this);
-        robot.Strafe(32, testingPower, this, false);  //was 35 11-1-22
+        robot.GoDistance(5, 0.3, false, this);
+        robot.Strafe(29, 0.3, this, false);  //was 35 11-1-22
         if (route == 3){
             //robot.Strafe(35, testingPower, this, false); //was 35 11-1-22
         }

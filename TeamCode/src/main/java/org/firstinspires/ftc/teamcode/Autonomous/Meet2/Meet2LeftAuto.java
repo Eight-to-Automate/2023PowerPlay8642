@@ -245,7 +245,7 @@ public class Meet2LeftAuto extends LinearOpMode{
         /*
         robot.lifter.setTargetPosition(0);
         robot.lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.lifter.setPower(0.6);
+        robot.lifter.setPower(0.6);s
         robot.wait(2000, this);
         robot.lifter.setPower(0);*/
     }

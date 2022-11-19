@@ -104,6 +104,8 @@ public class RobotPowerPlay {
         backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        lifter.setTargetPositionTolerance(15);
+
         stopAllMotors();
         resetDriveEncoders();   // added on 2-13-22
         startDriveEncoders();
@@ -112,6 +114,7 @@ public class RobotPowerPlay {
     public void initAutoTester(HardwareMap hwMapIn, OpMode systemToolsIn) {
         hwMap = hwMapIn;
         systemTools = systemToolsIn;
+        lifter.setTargetPositionTolerance(15);
     }
 
     //Init Methods**********************************************************************************
@@ -643,7 +646,7 @@ public class RobotPowerPlay {
     //Additonal robot functions
 
 
-    public void GyroRotateDEGTele(int maxDegrees, double power, double angle) {
+    public void GyroRotateDEGTele(int maxDegrees, double power, float angle) {
         // IMU output is positive for left turn and negative for right turn.  Max degrees determines direction.
         //angle needs to be positive for left turn and negative for right turn as off 3-19-2
         //
@@ -700,6 +703,11 @@ public class RobotPowerPlay {
         stopDriveMotors();
 
     } //end RotateDegTele
+
+    // gets current angle from imu
+    public float getAngle() {
+        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+    }
 
     public void updateLightsTele(boolean flashFreezeActive, boolean superFlashFreezeActive) {
         // red and green have been switched due to the changes in teleop where slowmode is the default 11/11/22
@@ -767,6 +775,7 @@ public class RobotPowerPlay {
         lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lifter.setPower(power);
     }
+    //lifter.isBusy();
 
     // Auto lifter functions
 
@@ -983,5 +992,7 @@ public class RobotPowerPlay {
 
         return route; // returns -1 for error
     }
+
+
 
 }

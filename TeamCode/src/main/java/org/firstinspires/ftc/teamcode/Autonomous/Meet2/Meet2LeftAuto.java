@@ -203,27 +203,43 @@ public class Meet2LeftAuto extends LinearOpMode{
         }
         robot.intake.setPosition(0);// close grabber  added 11-1-22
         //robot.wait(1000, this );
+        double timeout = getRuntime();
+        double cp=robot.lifter.getCurrentPosition();
         robot.asynchLift(-400,  1, this); //raise lifter slightly -> prevent cone scraping against ground
         robot.wait(400, this);
-
+        if((cp-150)>robot.lifter.getCurrentPosition()){
+            robot.lifter.setTargetPosition(robot.lifter.getCurrentPosition());
+        }
         robot.GoDistance(-126, 0.3, false, this);
         robot.Strafe(6, 0.3, this, false);
         robot.Strafe(-103, 0.3, this,false);
+        cp=robot.lifter.getCurrentPosition();
         robot.asynchLift(-2180,  1, this);
         robot.wait(500, this);  //changed from 1500
+        if((cp-1000)>robot.lifter.getCurrentPosition()){
+            robot.lifter.setTargetPosition(robot.lifter.getCurrentPosition());
+        }
         robot.GoDistance(9, 0.2, false, this);
         robot.intake.setPosition(1);
         robot.wait(1500,this);
         robot.GoDistance(-8, 0.2, false, this);
+        cp=robot.lifter.getCurrentPosition();
         robot.asynchLift(2050, 0.7, this);
         robot.wait(1000, this);
+        if((cp+1000)>robot.lifter.getCurrentPosition()){
+            robot.lifter.setTargetPosition(robot.lifter.getCurrentPosition());
+        }
         robot.Strafe(-32, 0.3, this,false);
         robot.GoDistance(3 * tileDistance + 8, 0.4, false, this);
         robot.intake.setPosition(0);
         robot.wait(1000,this);
         robot.GoDistance(-3,0.2,false,this);
+        cp=robot.lifter.getCurrentPosition();
         robot.asynchLift(-500,0.7,this);
-        robot.wait(500, this);
+        robot.wait(500,  this);
+        if((cp-250)>robot.lifter.getCurrentPosition()){
+            robot.lifter.setTargetPosition(robot.lifter.getCurrentPosition());
+        }
         robot.GoDistance(-tileDistance - 8,0.2,false,this);
         robot.Strafe(36, 0.3, this, false);
         robot.GoDistance(11, 0.3, false, this);

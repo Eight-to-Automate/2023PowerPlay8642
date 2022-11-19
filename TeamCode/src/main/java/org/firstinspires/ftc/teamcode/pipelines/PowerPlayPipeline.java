@@ -1,12 +1,9 @@
-package org.firstinspires.ftc.teamcode.piplines;
-
-import static org.firstinspires.ftc.teamcode.Constants.*;
+package org.firstinspires.ftc.teamcode.pipelines;
 
 import android.graphics.Bitmap;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 
-import org.firstinspires.ftc.teamcode.Constants;
 import org.opencv.android.Utils;
 import org.opencv.core.*;
 import org.opencv.imgproc.*;
@@ -22,14 +19,39 @@ public class PowerPlayPipeline extends OpenCvPipeline
     private Mat blurInput = new Mat();
     private Mat blurOutput = new Mat();
     private Mat hsvThresholdOutput = new Mat();
-    private ArrayList<MatOfPoint> findContoursOutput = new ArrayList<>();
+    private ArrayList<MatOfPoint> findContoursOutput = new ArrayList<MatOfPoint>();
     private Mat findContoursOutputMat = new Mat();
     private Mat finalContourOutputMat = new Mat();
+    Mat cameraMatrix;
+
 
     private int largestX, largestY;
     private double largestArea;
 
-    public FreightFrenzyPipeline(boolean enableDashboard) {
+    //constants
+    public static int pipelineStage = 0;
+    public static double BLUR_RADIUS = 10;
+
+    public static double HUE_MIN;
+    public static double HUE_MAX;
+    public static double SATURATION_MIN;
+    public static double SATURATION_MAX;
+    public static double VALUE_MIN;
+    public static double VALUE_MAX;
+
+    public static double MIN_CONTOUR_AREA = 200;
+    public static String BLUR = "Box Blur";
+
+    enum Stage {
+        blurOutput, hsvThresholdOutput, finalContourOutputMat
+    }
+
+    private Stage stageToRenderToViewport = Stage.finalContourOutputMat;
+
+    private Stage[] stages = Stage.values();
+
+
+    public PowerPlayPipeline(boolean enableDashboard, double hmin, double hmax, double smin, double smax, double vmin, double vmax) {
         this.enableDashboard = enableDashboard;
 
         if(enableDashboard)
@@ -38,6 +60,13 @@ public class PowerPlayPipeline extends OpenCvPipeline
         largestX = -1;
         largestY = -1;
         largestArea = -1;
+
+        HUE_MIN = hmin;
+        HUE_MAX = hmax;
+        SATURATION_MIN = smin;
+        SATURATION_MAX = smax;
+        VALUE_MIN = vmin;
+        VALUE_MAX = vmax;
     }
 
     @Override
@@ -87,10 +116,13 @@ public class PowerPlayPipeline extends OpenCvPipeline
         }
         if(largestContourIndex != -1)
             Imgproc.drawContours(finalContourOutputMat, findContoursOutput, largestContourIndex, new Scalar(255, 255, 255), 2);
+            Scalar color = new Scalar(0, 0, 0);
+            Point loc = new Point(largestX, largestY);
+            Imgproc.circle(finalContourOutputMat, loc, 20, color, 20);
 
         handleDashboard();
 
-        return input;
+        return finalContourOutputMat;
     }
 
     public int[] getPosition() {
@@ -100,7 +132,7 @@ public class PowerPlayPipeline extends OpenCvPipeline
     private void handleDashboard() {
         if(enableDashboard) {
             Mat toSend = null;
-            switch(Constants.pipelineStage) {
+            switch(pipelineStage) {
                 case 0:
                     toSend = blurInput;
                     break;
@@ -203,4 +235,6 @@ public class PowerPlayPipeline extends OpenCvPipeline
         int method = Imgproc.CHAIN_APPROX_SIMPLE;
         Imgproc.findContours(input, contours, hierarchy, mode, method);
     }
+
+
 }

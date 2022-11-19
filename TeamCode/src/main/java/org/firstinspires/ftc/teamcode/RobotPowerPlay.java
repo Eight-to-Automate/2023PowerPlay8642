@@ -775,6 +775,11 @@ public class RobotPowerPlay {
         lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lifter.setPower(power);
     }
+    public void absoluteasynchLift(int ticks, double power, LinearOpMode linearOpMode) {
+        lifter.setTargetPosition(ticks);
+        lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lifter.setPower(power);
+    }
     //lifter.isBusy();
 
     // Auto lifter functions

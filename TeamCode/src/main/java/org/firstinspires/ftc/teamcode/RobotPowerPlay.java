@@ -5,6 +5,7 @@ import static java.lang.Math.abs;
 
 import android.graphics.Color;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -29,7 +30,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
+// cone recognition imports
+import org.firstinspires.ftc.teamcode.pipelines.ColorVals;
+import org.firstinspires.ftc.teamcode.pipelines.PowerPlayPipeline;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+
 import java.util.List;
+import java.util.Arrays;
 
 public class RobotPowerPlay {
 
@@ -42,6 +51,8 @@ public class RobotPowerPlay {
     public DcMotorEx lifter = null;
 
     public OpMode systemTools;
+
+    public WebcamName cam = null;
 
     //Define Vuforia variables
     private static final String VUFORIA_KEY =
@@ -83,6 +94,12 @@ public class RobotPowerPlay {
     public final int lowJunctionPos = -400;  //Old: -400    11/1/2022 New: -250
     public final int stackPos = -500;
 
+    // cone recognition variables
+    OpenCvCamera camera;
+
+    FtcDashboard dashboard;
+    PowerPlayPipeline pipeline;
+
     //Init Methods *********************************************************************************
     public void initAuto(HardwareMap hwMapIn, OpMode systemToolsIn) {
         hwMap = hwMapIn;
@@ -105,6 +122,7 @@ public class RobotPowerPlay {
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         lifter.setTargetPositionTolerance(15);
+
 
         stopAllMotors();
         resetDriveEncoders();   // added on 2-13-22
@@ -996,6 +1014,73 @@ public class RobotPowerPlay {
 
 
         return route; // returns -1 for error
+    }
+
+//**********************************************************************************************
+    // opencv cone recognition methods
+
+    public void activateConeCam() {
+        pipeline = new PowerPlayPipeline(true, ColorVals.HUE_MIN, ColorVals.HUE_MAX, ColorVals.SATURATION_MIN, ColorVals.SATURATION_MAX, ColorVals.VALUE_MIN, ColorVals.VALUE_MAX);
+
+        camera = OpenCvCameraFactory.getInstance().createWebcam(hwMap.get(WebcamName.class, "Webcam 1"));
+        camera.setPipeline(pipeline);
+        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                camera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+            }
+
+            @Override
+            public void onError(int errorCode) {
+                /*
+                 * This will be called if the camera could not be opened
+                 */
+            }
+        });
+    }
+
+    // gets position of cone, starts moving in direction of cone at certain speed, stops if on coordinate
+    public int lockOnConeIteration(int targetX, int turnPower, int buffer) {
+        int x = pipeline.getPosition()[0];
+        int upper = targetX + buffer;
+        int lower = targetX - buffer;
+        int p = turnPower;
+        int diff = targetX - x;
+
+        String direction = "error";
+
+        if (x < upper && x > lower) {
+            turnPower = 0;
+            direction =  "success";
+        } else if (x < lower) {
+            direction =  "right";
+        } else if (x > upper) {
+            turnPower = -turnPower;
+            direction =  "left";
+        }
+
+        // TURN RIGHT DEFAULT
+        frontLeftMotor.setPower(p);
+        frontRightMotor.setPower(-p);
+        backRightMotor.setPower(-p);
+        backLeftMotor.setPower(p);
+
+        systemTools.telemetry.addData("power", p);
+        systemTools.telemetry.update();
+
+        return diff;
+    }
+
+    // use iteration to lock on to cone, with timeout and power
+    // you can edit to change power as the difference changes
+    public void lockOnCone(int targetX, int startPower, int timeout) {
+        ElapsedTime runtime = new ElapsedTime();
+        runtime.reset();
+
+        while (runtime.seconds() < timeout ) {
+            int diff = lockOnConeIteration(targetX, startPower, 50); // diff stores the difference between target and current position which could be used to scale power
+        }
+
     }
 
 

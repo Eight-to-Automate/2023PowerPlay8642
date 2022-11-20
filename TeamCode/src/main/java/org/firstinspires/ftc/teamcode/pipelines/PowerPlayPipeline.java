@@ -116,9 +116,9 @@ public class PowerPlayPipeline extends OpenCvPipeline
         }
         if(largestContourIndex != -1)
             Imgproc.drawContours(finalContourOutputMat, findContoursOutput, largestContourIndex, new Scalar(255, 255, 255), 2);
-            Scalar color = new Scalar(0, 0, 0);
-            Point loc = new Point(largestX, largestY);
-            Imgproc.circle(finalContourOutputMat, loc, 20, color, 20);
+        Scalar color = new Scalar(0, 0, 0);
+        Point loc = new Point(largestX, largestY);
+        Imgproc.circle(finalContourOutputMat, loc, 20, color, 20);
 
         handleDashboard();
 

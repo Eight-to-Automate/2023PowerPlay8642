@@ -50,7 +50,7 @@ public class DriveConstants {
 
     // 48 inches / (1714 ticks / 288 * 4 * pi
 
-    public static double TRACK_WIDTH = 15; //13.5 - 1.875; // in     for drive base: 11.6
+    public static double TRACK_WIDTH = 12.69; //13.5 - 1.875; // in     for drive base: 11.6 // measured accurately 13.625
 
 
     /*
@@ -73,7 +73,7 @@ public class DriveConstants {
      */
     public static double MAX_VEL = 52.48180821614297;
     public static double MAX_ACCEL = 52.48180821614297;
-    public static double MAX_ANG_VEL = Math.toRadians(184.02607784577722);
+    public static double MAX_ANG_VEL = 5.051111221313477;
     public static double MAX_ANG_ACCEL = Math.toRadians(184.02607784577722);
 
 

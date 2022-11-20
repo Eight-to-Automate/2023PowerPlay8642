@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.pipelines;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 
@@ -8,6 +9,7 @@ import org.opencv.android.Utils;
 import org.opencv.core.*;
 import org.opencv.imgproc.*;
 import org.openftc.easyopencv.OpenCvPipeline;
+
 
 import java.util.ArrayList;
 
@@ -42,6 +44,11 @@ public class PowerPlayPipeline extends OpenCvPipeline
     public static double MIN_CONTOUR_AREA = 200;
     public static String BLUR = "Box Blur";
 
+    // store the top and bottom of the cone, min is top and max is bottom
+    double min;
+    double max;
+    int height;
+
     enum Stage {
         blurOutput, hsvThresholdOutput, finalContourOutputMat
     }
@@ -60,6 +67,10 @@ public class PowerPlayPipeline extends OpenCvPipeline
         largestX = -1;
         largestY = -1;
         largestArea = -1;
+        // store the top and bottom of the cone, min is top and max is bottom
+        min = -1;
+        max = -1;
+        height = -1;
 
         HUE_MIN = hmin;
         HUE_MAX = hmax;
@@ -105,6 +116,23 @@ public class PowerPlayPipeline extends OpenCvPipeline
             double contourArea = Imgproc.contourArea(contour);
             if(contourArea > MIN_CONTOUR_AREA && contourArea > largestArea) {
                 Moments p = Imgproc.moments(contour, false);
+                Point[] points = contour.toArray();
+
+                // starting values and search for max and min y
+                double min = points[0].y;
+                double max = min;
+
+                for (Point r : points) {
+                    if (r.y < min) {
+                        min = r.y;
+                    }
+                    if (r.y > max) {
+                        max = r.y;
+                    }
+                }
+
+                height = (int) min - (int) max;
+
                 int x = (int) (p.get_m10() / p.get_m00());
                 int y = (int) (p.get_m01() / p.get_m00());
 
@@ -114,8 +142,27 @@ public class PowerPlayPipeline extends OpenCvPipeline
                 largestArea = contourArea;
             }
         }
+
         if(largestContourIndex != -1)
             Imgproc.drawContours(finalContourOutputMat, findContoursOutput, largestContourIndex, new Scalar(255, 255, 255), 2);
+
+            /*
+            // find the first white point, which will have the highest y value of the contour
+            int coneHeight = -2;
+
+            for (int i = height; i > 0; i++) {
+                for (int j = width; j > 0; j++) {
+                    double[] pt = finalContourOutputMat.get(j, i);
+                    if (pt != null) {
+                        if (pt[0] == 255 && pt[1] == 255 && pt[2] == 255) {
+                            coneHeight = i;
+                        }
+                    }
+                }
+            }
+
+             */
+
             Scalar color = new Scalar(0, 0, 0);
             Point loc = new Point(largestX, largestY);
             Imgproc.circle(finalContourOutputMat, loc, 20, color, 20);
@@ -127,6 +174,10 @@ public class PowerPlayPipeline extends OpenCvPipeline
 
     public int[] getPosition() {
         return new int[] {largestX, largestY};
+    }
+
+    public int getHeight() {
+        return height;
     }
 
     private void handleDashboard() {
@@ -232,7 +283,7 @@ public class PowerPlayPipeline extends OpenCvPipeline
         else {
             mode = Imgproc.RETR_LIST;
         }
-        int method = Imgproc.CHAIN_APPROX_SIMPLE;
+        int method = Imgproc.CHAIN_APPROX_NONE;
         Imgproc.findContours(input, contours, hierarchy, mode, method);
     }
 

@@ -30,14 +30,14 @@ public class TelePowerPlayMeet1 extends OpMode {
     double backRightPower;
     double strafingConstant = 1.5;
     double lifterPower;
-
+    int smalllift=200;
     // enums
     enum States {
         Forwards, Backwards, Off, On
     }
 
     enum lifterStates {
-        Home, Low, Middle, High, Manual, Junction, Stack
+        Home, Low, Middle, High, Manual, Junction, Stack, Between
     }
 
     // Setup booleans for state machines
@@ -300,8 +300,33 @@ public class TelePowerPlayMeet1 extends OpMode {
 
 
         //******************************************************************************************
-        //if(gamepad2.right_trigger>0){
-        //    robot.lifter.setTargetPosition(-350);
+
+        if(gamepad2.right_trigger>0){
+            if (!movingLifter) {
+                movingLifter = true;
+                robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                robot.lifter.setPower(lifterPower);
+                if(robot.lifter.getCurrentPosition()>-smalllift){
+                    robot.lifter.setTargetPosition(robot.lifterMinimum);
+                }else{
+                    robot.lifter.setTargetPosition((robot.lifter.getCurrentPosition()+200));
+                }
+                targetLifterLocation = lifterStates.Between;
+            }
+        }
+        if(gamepad2.left_trigger>0){
+            if (!movingLifter) {
+                movingLifter = true;
+                robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                robot.lifter.setPower(lifterPower);
+                if(robot.lifter.getCurrentPosition()>(robot.lifterLevelThree+smalllift)){
+                    robot.lifter.setTargetPosition(robot.lifterLevelThree);
+                }else{
+                    robot.lifter.setTargetPosition((robot.lifter.getCurrentPosition()-200));
+                }
+                targetLifterLocation = lifterStates.Between;
+            }
+        }
         //}if(gamepad2.left_bumper){
         //    robot.lifter.setTargetPosition(-513);
         //}if(gamepad2.left_trigger>0){

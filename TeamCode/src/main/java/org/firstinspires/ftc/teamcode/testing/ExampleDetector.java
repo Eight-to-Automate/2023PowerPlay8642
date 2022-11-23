@@ -80,7 +80,8 @@ public class ExampleDetector extends LinearOpMode
             telemetry.addData("Pipeline time ms", camera.getPipelineTimeMs());
             telemetry.addData("Overhead time ms", camera.getOverheadTimeMs());
             telemetry.addData("Theoretical max FPS", camera.getCurrentPipelineMaxFps());
-            telemetry.addData("Detected Position", Arrays.toString(pipeline.getPosition()));
+            double[] cent = {pipeline.getCentroid().x, pipeline.getCentroid().y};
+            telemetry.addData("Detected Position", Arrays.toString(cent));
             telemetry.update();
 
 
@@ -96,7 +97,8 @@ public class ExampleDetector extends LinearOpMode
         packet.put("Pipeline time ms", camera.getPipelineTimeMs());
         packet.put("Overhead time ms", camera.getOverheadTimeMs());
         packet.put("Theoretical max FPS", camera.getCurrentPipelineMaxFps());
-        packet.put("Detected Position", Arrays.toString(pipeline.getPosition()));
+        double[] cent = {pipeline.getCentroid().x, pipeline.getCentroid().y};
+        packet.put("Detected Position", Arrays.toString(cent));
 //        packet.put("hue min", ColorVals.HUE_MIN);
 //        packet.put("hue max", ColorVals.HUE_MAX);
 //        packet.put("saturation min", ColorVals.SATURATION_MIN);

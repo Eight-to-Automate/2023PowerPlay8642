@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.pipelines;
 
 import android.graphics.Bitmap;
-import android.graphics.Color;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 
@@ -45,9 +44,13 @@ public class PowerPlayPipeline extends OpenCvPipeline
     public static String BLUR = "Box Blur";
 
     // store the top and bottom of the cone, min is top and max is bottom
-    double min;
-    double max;
+    double minY;
+    double maxY;
     int height;
+
+    Point centroid = new Point(-1, -1);
+    Point lowerConeBound = new Point(-1, -1);
+    Point upperConeBound = new Point(-1, -1);
 
     enum Stage {
         blurOutput, hsvThresholdOutput, finalContourOutputMat
@@ -68,8 +71,8 @@ public class PowerPlayPipeline extends OpenCvPipeline
         largestY = -1;
         largestArea = -1;
         // store the top and bottom of the cone, min is top and max is bottom
-        min = -1;
-        max = -1;
+        minY = -1;
+        maxY = -1;
         height = -1;
 
         HUE_MIN = hmin;
@@ -116,22 +119,6 @@ public class PowerPlayPipeline extends OpenCvPipeline
             double contourArea = Imgproc.contourArea(contour);
             if(contourArea > MIN_CONTOUR_AREA && contourArea > largestArea) {
                 Moments p = Imgproc.moments(contour, false);
-                Point[] points = contour.toArray();
-
-                // starting values and search for max and min y
-                double min = points[0].y;
-                double max = min;
-
-                for (Point r : points) {
-                    if (r.y < min) {
-                        min = r.y;
-                    }
-                    if (r.y > max) {
-                        max = r.y;
-                    }
-                }
-
-                height = (int) min - (int) max;
 
                 int x = (int) (p.get_m10() / p.get_m00());
                 int y = (int) (p.get_m01() / p.get_m00());
@@ -146,42 +133,76 @@ public class PowerPlayPipeline extends OpenCvPipeline
         if(largestContourIndex != -1)
             Imgproc.drawContours(finalContourOutputMat, findContoursOutput, largestContourIndex, new Scalar(255, 255, 255), 2);
 
-            /*
-            // find the first white point, which will have the highest y value of the contour
-            int coneHeight = -2;
+        // isolate contour (stage 5)
+        Mat contourIsolation = finalContourOutputMat;
+        double[] hsvThresholdHue2 = {0, 0};
+        double[] hsvThresholdSaturation2 = {0, 0};
+        double[] hsvThresholdValue2 = {255, 255};
+        hsvThreshold(finalContourOutputMat, hsvThresholdHue2, hsvThresholdSaturation2, hsvThresholdValue2, contourIsolation);
 
-            for (int i = height; i > 0; i++) {
-                for (int j = width; j > 0; j++) {
-                    double[] pt = finalContourOutputMat.get(j, i);
-                    if (pt != null) {
-                        if (pt[0] == 255 && pt[1] == 255 && pt[2] == 255) {
-                            coneHeight = i;
-                        }
+        // search for white pixels
+
+        ArrayList<Point> contourPixels = new ArrayList<Point>();
+
+        for (int y = 0; y < contourIsolation.rows(); y++) {
+
+            for (int x = 0; x < contourIsolation.cols(); x++) {
+                double[] pxCol = contourIsolation.get(x, y);
+
+                if (pxCol != null) {
+                    if (pxCol[0] == 255 && pxCol[1] == 255 && pxCol[2] == 255) {
+                        contourPixels.add(new Point(x, y));
                     }
                 }
             }
+        }
 
-             */
+        maxY = contourPixels.get(0).y;
+        minY = maxY;
 
-            Scalar color = new Scalar(0, 0, 0);
-            Point loc = new Point(largestX, largestY);
-            Imgproc.circle(finalContourOutputMat, loc, 20, color, 20);
-            Point lowerConeBound = new Point(largestX, max);
-            Point upperConeBound = new Point(largestX, min);
-            Imgproc.line(finalContourOutputMat, lowerConeBound, upperConeBound, color);
+
+        for (Point r : contourPixels) {
+            if (r.y < minY) {
+                minY = r.y;
+            }
+            if (r.y > maxY) {
+                maxY = r.y;
+            }
+        }
+
+        height = (int)(minY - maxY);
+
+       // establish significant points and lines for the camera stream
+        Scalar white = new Scalar(0, 0, 0);
+        Point centroid = new Point(largestX, largestY);
+        Point lowerConeBound = new Point(largestX, maxY);
+        Point upperConeBound = new Point(largestX, minY);
+
+        Imgproc.line(finalContourOutputMat, lowerConeBound, upperConeBound, white);
+        Imgproc.circle(finalContourOutputMat, centroid, 20, white, 20);
 
         handleDashboard();
 
         return finalContourOutputMat;
     }
 
-    public int[] getPosition() {
-        return new int[] {largestX, largestY};
+    public Point getCentroid() {
+        return centroid;
     }
 
     public int getHeight() {
         return height;
     }
+
+    public Point getTop() {
+        return upperConeBound;
+    }
+
+    public Point getBottom() {
+        return lowerConeBound;
+    }
+
+
 
     private void handleDashboard() {
         if(enableDashboard) {

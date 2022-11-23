@@ -166,6 +166,9 @@ public class PowerPlayPipeline extends OpenCvPipeline
             Scalar color = new Scalar(0, 0, 0);
             Point loc = new Point(largestX, largestY);
             Imgproc.circle(finalContourOutputMat, loc, 20, color, 20);
+            Point lowerConeBound = new Point(largestX, max);
+            Point upperConeBound = new Point(largestX, min);
+            Imgproc.line(finalContourOutputMat, lowerConeBound, upperConeBound, color);
 
         handleDashboard();
 

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.pipelines;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 

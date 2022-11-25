@@ -30,7 +30,7 @@ public class TelePowerPlayMeet1 extends OpMode {
     double backRightPower;
     double strafingConstant = 1.5;
     double lifterPower;
-    int smalllift=200;
+    int smalllift=400;
     // enums
     enum States {
         Forwards, Backwards, Off, On
@@ -301,28 +301,28 @@ public class TelePowerPlayMeet1 extends OpMode {
 
         //******************************************************************************************
 
-        if(gamepad2.right_trigger>0){
+        if(gamepad2.dpad_down){
             if (!movingLifter) {
                 movingLifter = true;
                 robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                robot.lifter.setPower(lifterPower);
+                robot.lifter.setPower(1);
                 if(robot.lifter.getCurrentPosition()>-smalllift){
                     robot.lifter.setTargetPosition(robot.lifterMinimum);
                 }else{
-                    robot.lifter.setTargetPosition((robot.lifter.getCurrentPosition()+200));
+                    robot.lifter.setTargetPosition((robot.lifter.getCurrentPosition()+smalllift));
                 }
                 targetLifterLocation = lifterStates.Between;
             }
         }
-        if(gamepad2.left_trigger>0){
+        if(gamepad2.dpad_up){
             if (!movingLifter) {
                 movingLifter = true;
                 robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                robot.lifter.setPower(lifterPower);
-                if(robot.lifter.getCurrentPosition()>(robot.lifterLevelThree+smalllift)){
+                robot.lifter.setPower(-1);
+                if(robot.lifter.getCurrentPosition()<((robot.lifterLevelThree)+smalllift)){
                     robot.lifter.setTargetPosition(robot.lifterLevelThree);
                 }else{
-                    robot.lifter.setTargetPosition((robot.lifter.getCurrentPosition()-200));
+                    robot.lifter.setTargetPosition((robot.lifter.getCurrentPosition()-smalllift));
                 }
                 targetLifterLocation = lifterStates.Between;
             }

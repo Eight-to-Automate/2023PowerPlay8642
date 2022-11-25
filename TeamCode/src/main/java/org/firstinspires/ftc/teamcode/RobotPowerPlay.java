@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.vuforia.ar.pl.SystemTools;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -24,12 +25,15 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 // cone recognition imports
+import org.firstinspires.ftc.teamcode.pipelines.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.pipelines.ColorVals;
 import org.firstinspires.ftc.teamcode.pipelines.PowerPlayPipeline;
+import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RobotPowerPlay {
@@ -82,7 +86,7 @@ public class RobotPowerPlay {
     public final int lifterMinimum = 0;
     public final int lifterLevelOne = -1000; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
     public final int lifterLevelTwo = -1600; //Old: -1700  11/1/2022  New: -1550 11/11/2022 new:-1600
-    public final int lifterLevelThree = -2500;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
+    public final int lifterLevelThree = -2580;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
     public final int lowJunctionPos = -400;  //Old: -400    11/1/2022 New: -250
     public final int stackPos = -500;
 
@@ -1009,7 +1013,7 @@ public class RobotPowerPlay {
     }
 
 //**********************************************************************************************
-    // opencv cone recognition methods
+    // opencv recognition methods
 
     public void activateConeCam() {
         pipeline = new PowerPlayPipeline(true, ColorVals.HUE_MIN, ColorVals.HUE_MAX, ColorVals.SATURATION_MIN, ColorVals.SATURATION_MAX, ColorVals.VALUE_MIN, ColorVals.VALUE_MAX);

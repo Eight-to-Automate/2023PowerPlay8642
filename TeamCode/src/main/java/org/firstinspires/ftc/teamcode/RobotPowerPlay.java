@@ -105,6 +105,7 @@ public class RobotPowerPlay {
 
         startDriveEncoders();
 
+
         frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
         frontRightMotor.setDirection(DcMotor.Direction.FORWARD);
         backLeftMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -129,6 +130,35 @@ public class RobotPowerPlay {
         hwMap = hwMapIn;
         systemTools = systemToolsIn;
         lifter.setTargetPositionTolerance(15);
+    }
+
+    public void initAutoRR(HardwareMap hwMapIn, OpMode systemToolsIn) {
+        hwMap = hwMapIn;
+        systemTools = systemToolsIn;
+
+        setUpMotorsRR();
+
+        //startDriveEncoders();
+
+
+        //frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
+        //frontRightMotor.setDirection(DcMotor.Direction.FORWARD);
+        //backLeftMotor.setDirection(DcMotor.Direction.REVERSE);
+        //backRightMotor.setDirection(DcMotor.Direction.FORWARD);
+
+        //lifter.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        //frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        lifter.setTargetPositionTolerance(15);
+
+
+        //stopAllMotors();
+        //resetDriveEncoders();   // added on 2-13-22
+        //startDriveEncoders();
     }
 
     //Init Methods**********************************************************************************
@@ -192,6 +222,27 @@ public class RobotPowerPlay {
         downLED.setMode(DigitalChannel.Mode.OUTPUT);
     }
 
+    public void setUpMotorsRR() {
+        // Define and Initialize Motors
+        // MOTOR DISABLED FOR LIFTER TESTING
+        //frontLeftMotor  = hwMap.get(DcMotor.class, "leftFront");
+        //frontRightMotor = hwMap.get(DcMotor.class, "rightFront");
+        //backLeftMotor = hwMap.get(DcMotor.class, "leftRear");
+        //backRightMotor = hwMap.get(DcMotor.class, "rightRear");
+        lifter = hwMap.get(DcMotorEx.class, "lifter");
+        intake = hwMap.get(Servo.class,"intake_servo");
+        DcMotor[] driveMotors = {frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor};
+        redLED = hwMap.get(DigitalChannel.class, "red_LED");
+        greenLED = hwMap.get(DigitalChannel.class, "green_LED");
+        upLED = hwMap.get(DigitalChannel.class, "up_LED");
+        downLED = hwMap.get(DigitalChannel.class, "down_LED");
+        lifter = hwMap.get(DcMotorEx.class, "lifter");
+        redLED.setMode(DigitalChannel.Mode.OUTPUT);
+        greenLED.setMode(DigitalChannel.Mode.OUTPUT);
+        upLED.setMode(DigitalChannel.Mode.OUTPUT);
+        downLED.setMode(DigitalChannel.Mode.OUTPUT);
+    }
+
 
     //Autonomous Movement Commands (forward, turn, strafe, lifter, ect.)
 
@@ -235,9 +286,9 @@ public class RobotPowerPlay {
     }
     public void intake(boolean close) {
         if (close) {
-            intake.setPosition(0);
+            intake.setPosition(0.9);
         } else {
-            intake.setPosition(1);
+            intake.setPosition(0.1);
         }
     }
     // Rotate Robot (degress,power,op,telOn) - uses position checks
@@ -742,7 +793,7 @@ public class RobotPowerPlay {
         if(lifterPos>(lifterMinimum) || lifterPos<(lifterLevelThree)){
             lifterLEDColor = RobotPowerPlay.lightsStates.Red;
         } else if (lifterPos < lifterMinimum && lifterPos > lowJunctionPos - 20) {
-                lifterLEDColor = lightsStates.Amber;
+            lifterLEDColor = lightsStates.Amber;
         } else {
             lifterLEDColor = lightsStates.Green;
         }
@@ -948,15 +999,15 @@ public class RobotPowerPlay {
 
 
 
-            List<Recognition> recs = tfod.getUpdatedRecognitions();
+        List<Recognition> recs = tfod.getUpdatedRecognitions();
 
-            if (recs != null) {
-                if (recs.size() != 0) {
-                    return recs.get(0);
-                }
+        if (recs != null) {
+            if (recs.size() != 0) {
+                return recs.get(0);
             }
+        }
 
-            return null; // returns first thing it detects out of the 3 detected
+        return null; // returns first thing it detects out of the 3 detected
 
     }
 

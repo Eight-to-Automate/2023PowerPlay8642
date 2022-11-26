@@ -41,12 +41,12 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
-@Autonomous(name="RRMeet3LeftAuto", group = "motion")
-public class RRMeet3LeftAuto extends LinearOpMode{
+@Autonomous(name="Meet3LeftAuto", group = "motion")
+public class Meet3LeftAuto extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
     private ElapsedTime runtime = new ElapsedTime();
-
+//Run OpenCV April Tag Detection
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
@@ -121,32 +121,65 @@ public class RRMeet3LeftAuto extends LinearOpMode{
         drive.setPoseEstimate(startPos1);
 
         TrajectorySequence traj1 = drive.trajectorySequenceBuilder(startPos1)
-                .forward(17)
-
-                .addDisplacementMarker(17, () -> {
-                    robot.asynchLift(robot.lifterLevelOne, 1, this);
-                })
-                .strafeRight(47)
-                .forward(5)
-
-                .build();
-               // .splineToConstantHeading(highJunction, Math.toRadians(180))
-                //robot.intake(false);
-
-        TrajectorySequence traj2 = drive.trajectorySequenceBuilder(startPos1)
                 .back(5)
-                .addTemporalMarker(1, () ->{
-                    robot.asynchLift(530, 0.8, this);
+
+                .addDisplacementMarker(100, () -> {
+                    robot.absoluteasynchLift(robot.lifterLevelOne, 1, this);
                 })
-                .strafeRight(13)
-                .forward(3*24-4)
-                .build();
-
-        TrajectorySequence traj3 = drive.trajectorySequenceBuilder(startPos1)
-                .strafeRight(13)
-                .forward(3*24-4)
+                .strafeRight(73)
+                .strafeLeft(28)
+                .forward(4.5)
 
                 .build();
+        // .splineToConstantHeading(highJunction, Math.toRadians(180))
+        //robot.intake(false);
+
+        TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
+                .back(5)
+                .strafeRight(14)
+                .forward(28)
+                .addTemporalMarker(2, () -> {
+                    robot.asynchLift(540,.8, this);
+                })
+                .build();
+
+        TrajectorySequence traj3 = drive.trajectorySequenceBuilder(traj2.end())
+                .back(0.75)
+                .build();
+
+        TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
+                .back(24.25+24)
+                .strafeRight(14.5)
+                .forward(3)
+                .build();
+
+        TrajectorySequence traj5 = drive.trajectorySequenceBuilder(traj4.end())
+                .back(3)
+                .addDisplacementMarker(() -> {
+                    robot.asynchLift(2280, 0.8,this);
+                })
+                .strafeLeft(14.5)
+                .forward(24.25+24)
+                .build();
+
+        TrajectorySequence traj6 = drive.trajectorySequenceBuilder(traj5.end())
+                .back(0.75)
+                .build();
+
+        TrajectorySequence traj7 = drive.trajectorySequenceBuilder(traj6.end())
+                .back(25.25+24)
+                .strafeLeft(14.5)
+                .forward(4)
+                .build();
+
+        int forr = 0;
+        if(route==2) forr+=24; if(route==3) forr+=24;
+        TrajectorySequence traj8 = drive.trajectorySequenceBuilder(traj7.end())
+                .back(3)
+                .strafeRight(14.5)
+                .forward(0.1+forr)
+                .build();
+
 
         /*
                 .forward(9,
@@ -284,24 +317,41 @@ public class RRMeet3LeftAuto extends LinearOpMode{
         //robot.intake(true);
         double timeout = getRuntime();
         double cp=robot.lifter.getCurrentPosition();
-        robot.wait(400, this);
+        //robot.wait(200, this);
         robot.absoluteasynchLift(-400,1,this); //raise lifter slightly -> prevent cone scraping against ground
-        robot.wait(300, this);
+        robot.wait(75, this);
 
         /*if((cp-150)>robot.lifter.getCurrentPosition()){
             robot.lifter.setTargetPosition(robot.lifter.getCurrentPosition());
         }*/
 
         drive.followTrajectorySequence(traj1);
-        drive.followTrajectorySequence(end);
-        robot.intake(false);
-        robot.wait(500, this);
+        robot.intake(false); //open the claw so the cone falls out
+        robot.wait(250, this);
 
         drive.followTrajectorySequence(traj2);
-        drive.followTrajectorySequence(end);
+        robot.intake(true);
+        robot.wait(250, this);
 
+        drive.followTrajectorySequence(traj3);
+        robot.asynchLift(-2200, 1, this);
 
+        drive.followTrajectorySequence(traj4);
+        robot.intake(false);  //drop cone off at high
+        robot.wait(250, this);
 
+        drive.followTrajectorySequence(traj5);
+        robot.intake(true);
+        robot.wait(250, this);
+
+        drive.followTrajectorySequence(traj6);
+        robot.asynchLift(-1100,1,this);
+
+        drive.followTrajectorySequence(traj7);
+        robot.intake(false);
+        robot.wait(250, this);
+
+        drive.followTrajectorySequence(traj8);
 
     }
 

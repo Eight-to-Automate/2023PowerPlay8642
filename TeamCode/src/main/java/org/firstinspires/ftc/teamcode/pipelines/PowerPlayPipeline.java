@@ -145,9 +145,9 @@ public class PowerPlayPipeline extends OpenCvPipeline
 
         ArrayList<Point> contourPixels = new ArrayList<Point>();
 
-        for (int y = 0; y < contourIsolation.rows(); y++) {
+        for (int y = 1; y < contourIsolation.rows(); y++) {
 
-            for (int x = 0; x < contourIsolation.cols(); x++) {
+            for (int x = 1; x < contourIsolation.cols(); x++) {
                 double[] pxCol = contourIsolation.get(x, y);
 
                 if (pxCol != null) {

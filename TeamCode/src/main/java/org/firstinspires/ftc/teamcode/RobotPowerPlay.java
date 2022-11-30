@@ -28,6 +28,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.pipelines.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.pipelines.ColorVals;
 import org.firstinspires.ftc.teamcode.pipelines.PowerPlayPipeline;
+import org.firstinspires.ftc.teamcode.util.Encoder;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -45,6 +46,13 @@ public class RobotPowerPlay {
     public DcMotor backRightMotor = null;
     public Servo intake = null;
     public DcMotorEx lifter = null;
+
+    public DigitalChannel lifterSwitch1 = null;
+    public DigitalChannel lifterSwitch2 = null;
+
+    public Encoder leftEncoder = null;
+    public Encoder rightEncoder = null;
+    public Encoder frontEncoder = null;
 
     public OpMode systemTools;
 
@@ -83,12 +91,12 @@ public class RobotPowerPlay {
     public Orientation angles;
 
 
-    public final int lifterMinimum = 0;
+    public int lifterMinimum = 0;
     public final int lifterLevelOne = -1000; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
     public final int lifterLevelTwo = -1600; //Old: -1700  11/1/2022  New: -1550 11/11/2022 new:-1600
     public final int lifterLevelThree = -2580;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
     public final int lowJunctionPos = -400;  //Old: -400    11/1/2022 New: -250
-    public final int stackPos = -500;
+    public final int stackPos = -370;
 
     // cone recognition variables
     OpenCvCamera camera;
@@ -194,6 +202,8 @@ public class RobotPowerPlay {
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
+
+
         //intake.setPosition(1);
 
 
@@ -220,6 +230,11 @@ public class RobotPowerPlay {
         greenLED.setMode(DigitalChannel.Mode.OUTPUT);
         upLED.setMode(DigitalChannel.Mode.OUTPUT);
         downLED.setMode(DigitalChannel.Mode.OUTPUT);
+        lifterSwitch1 = hwMap.get(DigitalChannel.class, "lifter_switch_one");
+        lifterSwitch2 = hwMap.get(DigitalChannel.class, "lifter_switch_two");
+        //leftEncoder = new Encoder(hwMap.get(DcMotorEx.class, "od_lf"));
+        //rightEncoder = new Encoder(hwMap.get(DcMotorEx.class, "od_rt"));
+        //frontEncoder = new Encoder(hwMap.get(DcMotorEx.class, "od_lat"));
     }
 
     public void setUpMotorsRR() {
@@ -241,6 +256,8 @@ public class RobotPowerPlay {
         greenLED.setMode(DigitalChannel.Mode.OUTPUT);
         upLED.setMode(DigitalChannel.Mode.OUTPUT);
         downLED.setMode(DigitalChannel.Mode.OUTPUT);
+        lifterSwitch1 = hwMap.get(DigitalChannel.class, "lifter_switch_one");
+        lifterSwitch2 = hwMap.get(DigitalChannel.class, "lifter_switch_two");
     }
 
 
@@ -845,6 +862,22 @@ public class RobotPowerPlay {
         lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lifter.setPower(power);
     }
+
+    public void asynchLiftNoL(double ticks, double power) {
+        double lifterposition = lifter.getCurrentPosition();
+        if (power < 0) {
+            ticks = -ticks;
+        }
+        double target = lifterposition + ticks;
+        lifter.setTargetPosition((int) target);
+        lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lifter.setPower(power);
+    }
+    public void absoluteasynchLiftNoL(int ticks, double power) {
+        lifter.setTargetPosition(ticks);
+        lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lifter.setPower(power);
+    }
     //lifter.isBusy();
 
     // Auto lifter functions
@@ -1129,6 +1162,29 @@ public class RobotPowerPlay {
         }
 
     }
+
+    // ********************************************************************************************
+    // limit switch stuff
+
+    public void lifterCalibration(LinearOpMode linearOpMode) {
+        lifter.setPower(0.3);
+        while (!lifterSwitchTriggered()) {
+        }
+        lifter.setPower(0);
+        asynchLiftNoL(-700, 0.3);
+        lifter.setPower(0.1);
+        while (!lifterSwitchTriggered()) {
+        }
+        lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        linearOpMode.sleep(4000);
+        lifter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public boolean lifterSwitchTriggered() {
+        return (lifterSwitch1.getState() || lifterSwitch2.getState());
+    }
+
+
 
 
 

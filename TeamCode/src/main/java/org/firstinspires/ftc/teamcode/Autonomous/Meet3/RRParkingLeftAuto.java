@@ -41,12 +41,12 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
-@Autonomous(name="RRMeet3LeftAuto", group = "motion")
-public class RRMeet3LeftAuto extends LinearOpMode{
+@Autonomous(name="RRParking", group = "motion")
+public class RRParkingLeftAuto extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
     private ElapsedTime runtime = new ElapsedTime();
-
+    //Run OpenCV April Tag Detection
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
@@ -118,37 +118,75 @@ public class RRMeet3LeftAuto extends LinearOpMode{
 
         telemetry.setMsTransmissionInterval(50);
 
-        //****************************************************************************************
-        //TRAJECTORIES
-
         drive.setPoseEstimate(startPos1);
 
         TrajectorySequence traj1 = drive.trajectorySequenceBuilder(startPos1)
-                .forward(17)
+                .back(5+24)
 
-                .addDisplacementMarker(17, () -> {
-                    robot.asynchLift(robot.lifterLevelOne, 1, this);
+                .addDisplacementMarker(30, () -> {
+                    robot.absoluteasynchLift(robot.lifterLevelOne, 1, this);
                 })
-                .strafeRight(47)
-                .forward(5)
+                .strafeRight(45)
+                .forward(4.5)
 
                 .build();
-               // .splineToConstantHeading(highJunction, Math.toRadians(180))
-                //robot.intake(false);
+        // .splineToConstantHeading(highJunction, Math.toRadians(180))
+        //robot.intake(false);
 
-        TrajectorySequence traj2 = drive.trajectorySequenceBuilder(startPos1)
+        TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
                 .back(5)
-                .addTemporalMarker(1, () ->{
-                    robot.asynchLift(530, 0.8, this);
+                .strafeRight(14)
+                .forward(28+24)
+                .addDisplacementMarker(20, () -> {
+                    robot.asynchLift(540,.8, this);
                 })
-                .strafeRight(13)
-                .forward(3*24-4)
                 .build();
 
-        TrajectorySequence traj3 = drive.trajectorySequenceBuilder(startPos1)
-                .strafeRight(13)
-                .forward(3*24-4)
+        TrajectorySequence traj3 = drive.trajectorySequenceBuilder(traj2.end())
+                .back(0.75)
+                .build();
 
+        TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
+                .back(24.25+24)
+                .strafeRight(14.5)
+                .forward(3)
+                .build();
+
+        TrajectorySequence traj5 = drive.trajectorySequenceBuilder(traj4.end())
+                .back(3)
+                .addDisplacementMarker(() -> {
+                    robot.asynchLift(2280, 0.8,this);
+                })
+                .strafeLeft(14.5)
+                .forward(24.25+24)
+                .build();
+
+        TrajectorySequence traj6 = drive.trajectorySequenceBuilder(traj5.end())
+                .back(0.75)
+                .build();
+
+        TrajectorySequence traj7 = drive.trajectorySequenceBuilder(traj6.end())
+                .back(24.25)
+                .strafeLeft(14.5)
+                .forward(4)
+                .build();
+
+        TrajectorySequence end2 = drive.trajectorySequenceBuilder(traj7.end())
+                .back(3)
+                .strafeRight(14.5)
+                .build();
+
+
+        TrajectorySequence end1 = drive.trajectorySequenceBuilder(traj7.end())
+                .back(3)
+                .strafeRight(14.5)
+                .forward(20)
+                .build();
+
+        TrajectorySequence end3 = drive.trajectorySequenceBuilder(traj7.end())
+                .back(3)
+                .strafeRight(14.5)
+                .back(27)
                 .build();
 
         /*
@@ -268,43 +306,46 @@ public class RRMeet3LeftAuto extends LinearOpMode{
             //trajectory
         }
 
-        /*
-        if (route == 1) {
-            TrajectorySequence end = drive.trajectorySequenceBuilder(traj1.end())
-                    .splineTo(zone1, Math.toRadians(180))
-                    .build();
-        } else if (route == 2) {
-            TrajectorySequence end = drive.trajectorySequenceBuilder(traj1.end())
-                    .splineTo(zone2, Math.toRadians(180))
-                    .build();
-        } else {
-            TrajectorySequence end = drive.trajectorySequenceBuilder(traj1.end())
-                    .splineTo(zone3, Math.toRadians(180))
-                    .build();
-        }
-         */
-
-        //robot.intake(true);
         double timeout = getRuntime();
         double cp=robot.lifter.getCurrentPosition();
-        robot.wait(400, this);
+        //robot.wait(200, this);
         robot.absoluteasynchLift(-400,1,this); //raise lifter slightly -> prevent cone scraping against ground
-        robot.wait(300, this);
+        robot.wait(75, this);
 
         /*if((cp-150)>robot.lifter.getCurrentPosition()){
             robot.lifter.setTargetPosition(robot.lifter.getCurrentPosition());
         }*/
 
-        drive.followTrajectorySequence(traj1);
-        drive.followTrajectorySequence(end);
+        drive.followTrajectorySequence(traj1); // go to medium junc
+        robot.intake(false); //open the claw so the cone falls out onto Medium junc
+        robot.wait(250, this);
+
+        drive.followTrajectorySequence(traj2); //get to stack again
+        robot.intake(true);
+        robot.wait(250, this);
+
+        drive.followTrajectorySequence(traj3); //move back just a little bit bfr lifting so that the stack doesnt topple
+        robot.asynchLift(-2250, 1, this);
+
+        drive.followTrajectorySequence(traj4); //go to High Junc
+        robot.intake(false);  //drop cone off at high
+        robot.wait(250, this);
+
+        drive.followTrajectorySequence(traj5); //go to stack again 
+        robot.intake(true);
+        robot.wait(250, this);
+
+        drive.followTrajectorySequence(traj6); //move back just a little bit bfr lifting ...
+        robot.asynchLift(-1100,1,this);
+
+        drive.followTrajectorySequence(traj7); //go to the small junc
         robot.intake(false);
-        robot.wait(500, this);
+        robot.wait(250, this);
 
-        drive.followTrajectorySequence(traj2);
-        drive.followTrajectorySequence(end);
-
-
-
+        //parking
+        if (route==1) drive.followTrajectorySequence(end1);
+        if (route==2) drive.followTrajectorySequence(end2);
+        if (route==3) drive.followTrajectorySequence(end3);
 
     }
 

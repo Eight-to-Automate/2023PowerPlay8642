@@ -50,8 +50,8 @@ public class DriveConstants {
 
     // 48 inches / (1714 ticks / 288 * 4 * pi
 
-    public static double TRACK_WIDTH = 12.69; //13.5 - 1.875; // in     for drive base: 11.6 // measured accurately 13.625
-
+   // public static double TRACK_WIDTH = 12.69; //13.5 - 1.875; // in     for drive base: 11.6 // measured accurately 13.625
+    public static double TRACK_WIDTH = 18.72; //13.81 after correcting odometery wheel pose from CAD (test shoes 13.19)     for drive base: 11.6 // measured accurately 13.625
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -73,9 +73,8 @@ public class DriveConstants {
      */
     public static double MAX_VEL = 50.18793796530113;
     public static double MAX_ACCEL = 50.18793796530113;
-    public static double MAX_ANG_VEL = 4.554145082127606;
-    public static double MAX_ANG_ACCEL = 4.554145082127606;
-
+    public static double MAX_ANG_VEL = 4.64364461679525;
+    public static double MAX_ANG_ACCEL = 4.64364461679525;
 
     public static double encoderTicksToInches(double ticks) {
         return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;

@@ -73,7 +73,7 @@ public class RRMeet3LeftAuto extends LinearOpMode{
     AprilTagDetection tagOfInterest = null;
 
     // positions for localization
-    Pose2d startPos1 = new Pose2d(32.5,-65.1875, Math.toRadians(180));
+    Pose2d startPos1 = new Pose2d(35.625,-62.75, Math.toRadians(180));
     Vector2d wallAlign1 = new Vector2d(13.5, -65.1875);
     Vector2d highJunction = new Vector2d(13.5, -25.1875);
     Vector2d getHighJunctionClose = new Vector2d(4.5, -25.1875);

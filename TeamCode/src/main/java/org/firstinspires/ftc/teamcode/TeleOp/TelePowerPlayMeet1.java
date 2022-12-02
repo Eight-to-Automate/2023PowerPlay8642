@@ -371,9 +371,9 @@ public class TelePowerPlayMeet1 extends OpMode {
         telemetry.addData("front right ticks", robot.frontRightMotor.getCurrentPosition());
         telemetry.addData("back right ticks", robot.backRightMotor.getCurrentPosition());
 
-        telemetry.addData("right encoder", robot.rightEncoder.getCurrentPosition());
-        telemetry.addData("left encoder", robot.leftEncoder.getCurrentPosition());
-        telemetry.addData("lateral encoder", robot.frontEncoder.getCurrentPosition());
+        //telemetry.addData("right encoder", robot.rightEncoder.getCurrentPosition());
+        //telemetry.addData("left encoder", robot.leftEncoder.getCurrentPosition());
+        //telemetry.addData("lateral encoder", robot.frontEncoder.getCurrentPosition());
 
         // flash freeze states
         telemetry.addData("slow mode?", lowSpeedActivated);

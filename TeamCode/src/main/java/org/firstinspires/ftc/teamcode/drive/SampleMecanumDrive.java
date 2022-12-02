@@ -89,8 +89,8 @@ import static java.lang.Math.abs;
 @Config
 //@Disabled
 public class SampleMecanumDrive extends MecanumDrive{
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(9, 0, 0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8.4, 0.004, 0.05);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(8.3, 0.005, 0.05);
 
     public static double LATERAL_MULTIPLIER = 1.632; // was 44/37.5; // 37.625/43.7 // 42.33 // 44.45// 41.48
 

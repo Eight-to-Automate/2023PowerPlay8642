@@ -96,7 +96,7 @@ public class RobotPowerPlay {
     public final int lifterLevelTwo = -1600; //Old: -1700  11/1/2022  New: -1550 11/11/2022 new:-1600
     public final int lifterLevelThree = -2580;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
     public final int lowJunctionPos = -400;  //Old: -400    11/1/2022 New: -250
-    public final int stackPos = -450; //-370
+    public final int stackPos = -415; //-370
 
     // cone recognition variables
     OpenCvCamera camera;

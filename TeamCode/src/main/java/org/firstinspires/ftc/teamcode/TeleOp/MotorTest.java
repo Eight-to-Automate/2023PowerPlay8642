@@ -39,7 +39,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
 
 @TeleOp(name = "Motor Test", group = "Concept")
-//@Disabled
+@Disabled
 public class MotorTest extends OpMode {
 
   private ElapsedTime runtime = new ElapsedTime();

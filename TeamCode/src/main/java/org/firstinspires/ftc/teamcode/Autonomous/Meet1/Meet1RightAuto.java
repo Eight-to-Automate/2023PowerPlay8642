@@ -202,7 +202,7 @@ public class Meet1RightAuto extends LinearOpMode{
             telemetry.update();
             //trajectory
         }
-        robot.intake.setPosition(0);// close grabber  added 11-1-22
+        //robot.intake.setPosition(0);// close grabber  added 11-1-22
         robot.wait(1000, this);
         robot.asynchLift(-400,  1, this); //raise lifter slightly -> prevent cone scraping against ground
         robot.wait(400, this);
@@ -214,7 +214,7 @@ public class Meet1RightAuto extends LinearOpMode{
         robot.asynchLift(-2180,  1, this); //raise lifter until top  (top = 2600 ticks from bottom)
         robot.wait(2000, this);
         robot.GoDistance(8, testingPower, false, this);// drive forward small amount
-        robot.intake.setPosition(1);// release grabber
+        robot.intake(false);// release grabber
         robot.wait(1500,this);
         robot.GoDistance(-8, testingPower, false, this); // back up same small amount
 

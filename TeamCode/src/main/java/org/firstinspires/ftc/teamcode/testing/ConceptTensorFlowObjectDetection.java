@@ -54,7 +54,7 @@ import java.util.List;
  * is explained below.
  */
 @Autonomous(name = "Concept: TensorFlow Object Detection", group = "Concept")
-@Disabled
+///@Disabled
 public class ConceptTensorFlowObjectDetection extends LinearOpMode {
 
     /*
@@ -171,7 +171,7 @@ public class ConceptTensorFlowObjectDetection extends LinearOpMode {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 2");
         parameters.cameraDirection = CameraDirection.BACK;
 
         //  Instantiate the Vuforia engine

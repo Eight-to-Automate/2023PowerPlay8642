@@ -92,11 +92,14 @@ public class RobotPowerPlay {
 
 
     public int lifterMinimum = 0;
-    public final int lifterLevelOne = -1000; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
-    public final int lifterLevelTwo = -1600; //Old: -1700  11/1/2022  New: -1550 11/11/2022 new:-1600
-    public final int lifterLevelThree = -2580;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
+    //bfr meet3 -1000
+    public final int lifterLevelOne = -950; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
+    //bfr meet3 -1600
+    public final int lifterLevelTwo = -1500; //Old: -1700  11/1/2022  New: -1550 11/11/2022 new:-1600
+    //bfr meet3 -2580
+    public final int lifterLevelThree = -2530;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
     public final int lowJunctionPos = -400;  //Old: -400    11/1/2022 New: -250
-    public final int stackPos = -415; //-370
+    public final int stackPos = -405; //-370
 
     // cone recognition variables
     OpenCvCamera camera;
@@ -417,7 +420,9 @@ public class RobotPowerPlay {
 
     }
 //**************************************************************************************************
-
+    public void setLifterMinimum(int min){
+        lifterMinimum=min;
+    }
     //**************************************************************************************************
 
     //Acceleration movement functions (drive and strafe)

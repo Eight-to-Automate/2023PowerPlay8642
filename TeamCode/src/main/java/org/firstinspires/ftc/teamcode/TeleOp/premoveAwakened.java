@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.RobotPowerPlay;
 
 import java.lang.reflect.Array;
 import java.util.*;
-
+@Disabled
 @TeleOp(name="premoveAwakened", group="testing")
 
 public class premoveAwakened extends OpMode {

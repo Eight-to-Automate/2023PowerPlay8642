@@ -25,6 +25,7 @@ package org.firstinspires.ftc.teamcode.Autonomous.Meet3;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -40,7 +41,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
-
+@Disabled
 @Autonomous(name="RRMeet3HighJunctions", group = "motion")
 public class RRMeet3HighJunctions extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
@@ -75,17 +76,16 @@ public class RRMeet3HighJunctions extends LinearOpMode{
     // positions for localization
     Pose2d startPos1 = new Pose2d(-35.75,-62.75, Math.toRadians(90));
     // Vector2d forward1 = new Vector2d(-36, -3.5);
-    Vector2d forward2 = new Vector2d(-35.75, -9.5);// was -36,-11.5
-    Vector2d highJunction = new Vector2d(-24, -14.5);
+    Vector2d forward2 = new Vector2d(-35.75, -7.5);// was -35.75. -9.5
+    Vector2d highJunction = new Vector2d(-23.5, -14.5);
     Pose2d highJunctionH = new Pose2d(-3.75, -15.5, Math.toRadians(90));
     //Vector2d getHighJunctionClose = new Vector2d(4.5, -25.1875);
     Vector2d stack = new Vector2d(-62.75, -10.5);  // was 62.5, 11.75
     Pose2d stackh = new Pose2d(-63, -12, Math.toRadians(180));
-    Vector2d zone1 = new Vector2d(13.5, -36);
-    Vector2d zone2 = new Vector2d(-36,-36 );
-    Vector2d zone3 = new Vector2d(-59, -36);
 
-    TrajectorySequence end;
+    Vector2d zone1 = new Vector2d(-58, -12);
+    Vector2d zone2 = new Vector2d(-36,-12);
+    Vector2d zone3 = new Vector2d(-12, -12);
 
     @Override
     public void runOpMode()
@@ -136,13 +136,13 @@ public class RRMeet3HighJunctions extends LinearOpMode{
                 .build();
 
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
-                .forward(5,
+                .forward(5.7,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.1))
                 .build();
 
         TrajectorySequence traj3 = drive.trajectorySequenceBuilder(traj2.end())
-                .back(6,
+                .back(4.7,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.1))
                 .build();
@@ -160,9 +160,9 @@ public class RRMeet3HighJunctions extends LinearOpMode{
                 .build();
 
         TrajectorySequence backSmall = drive.trajectorySequenceBuilder(traj4.end())
-                .back(3,
-                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.3, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.1))
+                .back(2,
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.4, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.3))
              //   .strafeLeft(3,
               //         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.2, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
              //          SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.1))
@@ -179,16 +179,16 @@ public class RRMeet3HighJunctions extends LinearOpMode{
                 .build();
 
         TrajectorySequence traj6 = drive.trajectorySequenceBuilder(traj5.end())
-                .forward(4,
+                .forward(5.2,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.2))
                 .build();
 
+
+
        // TrajectorySequence sanityTest = drive.trajectorySequenceBuilder(new Pose2d(-36,-63.5, Math.toRadians(90)))
        //         .lineTo(new Vector2d(-36,0))
        //         .build();
-
-
 
 
         /*
@@ -292,20 +292,35 @@ public class RRMeet3HighJunctions extends LinearOpMode{
             //trajectory
         }
 
-
-
+TrajectorySequence end;
 
         if (route == 1) {
-            TrajectorySequence end = drive.trajectorySequenceBuilder(traj1.end())
-                    .splineTo(zone1, Math.toRadians(180))
+                end = drive.trajectorySequenceBuilder(traj6.end())
+                        .back(3.8)
+                        .strafeLeft(12+23)
+                        .addTemporalMarker(1, ()->{
+                            robot.absoluteasynchLift(-380, 0.8, this);
+                        })
                     .build();
         } else if (route == 2) {
-            TrajectorySequence end = drive.trajectorySequenceBuilder(traj1.end())
-                    .splineTo(zone2, Math.toRadians(180))
+             end = drive.trajectorySequenceBuilder(traj6.end())
+                     .back(3.8)
+                     .strafeLeft(12)
+                     .addTemporalMarker(1, ()->{
+                         robot.absoluteasynchLift(-380, 0.8, this);
+                     })
+                     .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL)
+                     .turn(Math.toRadians(90))
                     .build();
         } else {
-            TrajectorySequence end = drive.trajectorySequenceBuilder(traj1.end())
-                    .splineTo(zone3, Math.toRadians(180))
+             end = drive.trajectorySequenceBuilder(traj6.end())
+                     .back(3.8)
+                     .strafeRight(12)
+                     .addTemporalMarker(1, ()->{
+                         robot.absoluteasynchLift(-380, 0.8, this);
+                     })
+                     .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL)
+                     .turn(Math.toRadians(90))
                     .build();
         }
 
@@ -332,6 +347,7 @@ public class RRMeet3HighJunctions extends LinearOpMode{
         drive.followTrajectorySequence(traj6);
         robot.intake(false);    // second cone
         robot.wait(300, this);
+
         drive.followTrajectorySequence(end);
         Pose2d pose = drive.getPoseEstimate();
 

@@ -23,6 +23,8 @@ public class TelePowerPlayMeet1 extends OpMode {
     double slowTime; // initial time for slowmode timeout
     double slowTime2; // initial time for super slowmode timeout
 
+    double checkTimeL, checkTimeH;
+
     // set up variables for motor powers
     double frontLeftPower;
     double frontRightPower;
@@ -188,6 +190,12 @@ public class TelePowerPlayMeet1 extends OpMode {
 
         // Lifter implementation
 
+        if (getRuntime() > checkTimeL && getRuntime() < checkTimeH){
+            if(robot.lifter.isBusy()) {
+                robot.lifter.setPower(0);
+
+            }
+        }
 
         if (gamepad2.b) { // Home Position
             if (!movingLifter) {
@@ -197,6 +205,8 @@ public class TelePowerPlayMeet1 extends OpMode {
                         robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                         robot.lifter.setTargetPosition(robot.lifterMinimum);
                         robot.lifter.setPower(1);
+                        checkTimeL = getRuntime() + 3000;
+                        checkTimeH = checkTimeL + 200;
                         targetLifterLocation = lifterStates.Home;
                 }
             }
@@ -279,14 +289,26 @@ public class TelePowerPlayMeet1 extends OpMode {
                     movingLifter = false;
                     lifterLocation = targetLifterLocation;
                 }
-            } else {
-                if (!robot.lifter.isBusy()) {
+            } else { // Check if it is for home position
+                if (robot.lifterSwitchTriggered()) { // Stops if limit switch is pressed
                     robot.lifter.setPower(0);
+                    // bet this line below is why the home position code never worked - should get real motor encoder position
+                    robot.setLifterMinimum(robot.lifter.getCurrentPosition());// Sets this position as the new "0" in terms of encoder count
+                    robot.lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    robot.lifter.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
                     movingLifter = false;
+                    firstHomeLift = false;
                     lifterLocation = lifterStates.Home;
-                    targetLifterLocation = lifterStates.Manual;
+                    targetLifterLocation = lifterStates.Manual; // ends the override using high button
                 }
-            }
+                else {
+                    if (!robot.lifter.isBusy()) {
+                        robot.lifter.setPower(0);
+                        movingLifter = false;
+                        lifterLocation = lifterStates.Home;
+                        targetLifterLocation = lifterStates.Manual;
+                }
+            }}
         } else { // Manual lifter motion
             robot.lifter.setPower(lifterPower); // Performs safety checks internally
             if (Math.abs(lifterPower) > 0.1) { // Clear automated state if moving manually

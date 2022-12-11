@@ -289,7 +289,7 @@ public class TelePowerPlayMeet1 extends OpMode {
                     movingLifter = false;
                     lifterLocation = targetLifterLocation;
                 }
-            } else { // Check if it is for home position
+            }/* else { // Check if it is for home position
                 if (robot.lifterSwitchTriggered()) { // Stops if limit switch is pressed
                     robot.lifter.setPower(0);
                     // bet this line below is why the home position code never worked - should get real motor encoder position
@@ -300,7 +300,7 @@ public class TelePowerPlayMeet1 extends OpMode {
                     firstHomeLift = false;
                     lifterLocation = lifterStates.Home;
                     targetLifterLocation = lifterStates.Manual; // ends the override using high button
-                }
+                }*/
                 else {
                     if (!robot.lifter.isBusy()) {
                         robot.lifter.setPower(0);
@@ -309,7 +309,7 @@ public class TelePowerPlayMeet1 extends OpMode {
                         targetLifterLocation = lifterStates.Manual;
                 }
             }}
-        } else { // Manual lifter motion
+        else { // Manual lifter motion
             robot.lifter.setPower(lifterPower); // Performs safety checks internally
             if (Math.abs(lifterPower) > 0.1) { // Clear automated state if moving manually
                 if (lifterLocation != lifterStates.Manual) {
@@ -386,7 +386,7 @@ public class TelePowerPlayMeet1 extends OpMode {
 
         telemetry.addData("Lifter Power: ", lifterPower);
         telemetry.addData("Lifter Ticks: ", robot.lifter.getCurrentPosition());
-
+        telemetry.addData("Low: ", robot.lifterMinimum);
         // update telemetry of drive motors in order to figure out why the robot is not driving straight 11/8/22
         telemetry.addData("front left ticks", robot.frontLeftMotor.getCurrentPosition());
         telemetry.addData("back left ticks", robot.backLeftMotor.getCurrentPosition());

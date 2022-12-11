@@ -29,8 +29,6 @@ public class JunctionTopPipeline3 extends OpenCvPipeline
     private Mat findContoursOutputMat = new Mat();
     private Mat finalContourOutputMat = new Mat();
     private Mat erodeOutputMat = new Mat();
-    private Mat heirarchy = new Mat();
-    Mat cameraMatrix;
 
     private int largestX, largestY;
     private double largestArea;

@@ -136,7 +136,13 @@ public class AutoAimTracking extends LinearOpMode {
             centroid = pipeline.getCentroid();
             cords[0] = centroid.x;
             cords[1] = centroid.y;
+
         }
+
+        telemetry.addData("pipline time", camera.getPipelineTimeMs());
+        telemetry.update();
+
+
 
         telemetry.addData("elapsed time", runtime.milliseconds() - runtimeStart);
 

@@ -63,90 +63,114 @@ public class AutoAimTracking extends LinearOpMode {
     RobotPowerPlay robot = new RobotPowerPlay();
     JunctionTopPipeline3 pipeline;
     OpenCvCamera camera;
+    boolean cameraOpened = false;
 
     @Override
     public void runOpMode() {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        // *************************************************************************************************
+        //Auto INIT
         robot.initAutoRR(hardwareMap, this);
-
 
         pipeline = new JunctionTopPipeline3(false);
 
+
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"));
         camera.setPipeline(pipeline);
+
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                camera.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
+                //camera.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
+                telemetry.addLine("camera opened");
+                telemetry.addData("opened runtime", runtime.milliseconds());
+                telemetry.update();
+                cameraOpened = true;
+
             }
 
             @Override
             public void onError(int errorCode) {
-                /*
-                 * This will be called if the camera could not be opened
-                 */
+
+                 /* This will be called if the camera could not be opened*/
+
             }
         });
 
         drive.setPoseEstimate(new Pose2d(0,0, Math.toRadians(0)));
 
-        telemetry.addData("initialized", true);
+        telemetry.addData("initialized without camera", true);
         telemetry.update();
 
-        waitForStart();
+        /*
+        Point testc  = pipeline.getCentroid();
+        telemetry.addData("x pixel position", testc.x);
+        telemetry.addData("y pixel position", testc.y);
+        telemetry.update();
+         */
 
-        //robot.wait(5000, this);
+        waitForStart(); //******************************************************************************
+        runtime.reset();
+        double runtimeStart = runtime.milliseconds();
 
-        double startT = getRuntime();
+        telemetry.addData("runtime at start", runtimeStart);
+        telemetry.update();
 
-        double[] cords = {Integer.MIN_VALUE, Integer.MIN_VALUE};
+        // robot.wait(50, this);
 
-            Point centroid;
+        //robot.wait(2000, this);
+
+        //double startT = getRuntime();
+
+        double[] cords = {-1, -1};
+
+        //while (!cameraOpened && opModeIsActive()) {}
+
+
+
+        camera.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
+
+        Point centroid;
+
+        while (opModeIsActive() && cords[0] == -1 && cords[1] == -1) {
             centroid = pipeline.getCentroid();
             cords[0] = centroid.x;
             cords[1] = centroid.y;
+        }
 
-        //camera.stopStreaming();
+        telemetry.addData("elapsed time", runtime.milliseconds() - runtimeStart);
 
-        if (cords[0] == Integer.MIN_VALUE && cords[1] == Integer.MIN_VALUE) {
+        camera.stopStreaming();
+
+        if (cords[0] == -1 && cords[1] == -1) {
             telemetry.addLine("target not found");
         }
             telemetry.addData("x pixel position", cords[0]);
             telemetry.addData("y pixel position", cords[1]);
-            telemetry.update();
+            //telemetry.update();
 
 
         double[] movement = getMovement(cords);
 
-        telemetry.addData("x", movement[0]);
-        telemetry.addData("y", movement[1]);
-        //telemetry.update();
+        telemetry.addData("x pixel position", cords[0]);
+        telemetry.addData("y pixel position", cords[1]);
+        telemetry.addData("Move in x", movement[0]);
+        telemetry.addData("move in y", movement[1]);
+        telemetry.update();
 
 
             TrajectorySequence realign;
 
-            if (movement[0] > 0 && movement[1] > 0 )
+            if (movement[1] > 0)
             realign = drive.trajectorySequenceBuilder(new Pose2d(0,0,0))
-                            .forward(movement[0])
-                                    .strafeRight(movement[1])
+                    .forward(5 + movement[1])
+                                    .strafeRight(movement[0])
                                             .build();
-
-        else if (movement[0] > 0 && movement[1] <= 0 )
-            realign = drive.trajectorySequenceBuilder(new Pose2d(0,0,0))
-                    .forward(movement[0])
-                    .strafeLeft(-movement[1])
-                    .build();
-
-        else if (movement[0] <= 0 && movement[1] > 0 )
-            realign = drive.trajectorySequenceBuilder(new Pose2d(0,0,0))
-                    .back(movement[0])
-                    .strafeRight(movement[1])
-                    .build();
 
         else {
                 realign = drive.trajectorySequenceBuilder(new Pose2d(0, 0, 0))
-                        .back(movement[0])
-                        .strafeRight(-movement[1])
+                        .forward(5 + movement[1])
+                        .strafeLeft(-movement[0])
                         .build();
             }
 
@@ -157,13 +181,15 @@ public class AutoAimTracking extends LinearOpMode {
     }
 
     public double[] getMovement(double[] cords) {
-        double x = (6.4 * cords[0])/1280 - 3.2;
-        double y = (5.25 * cords[1])/720 - 2.63;
+        double x = (cords[0] - 640) / (150);
+        if ( x < 0.2) x*=1.2;
+        //double y = -(360 - cords[1]) / (720/5.25);
+        double y = (360 - cords[1]) / 110;
+        if(y>2) y*=.8;
 
         double[] movement = {x, y};
 
         return movement;
     }
-
 
 }

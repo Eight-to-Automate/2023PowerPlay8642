@@ -29,8 +29,8 @@ public class JunctionTopPipeline3 extends OpenCvPipeline
     private Mat findContoursOutputMat = new Mat();
     private Mat finalContourOutputMat = new Mat();
     private Mat erodeOutputMat = new Mat();
+    private Mat heirarchy = new Mat();
     Mat cameraMatrix;
-
 
     private int largestX, largestY;
     private double largestArea;
@@ -54,7 +54,7 @@ public class JunctionTopPipeline3 extends OpenCvPipeline
     double maxY;
     int height;
 
-    Point centroid = new Point(-1, -1);
+    Point centroid;
     Point lowerConeBound = new Point(-1, -1);
     Point upperConeBound = new Point(-1, -1);
 
@@ -80,6 +80,8 @@ public class JunctionTopPipeline3 extends OpenCvPipeline
         minY = -1;
         maxY = -1;
         height = -1;
+
+        centroid = new Point(-1, -1);
     }
 
     @Override
@@ -179,15 +181,20 @@ public class JunctionTopPipeline3 extends OpenCvPipeline
 
         //height = (int)(minY - maxY);
 
-       // establish significant points and lines for the camera stream
-        centroid = new  Point(largestX, largestY);
+        // establish significant points and lines for the camera stream
+
+        //centroid = new  Point(largestX, largestY);
+
+        centroid.x = largestX;
+        centroid.y = largestY;
+
         //Point lowerConeBound = new Point(largestX, maxY);
         //Point upperConeBound = new Point(largestX, minY);
 
         //Imgproc.line(finalContourOutputMat, lowerConeBound, upperConeBound, white);
         Imgproc.circle(finalContourOutputMat, centroid, 20, new Scalar(255, 0, 0), 20);
 
-        handleDashboard();
+        //handleDashboard();
 
         return finalContourOutputMat;
     }

@@ -41,6 +41,11 @@ public class RobotPowerPlay {
 
     // Define Motors, Sensors, and Variables *******************************************************
     public DcMotor frontLeftMotor = null;
+
+    public OpenCvCamera getCamera() {
+        return camera;
+    }
+
     public DcMotor frontRightMotor = null;
     public DcMotor backLeftMotor = null;
     public DcMotor backRightMotor = null;
@@ -57,6 +62,8 @@ public class RobotPowerPlay {
     public OpMode systemTools;
 
     public WebcamName cam = null;
+    //public WebcamName webacma1 = null;
+   // public WebcamName webacma2 = null;
 
     //Define Vuforia variables
     private static final String VUFORIA_KEY =
@@ -927,11 +934,17 @@ public class RobotPowerPlay {
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraName = hwMap.get(WebcamName.class, "Webcam 1");
+       // webcam1 = hwMap.get(WebcamName.class, "Webcam 1");
+      //  webcam2 = hwMap.get(WebcamName.class, "Webcam 2");
+      //  parameters.cameraName = ClassFactory.getInstance().getCameraManager().nameForSwitchableCamera(webcam1, webcam2);
         //parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
+        // Set the active camera to Webcam 1.
+       // switchableCamera = (SwitchableCamera) vuforia.getCamera();
+        //switchableCamera.setActiveCamera(webcam1);
         // Loading trackables is not necessary for the TensorFlow Object Detection engine.
     }
 

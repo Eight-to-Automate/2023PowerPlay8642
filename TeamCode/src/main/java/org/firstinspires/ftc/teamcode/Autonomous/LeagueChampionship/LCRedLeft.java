@@ -41,6 +41,9 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
+import org.openftc.easyopencv.OpenCvPipeline;
+import org.opencv.core.Point;
+
 import java.util.ArrayList;
 
 //@Disabled
@@ -50,9 +53,9 @@ public class LCRedLeft extends LinearOpMode{
 
     private ElapsedTime runtime = new ElapsedTime();
 
-    OpenCvCamera camera;
-    OpenCvCamera camera2;
+    OpenCvCamera webcam1;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
+    OpenCvCamera webcam2;
     JunctionTopPipeline3 junctionTopPipeline3;
 
     static final double FEET_PER_METER = 3.28084;
@@ -78,16 +81,16 @@ public class LCRedLeft extends LinearOpMode{
     AprilTagDetection tagOfInterest = null;
 
     // positions for localization
-    Pose2d startPos1 = new Pose2d(-35.75,-62.75, Math.toRadians(90));
+    Pose2d startPos1 = new Pose2d(-35.7,-62.75, Math.toRadians(90));
     // Vector2d forward1 = new Vector2d(-36, -3.5);
-    Vector2d forward2 = new Vector2d(-35.75, -7.5);// was -35.75. -9.5
-    Vector2d highJunction = new Vector2d(-23.5, -14.5);
+    Vector2d forward2 = new Vector2d(-35.7, -7.5);// was -35.75. -9.5
+    Vector2d highJunction = new Vector2d(-23, -14.5);     //was -23.5, -14.5 meet 3
     Pose2d highJunctionH = new Pose2d(-3.75, -15.5, Math.toRadians(90));
     //Vector2d getHighJunctionClose = new Vector2d(4.5, -25.1875);
-    Vector2d stack = new Vector2d(-62.75, -10.5);  // was 62.5, 11.75
+    Vector2d stack = new Vector2d(-63, -10.5);  // was 62.75, 11.75
     Pose2d stackh = new Pose2d(-63, -12, Math.toRadians(180));
 
-    Vector2d zone1 = new Vector2d(-58, -12);
+    Vector2d zone1 = new Vector2d(-59, -12);
     Vector2d zone2 = new Vector2d(-36,-12);
     Vector2d zone3 = new Vector2d(-12, -12);
 
@@ -101,8 +104,8 @@ public class LCRedLeft extends LinearOpMode{
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
-        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        camera2 = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
+       // camera1 = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        //camera2 = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
 
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
         junctionTopPipeline3 = new JunctionTopPipeline3(false);
@@ -114,16 +117,18 @@ public class LCRedLeft extends LinearOpMode{
         robot.wait(300, this);
 
 
-        camera.setPipeline(aprilTagDetectionPipeline);
-        camera2.setPipeline(junctionTopPipeline3);
+       // camera.setPipeline(aprilTagDetectionPipeline);
+        //camera2.setPipeline(junctionTopPipeline3);
+        webcam1.setPipeline(aprilTagDetectionPipeline);
+        webcam2.setPipeline(junctionTopPipeline3);
 
         // open camera1
-        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        webcam1.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
             {
-                camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
+                webcam1.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
@@ -135,7 +140,7 @@ public class LCRedLeft extends LinearOpMode{
 
         // open camera 2
 
-        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+        webcam2.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
                 telemetry.addLine("junction camera opened");
@@ -162,15 +167,15 @@ public class LCRedLeft extends LinearOpMode{
                 .build();
 
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
-                .forward(5.7,
+                .forward(6.5,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.1))
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
                 .build();
 
         TrajectorySequence traj3 = drive.trajectorySequenceBuilder(traj2.end())
-                .back(4.7,
-                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.1))
+                .back(5.5,
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
                 .build();
 
         TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
@@ -199,15 +204,15 @@ public class LCRedLeft extends LinearOpMode{
                 .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL) // max angle velocity was 0.7
                 .turn(Math.toRadians(-90))
                 .back(3,
-                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.5, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH), //max vel was 0.2
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.2))
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH), //max vel was 0.2
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
                 .lineTo(highJunction)
                 .build();
 
         TrajectorySequence traj6 = drive.trajectorySequenceBuilder(traj5.end())
-                .forward(5.2,
+                .forward(5,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.2))
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
                 .build();
 
 
@@ -286,7 +291,7 @@ public class LCRedLeft extends LinearOpMode{
          */
 
         // stops april tag camera
-        camera.stopStreaming();
+        webcam2.stopStreaming();
 
         /* Update the telemetry */
         if(tagOfInterest != null)
@@ -368,7 +373,7 @@ public class LCRedLeft extends LinearOpMode{
         robot.intake(true);     // first cone
         robot.wait(300, this);
         drive.followTrajectorySequence(backSmall);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 0.8, this);
+        robot.absoluteasynchLift(robot.stackPos - 1000, 1, this);
         robot.wait(400, this);
         drive.followTrajectorySequence(traj5);
         robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);

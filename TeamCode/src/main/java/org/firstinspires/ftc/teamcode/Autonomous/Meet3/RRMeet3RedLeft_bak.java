@@ -25,6 +25,7 @@ package org.firstinspires.ftc.teamcode.Autonomous.Meet3;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -40,9 +41,9 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
-
-@Autonomous(name="RRMeet3RedLeft", group = "motion")
-public class RRMeet3RedLeft extends LinearOpMode{
+@Disabled
+@Autonomous(name="RRMeet3RedLeft_bak", group = "motion")
+public class RRMeet3RedLeft_bak extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -76,7 +77,7 @@ public class RRMeet3RedLeft extends LinearOpMode{
     Pose2d startPos1 = new Pose2d(-35.7,-62.75, Math.toRadians(90));
     // Vector2d forward1 = new Vector2d(-36, -3.5);
     Vector2d forward2 = new Vector2d(-35.7, -7.5);// was -35.75. -9.5
-    Vector2d highJunction = new Vector2d(-23.5, -14.5);     //was -23.5, -14.5 meet 3
+    Vector2d highJunction = new Vector2d(-23, -14.5);     //was -23.5, -14.5 meet 3
     Pose2d highJunctionH = new Pose2d(-3.75, -15.5, Math.toRadians(90));
     //Vector2d getHighJunctionClose = new Vector2d(4.5, -25.1875);
     Vector2d stack = new Vector2d(-63, -10.5);  // was 62.75, 11.75
@@ -139,13 +140,13 @@ public class RRMeet3RedLeft extends LinearOpMode{
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
                 .forward(6.5,         // was 5.7 - 0.45-.25 for meet 3
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.1))
                 .build();
 
         TrajectorySequence traj3 = drive.trajectorySequenceBuilder(traj2.end())
                 .back(6,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.1))
                 .build();
 
         TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
@@ -175,14 +176,14 @@ public class RRMeet3RedLeft extends LinearOpMode{
                 .turn(Math.toRadians(-90))
                 .back(3,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.5, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH), //max vel was 0.2
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.7))
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
                 .lineTo(highJunction)
                 .build();
 
         TrajectorySequence traj6 = drive.trajectorySequenceBuilder(traj5.end())
-                .forward(5.5,   // was 5.5 meet 3.
+                .forward(5,   // was 5.5 meet 3.  driving too forward  most of the time
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.2))
                 .build();
 
 
@@ -340,8 +341,6 @@ public class RRMeet3RedLeft extends LinearOpMode{
         robot.intake(true);     // first cone
         robot.wait(300, this);
         drive.followTrajectorySequence(backSmall);
-        robot.intake(true);     // first cone  close again in case gripper was against the wall
-        robot.wait(100, this);
         robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
         robot.wait(400, this);
         drive.followTrajectorySequence(traj5);

@@ -25,7 +25,6 @@ package org.firstinspires.ftc.teamcode.Autonomous.LeagueChampionship;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -40,8 +39,6 @@ import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-
-import org.openftc.easyopencv.OpenCvPipeline;
 import org.opencv.core.Point;
 
 import java.util.ArrayList;
@@ -53,7 +50,7 @@ public class LCRedLeft extends LinearOpMode{
 
     private ElapsedTime runtime = new ElapsedTime();
 
-    OpenCvCamera webcam1;
+    OpenCvCamera aprilTagCam;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
     OpenCvCamera webcam2;
     JunctionTopPipeline3 junctionTopPipeline3;
@@ -94,21 +91,17 @@ public class LCRedLeft extends LinearOpMode{
     Vector2d zone2 = new Vector2d(-36,-12);
     Vector2d zone3 = new Vector2d(-12, -12);
 
+    double[] cords = {-1, -1};
+
+    Point centroid;
+
     @Override
     public void runOpMode()
     {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         robot.initAutoRR(hardwareMap, this);
-        robot.initVuforia();
-        robot.initTfod();
-
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-
-       // camera1 = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        //camera2 = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
-
-        aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
-        junctionTopPipeline3 = new JunctionTopPipeline3(false);
+        //robot.initVuforia();
+        //robot.initTfod();
 
         robot.intake(true); // closes gripper
 
@@ -116,19 +109,63 @@ public class LCRedLeft extends LinearOpMode{
         robot.absoluteasynchLift(-150,0.5,this); //raise lifter slightly -> prevent cone scraping against ground
         robot.wait(300, this);
 
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+
+        int[] viewportContainerIds = OpenCvCameraFactory.getInstance()
+                .splitLayoutForMultipleViewports(
+                        cameraMonitorViewId, //The container we're splitting
+                        2, //The number of sub-containers to create
+                        OpenCvCameraFactory.ViewportSplitMethod.HORIZONTALLY); //Whether to split the container vertically or horizontally
+
+        webcam2 = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), viewportContainerIds[1]);
+        aprilTagCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), viewportContainerIds[0]);
+
+        aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
+        junctionTopPipeline3 = new JunctionTopPipeline3(false);
+
+        /*
+        robot.intake(true); // closes gripper
+
+        robot.wait(400, this);
+        robot.absoluteasynchLift(-150,0.5,this); //raise lifter slightly -> prevent cone scraping against ground
+        robot.wait(300, this);
+
+         */
+
 
        // camera.setPipeline(aprilTagDetectionPipeline);
         //camera2.setPipeline(junctionTopPipeline3);
-        webcam1.setPipeline(aprilTagDetectionPipeline);
-        webcam2.setPipeline(junctionTopPipeline3);
+        //aprilTagCam.setPipeline(aprilTagDetectionPipeline);
+        //webcam2.setPipeline(junctionTopPipeline3);
 
+        // open camera 2
+        //webcam2.setPipeline(junctionTopPipeline3);
+        /*
+        webcam2.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                //telemetry.addLine("junction camera opened");
+                //telemetry.update();
+            }
+
+            @Override
+            public void onError(int errorCode) {
+
+            }
+        });
+
+         */
+
+        aprilTagCam.setPipeline(aprilTagDetectionPipeline);
         // open camera1
-        webcam1.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        aprilTagCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
             {
-                webcam1.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
+                aprilTagCam.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
+                //telemetry.addLine("april tag camera opened");
+                //telemetry.update();
             }
 
             @Override
@@ -138,20 +175,7 @@ public class LCRedLeft extends LinearOpMode{
             }
         });
 
-        // open camera 2
 
-        webcam2.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
-            public void onOpened() {
-                telemetry.addLine("junction camera opened");
-                telemetry.update();
-            }
-
-            @Override
-            public void onError(int errorCode) {
-
-            }
-        });
 
         telemetry.setMsTransmissionInterval(50);
 
@@ -208,19 +232,27 @@ public class LCRedLeft extends LinearOpMode{
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
                 .lineTo(highJunction)
                 .build();
-
+/*
         TrajectorySequence traj6 = drive.trajectorySequenceBuilder(traj5.end())
                 .forward(5,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
                 .build();
 
+ */
 
+        webcam2.setPipeline(junctionTopPipeline3);
+        webcam2.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                webcam2.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
+            }
 
-        // TrajectorySequence sanityTest = drive.trajectorySequenceBuilder(new Pose2d(-36,-63.5, Math.toRadians(90)))
-        //         .lineTo(new Vector2d(-36,0))
-        //         .build();
+            @Override
+            public void onError(int errorCode) {
 
+            }
+        });
 
         /*
          * The INIT-loop:
@@ -290,9 +322,23 @@ public class LCRedLeft extends LinearOpMode{
          * during the init loop.
          */
 
-        // stops april tag camera
-        webcam2.stopStreaming();
+        // stops april tag 1camera
+        aprilTagCam.stopStreaming();
+/*
+        webcam2.setPipeline(junctionTopPipeline3);
+        webcam2.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                webcam2.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
+            }
 
+            @Override
+            public void onError(int errorCode) {
+
+            }
+        });
+
+ */
         /* Update the telemetry */
         if(tagOfInterest != null)
         {
@@ -326,44 +372,37 @@ public class LCRedLeft extends LinearOpMode{
             //trajectory
         }
 
-        TrajectorySequence end;
-
-        if (route == 1) {
-            end = drive.trajectorySequenceBuilder(traj6.end())
-                    .back(3.8)
-                    .strafeLeft(12+23)
-                    .addTemporalMarker(1, ()->{
-                        robot.absoluteasynchLift(-380, 0.8, this);
-                    })
-                    .build();
-        } else if (route == 2) {
-            end = drive.trajectorySequenceBuilder(traj6.end())
-                    .back(3.8)
-                    .strafeLeft(12)
-                    .addTemporalMarker(1, ()->{
-                        robot.absoluteasynchLift(-380, 0.8, this);
-                    })
-                    .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL)
-                    .turn(Math.toRadians(90))
-                    .build();
-        } else {
-            end = drive.trajectorySequenceBuilder(traj6.end())
-                    .back(3.8)
-                    .strafeRight(12)
-                    .addTemporalMarker(1, ()->{
-                        robot.absoluteasynchLift(-380, 0.8, this);
-                    })
-                    .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL)
-                    .turn(Math.toRadians(90))
-                    .build();
-        }
-
-
-
         drive.followTrajectorySequence(traj1);
         robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
         robot.wait(1000, this);
-        drive.followTrajectorySequence(traj2);
+
+        //get centroid and perform calculations for camera
+        Point centroid = junctionTopPipeline3.getCentroid();
+        cords[0] = centroid.x; cords[1] = centroid.y;
+        if(cords[0] == -1 || cords[1] == -1)
+            telemetry.addLine("centroid not detected");
+        webcam2.stopStreaming();
+        //webcam2.stopRecordingPipeline();
+
+        double[] movement = getMovement(cords);
+        TrajectorySequence realign;
+
+        if (movement[1] > 0)
+            realign = drive.trajectorySequenceBuilder(new Pose2d(0,0,0))
+                    .forward(5 + movement[1])
+                    .strafeRight(movement[0])
+                    .build();
+
+        else {
+            realign = drive.trajectorySequenceBuilder(new Pose2d(0, 0, 0))
+                    .forward(5 + movement[1])
+                    .strafeLeft(-movement[0])
+                    .build();
+        }
+
+        drive.followTrajectorySequence(realign);
+
+       // drive.followTrajectorySequence(traj2);
         robot.intake(false);
         robot.wait(300, this);
         drive.followTrajectorySequence(traj3);
@@ -374,23 +413,52 @@ public class LCRedLeft extends LinearOpMode{
         robot.wait(300, this);
         drive.followTrajectorySequence(backSmall);
         robot.absoluteasynchLift(robot.stackPos - 1000, 1, this);
-        robot.wait(400, this);
+        TrajectorySequence realign2 = realign;
+        robot.wait(300, this);
         drive.followTrajectorySequence(traj5);
         robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
         robot.wait(1000, this);
-        drive.followTrajectorySequence(traj6);
+        drive.followTrajectorySequence(realign2);
         robot.intake(false);    // second cone
-        robot.wait(300, this);
+        robot.wait(200, this);
+
+
+        TrajectorySequence end;
+
+        if (route == 1) {
+            end = drive.trajectorySequenceBuilder(realign2.end())
+                    .back(3.8)
+                    .strafeLeft(12+23)
+                    .addTemporalMarker(1, ()->{
+                        robot.absoluteasynchLift(-380, 0.8, this);
+                    })
+                    .build();
+        } else if (route == 2) {
+            end = drive.trajectorySequenceBuilder(realign2.end())
+                    .back(3.8)
+                    .strafeLeft(12)
+                    .addTemporalMarker(1, ()->{
+                        robot.absoluteasynchLift(-380, 0.8, this);
+                    })
+                    .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL)
+                    .turn(Math.toRadians(90))
+                    .build();
+        } else {
+            end = drive.trajectorySequenceBuilder(realign2.end())
+                    .back(3.8)
+                    .strafeRight(12)
+                    .addTemporalMarker(1, ()->{
+                        robot.absoluteasynchLift(-380, 0.8, this);
+                    })
+                    .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL)
+                    .turn(Math.toRadians(90))
+                    .build();
+        }
 
         drive.followTrajectorySequence(end);
         Pose2d pose = drive.getPoseEstimate();
 
-
-
         // drive.followTrajectorySequence(sanityTest);
-
-
-
 
 
     }
@@ -404,5 +472,17 @@ public class LCRedLeft extends LinearOpMode{
         telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", Math.toDegrees(detection.pose.yaw)));
         telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", Math.toDegrees(detection.pose.pitch)));
         telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
+    }
+
+    double[] getMovement(double[] cords) {
+        double x = (cords[0] - 640) / (150);
+        if ( x < 0.2) x*=1.2;
+        //double y = -(360 - cords[1]) / (720/5.25);
+        double y = (360 - cords[1]) / 110;
+        if(y>2) y*=.8;
+
+        double[] movement = {x, y};
+
+        return movement;
     }
 }

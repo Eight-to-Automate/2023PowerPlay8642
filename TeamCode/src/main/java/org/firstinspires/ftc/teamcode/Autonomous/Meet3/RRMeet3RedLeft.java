@@ -121,14 +121,16 @@ public class RRMeet3RedLeft extends LinearOpMode{
             }
         });
 
+
+
         telemetry.setMsTransmissionInterval(50);
 
         drive.setPoseEstimate(startPos1);
 
         TrajectorySequence traj1 = drive.trajectorySequenceBuilder(startPos1)
                 .lineTo(forward2,
-                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.85, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL * 0.8)) // added Max accel * 0.8 for championship Drive speed was 0.85
                 .lineTo(highJunction,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))

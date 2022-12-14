@@ -92,7 +92,7 @@ public class AutoAimTracking extends LinearOpMode {
             @Override
             public void onError(int errorCode) {
 
-                 /* This will be called if the camera could not be opened*/
+                /* This will be called if the camera could not be opened*/
 
             }
         });
@@ -126,8 +126,6 @@ public class AutoAimTracking extends LinearOpMode {
 
         //while (!cameraOpened && opModeIsActive()) {}
 
-
-
         camera.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
 
         Point centroid;
@@ -136,7 +134,6 @@ public class AutoAimTracking extends LinearOpMode {
             centroid = pipeline.getCentroid();
             cords[0] = centroid.x;
             cords[1] = centroid.y;
-
         }
 
         telemetry.addData("pipline time", camera.getPipelineTimeMs());
@@ -146,14 +143,18 @@ public class AutoAimTracking extends LinearOpMode {
 
         telemetry.addData("elapsed time", runtime.milliseconds() - runtimeStart);
 
-        camera.stopStreaming();
+        //camera.stopStreaming();
+        camera.stopRecordingPipeline();
+        camera.pauseViewport();
+
+
 
         if (cords[0] == -1 && cords[1] == -1) {
             telemetry.addLine("target not found");
         }
-            telemetry.addData("x pixel position", cords[0]);
-            telemetry.addData("y pixel position", cords[1]);
-            //telemetry.update();
+        telemetry.addData("x pixel position", cords[0]);
+        telemetry.addData("y pixel position", cords[1]);
+        //telemetry.update();
 
 
         double[] movement = getMovement(cords);
@@ -165,20 +166,20 @@ public class AutoAimTracking extends LinearOpMode {
         telemetry.update();
 
 
-            TrajectorySequence realign;
+        TrajectorySequence realign;
 
-            if (movement[1] > 0)
+        if (movement[1] > 0)
             realign = drive.trajectorySequenceBuilder(new Pose2d(0,0,0))
                     .forward(5 + movement[1])
-                                    .strafeRight(movement[0])
-                                            .build();
+                    .strafeRight(movement[0])
+                    .build();
 
         else {
-                realign = drive.trajectorySequenceBuilder(new Pose2d(0, 0, 0))
-                        .forward(5 + movement[1])
-                        .strafeLeft(-movement[0])
-                        .build();
-            }
+            realign = drive.trajectorySequenceBuilder(new Pose2d(0, 0, 0))
+                    .forward(5 + movement[1])
+                    .strafeLeft(-movement[0])
+                    .build();
+        }
 
         drive.followTrajectorySequence(realign);
 

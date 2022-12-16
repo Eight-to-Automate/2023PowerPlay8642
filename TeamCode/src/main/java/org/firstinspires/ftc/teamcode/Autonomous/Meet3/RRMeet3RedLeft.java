@@ -180,7 +180,7 @@ public class RRMeet3RedLeft extends LinearOpMode{
                 .build();
 
         TrajectorySequence traj6 = drive.trajectorySequenceBuilder(traj5.end())
-                .forward(5.5,   // was 5.5 meet 3.
+                .forward(5.25,   // was 5.5 meet 3.
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
                 .build();

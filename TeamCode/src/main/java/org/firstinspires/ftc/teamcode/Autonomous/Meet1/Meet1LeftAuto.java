@@ -204,25 +204,25 @@ public class Meet1LeftAuto extends LinearOpMode{
         //robot.wait(1000, this);
         telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
         robot.asynchLift(-400,  1, this); //raise lifter slightly -> prevent cone scraping against ground
-        telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
+        //telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
         robot.wait(400, this);
-        telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
+       // telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
         robot.GoDistance(53, 0.3,  false, this);// drive 1 tile forward
-        telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
+      //  telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
         robot.Strafe(3, 0.3, this, false);  // square
-        telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
+       // telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
         robot.wait(400, this);
-        telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
-        robot.Strafe(-105, 0.3, this, false);// strafe 1.5 tiles left   // changed more than right because gripper is asymetrical
-        telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
+      //  telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
+        robot.Strafe(-107, 0.3, this, false);// strafe 1.5 tiles left   // changed more than right because gripper is asymetrical  was 105 Dec 17-22
+       // telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
         robot.GoDistance(-2, 0.3, false, this);
         robot.asynchLift(-2180,  1, this); //raise lifter until top  (top = 2600 ticks from bottom)
-        telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
+       // telemetry.addData("Is lifter busy", robot.lifter.isBusy()); telemetry.update();
         robot.wait(2000, this);
-        robot.GoDistance(10, 0.3, false, this);// drive forward small amount to deliver cone
+        robot.GoDistance(9, 0.3, false, this);// drive forward small amount to deliver cone Distance was 11 dec 17, 22
         robot.intake(false);// release grabber
-        robot.wait(1500,this);
-        robot.GoDistance(-15, 0.3, false, this); // back up same small amount after delivery
+        robot.wait(500,this);
+        robot.GoDistance(-16, 0.3, false, this); // back up same small amount after delivery
         robot.asynchLift(2180, 0.7, this);
         robot.wait(2000, this);
         robot.GoDistance(5, 0.3, false, this);

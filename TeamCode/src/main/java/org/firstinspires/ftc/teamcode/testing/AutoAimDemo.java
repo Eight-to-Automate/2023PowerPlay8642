@@ -53,27 +53,28 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 
-@Disabled
-@Autonomous(name="AutoAimTest", group="Linear Opmode")
+
+@Autonomous(name="AutoAimDemo", group="Linear Opmode")
 //@Disabled
-public class AutoAimTracking extends LinearOpMode {
+public class AutoAimDemo extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     RobotPowerPlay robot = new RobotPowerPlay();
     JunctionTopPipeline3 pipeline;
     OpenCvCamera camera;
-    boolean cameraOpened = false;
 
     @Override
     public void runOpMode() {
+        robot.initAutoRR(hardwareMap, this);
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         // *************************************************************************************************
         //Auto INIT
         robot.initAutoRR(hardwareMap, this);
 
-        pipeline = new JunctionTopPipeline3(false);
+        robot.intake(true);
 
+        pipeline = new JunctionTopPipeline3(false);
 
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"));
         camera.setPipeline(pipeline);
@@ -81,81 +82,29 @@ public class AutoAimTracking extends LinearOpMode {
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                //camera.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
-                telemetry.addLine("camera opened");
-                telemetry.addData("opened runtime", runtime.milliseconds());
-                telemetry.update();
-                cameraOpened = true;
-
+                camera.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
             public void onError(int errorCode) {
-
-                /* This will be called if the camera could not be opened*/
-
             }
         });
 
-        drive.setPoseEstimate(new Pose2d(0,0, Math.toRadians(0)));
-
-        telemetry.addData("initialized without camera", true);
-        telemetry.update();
-
-        /*
-        Point testc  = pipeline.getCentroid();
-        telemetry.addData("x pixel position", testc.x);
-        telemetry.addData("y pixel position", testc.y);
-        telemetry.update();
-         */
-
         waitForStart(); //******************************************************************************
-        runtime.reset();
-        double runtimeStart = runtime.milliseconds();
-
-        telemetry.addData("runtime at start", runtimeStart);
-        telemetry.update();
-
-        // robot.wait(50, this);
-
-        //robot.wait(2000, this);
 
         //double startT = getRuntime();
 
         double[] cords = {-1, -1};
 
-        //while (!cameraOpened && opModeIsActive()) {}
-
-        camera.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
-
         Point centroid;
 
-        while (opModeIsActive() && cords[0] == -1 && cords[1] == -1) {
-            centroid = pipeline.getCentroid();
-            cords[0] = centroid.x;
-            cords[1] = centroid.y;
-        }
-
-        telemetry.addData("pipline time", camera.getPipelineTimeMs());
-        telemetry.update();
-
-
-
-        telemetry.addData("elapsed time", runtime.milliseconds() - runtimeStart);
-
-        //camera.stopStreaming();
-        camera.stopRecordingPipeline();
-        camera.pauseViewport();
-
-
+        centroid = pipeline.getCentroid();
+        cords[0] = centroid.x;
+        cords[1] = centroid.y;
 
         if (cords[0] == -1 && cords[1] == -1) {
             telemetry.addLine("target not found");
         }
-        telemetry.addData("x pixel position", cords[0]);
-        telemetry.addData("y pixel position", cords[1]);
-        //telemetry.update();
-
 
         double[] movement = getMovement(cords);
 
@@ -164,7 +113,6 @@ public class AutoAimTracking extends LinearOpMode {
         telemetry.addData("Move in x", movement[0]);
         telemetry.addData("move in y", movement[1]);
         telemetry.update();
-
 
         TrajectorySequence realign;
 
@@ -181,6 +129,7 @@ public class AutoAimTracking extends LinearOpMode {
                     .build();
         }
 
+        drive.setPoseEstimate(new Pose2d(0,0, Math.toRadians(0)));
         drive.followTrajectorySequence(realign);
 
         while (opModeIsActive()) {}

@@ -104,9 +104,10 @@ public class RobotPowerPlay {
     //bfr meet3 -1600
     public final int lifterLevelTwo = -1500; //Old: -1700  11/1/2022  New: -1550 11/11/2022 new:-1600
     //bfr meet3 -2580
-    public final int lifterLevelThree = -2530;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
+    //bfr League championship -2530
+    public final int lifterLevelThree = -2490;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
     public final int lowJunctionPos = -400;  //Old: -400    11/1/2022 New: -250
-    public final int stackPos = -405; //-370
+    public final int stackPos = -398; //-370  Was 405 at meet 3
 
     // cone recognition variables
     OpenCvCamera camera;

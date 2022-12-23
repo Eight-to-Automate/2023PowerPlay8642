@@ -215,7 +215,7 @@ public class Meet1RightAuto extends LinearOpMode{
         robot.wait(2000, this);
         robot.GoDistance(8, testingPower, false, this);// drive forward small amount
         robot.intake(false);// release grabber
-        robot.wait(1500,this);
+        robot.wait(500,this);
         robot.GoDistance(-8, testingPower, false, this); // back up same small amount
 
         robot.asynchLift(2600, 0.7, this);

@@ -19,6 +19,7 @@
  * SOFTWARE.
  */
 
+
 package org.firstinspires.ftc.teamcode.Autonomous.LeagueChampionship;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
@@ -35,25 +36,28 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.pipelines.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.pipelines.JunctionTopPipeline3;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.opencv.core.Point;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.opencv.core.Point;
+import org.openftc.easyopencv.OpenCvSwitchableWebcam;
 
 import java.util.ArrayList;
 
 @Disabled
-@Autonomous(name="LCRedLeft", group = "motion")
-public class LCRedLeft extends LinearOpMode{
+@Autonomous(name="LCRedLeftSwitchable", group = "motion")
+public class LCRedLeftSwitchable extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
     private ElapsedTime runtime = new ElapsedTime();
 
-    OpenCvCamera aprilTagCam;
+    WebcamName aprilTagCam;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
-    OpenCvCamera webcam2;
+    WebcamName junctionCam;
     JunctionTopPipeline3 junctionTopPipeline3;
+
+    OpenCvSwitchableWebcam switchableWebcam;
 
     static final double FEET_PER_METER = 3.28084;
 
@@ -77,7 +81,7 @@ public class LCRedLeft extends LinearOpMode{
 
     AprilTagDetection tagOfInterest = null;
 
-    // positions for roadrunner localization
+    // positions for localization
     Pose2d startPos1 = new Pose2d(-35.7,-62.75, Math.toRadians(90));
     // Vector2d forward1 = new Vector2d(-36, -3.5);
     Vector2d forward2 = new Vector2d(-35.7, -7.5);// was -35.75. -9.5
@@ -93,11 +97,15 @@ public class LCRedLeft extends LinearOpMode{
 
     double[] cords = {-1, -1};
 
+    Point centroid;
+
     @Override
     public void runOpMode()
     {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         robot.initAutoRR(hardwareMap, this);
+        //robot.initVuforia();
+        //robot.initTfod();
 
         robot.intake(true); // closes gripper
 
@@ -105,115 +113,69 @@ public class LCRedLeft extends LinearOpMode{
         robot.absoluteasynchLift(-150,0.5,this); //raise lifter slightly -> prevent cone scraping against ground
         robot.wait(300, this);
 
+
+        aprilTagCam = hardwareMap.get(WebcamName.class, "Webcam 1");
+        junctionCam = hardwareMap.get(WebcamName.class, "Webcam 2");
+
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-
-        int[] viewportContainerIds = OpenCvCameraFactory.getInstance()
-                .splitLayoutForMultipleViewports(
-                        cameraMonitorViewId, //The container we're splitting
-                        2, //The number of sub-containers to create
-                        OpenCvCameraFactory.ViewportSplitMethod.HORIZONTALLY); //Whether to split the container vertically or horizontally
-
-        aprilTagCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), viewportContainerIds[0]);
-        webcam2 = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), viewportContainerIds[1]);
 
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
         junctionTopPipeline3 = new JunctionTopPipeline3(false);
 
-        webcam2.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
-            public void onOpened() {
-                webcam2.setPipeline(junctionTopPipeline3);
-                //webcam2.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
-            }
+        switchableWebcam = OpenCvCameraFactory.getInstance().createSwitchableWebcam(cameraMonitorViewId, aprilTagCam, junctionCam);
 
-            @Override
-            public void onError(int errorCode) {
-
-            }
-        });
-
-        // open camera1
-        aprilTagCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        switchableWebcam.setPipeline(aprilTagDetectionPipeline);
+        switchableWebcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
             {
-                aprilTagCam.setPipeline(aprilTagDetectionPipeline);
-                aprilTagCam.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
-                //telemetry.addLine("april tag camera opened");
-                //telemetry.update();
+                switchableWebcam.startStreaming(800, 448, OpenCvCameraRotation.UPRIGHT);
+                switchableWebcam.setActiveCamera(aprilTagCam);
             }
 
             @Override
             public void onError(int errorCode)
             {
-
+                telemetry.addLine("Error: " + errorCode);
+                telemetry.update();
             }
         });
 
-        //telemetry.setMsTransmissionInterval(50);
+
+        telemetry.setMsTransmissionInterval(50);
 
         drive.setPoseEstimate(startPos1);
 
         TrajectorySequence traj1 = drive.trajectorySequenceBuilder(startPos1)
                 .lineTo(forward2,
-                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.85, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .addDisplacementMarker(() -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
-                })
-                .lineTo(highJunction,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL * 0.8))
+                .lineTo(highJunction,
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
-        /*
+        //Pose2d stackPose = new Pose2d(stack, Math.toRadians(90));
+
+        //run realignment instead of traj2
+/*
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
                 .forward(6.5,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
-                .build();
-         */
-
-/*
-        TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
-                .strafeLeft(12)
-                .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL)
-                .turn(Math.toRadians(90))
-                //.lineToLinearHeading(stackh,
-                //        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.5, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                //        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .lineTo(stack,
-                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
                 .build();
 
  */
-        Pose2d myPose = new Pose2d(stack, Math.toRadians(90));
-        TrajectorySequence backSmall = drive.trajectorySequenceBuilder(myPose)
-                .back(2,
-                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
-                //   .strafeLeft(3,
-                //         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.2, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                //          SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.1))
-                .build();
 
-        TrajectorySequence traj5 = drive.trajectorySequenceBuilder(backSmall.end())
-                .back(24)
-                .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL) // max angle velocity was 0.7
-                .turn(Math.toRadians(-90))
-                .back(3,
-                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH), //max vel was 0.2
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
-                .lineTo(highJunction)
-                .build();
+
 /*
         TrajectorySequence traj6 = drive.trajectorySequenceBuilder(traj5.end())
-                .forward(5,
+                .forward(5.25,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
                 .build();
+
  */
 
         /*
@@ -234,7 +196,6 @@ public class LCRedLeft extends LinearOpMode{
                     {
                         tagOfInterest = tag;
                         tagFound = true;
-                        aprilTagCam.stopStreaming();
                         break;
                     }
                 }
@@ -284,9 +245,9 @@ public class LCRedLeft extends LinearOpMode{
          * The START command just came in: now work off the latest snapshot acquired
          * during the init loop.
          */
-
-        // stops april tag 1camera
-        //aprilTagCam.stopStreaming();
+        switchableWebcam.stopStreaming();
+        switchCam();
+        switchableWebcam.startStreaming(1280, 720);
 
         /* Update the telemetry */
         if(tagOfInterest != null)
@@ -322,88 +283,134 @@ public class LCRedLeft extends LinearOpMode{
         }
 
         drive.followTrajectorySequence(traj1);
+        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.wait(3000, this);
 
-        webcam2.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
-        robot.wait(2250, this);
         //get centroid and perform calculations for camera
-        Point center = junctionTopPipeline3.getCentroid();
-        cords[0] = center.x; cords[1] = center.y;
+        //Point centroid = junctionTopPipeline3.getCentroid();
+        switchableWebcam.stopStreaming();
+        switchableWebcam.startStreaming(1280, 720);
+        telemetry.addLine(switchableWebcam.getActiveCamera().toString());
+        telemetry.update();
+        double startT = runtime.milliseconds();
+        while (cords[1] == -1 && cords[0] == -1 && runtime.milliseconds() - startT <= 5000) {
+            Point centroid = junctionTopPipeline3.getCentroid();
+            cords[0] = centroid.x;
+            cords[1] = centroid.y;
+        }
         if(cords[0] == -1 || cords[1] == -1)
             telemetry.addLine("centroid not detected");
-        //webcam2.stopStreaming();
+            telemetry.update();
+        //switchableWebcam.stopStreaming();
         //webcam2.stopRecordingPipeline();
 
         double[] movement = getMovement(cords);
+        telemetry.addData("coordinates to realign", cords);
+
         TrajectorySequence realign;
 
         if (movement[1] > 0)
-            realign = drive.trajectorySequenceBuilder(new Pose2d(0,0,0))
+            realign = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                     .forward(5 + movement[1])
                     .strafeRight(movement[0])
                     .build();
 
         else {
-            realign = drive.trajectorySequenceBuilder(new Pose2d(0, 0, 0))
+            realign = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                     .forward(5 + movement[1])
                     .strafeLeft(-movement[0])
                     .build();
         }
 
+        robot.wait(3000, this);
+
         drive.followTrajectorySequence(realign);
 
-       // drive.followTrajectorySequence(traj2);
         robot.intake(false);
-        webcam2.stopStreaming();
-        robot.wait(1000, this);
+        robot.wait(300, this);
 
         TrajectorySequence traj3 = drive.trajectorySequenceBuilder(realign.end())
-                .back(5.5,
+                .back(6,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
                 .build();
-        drive.followTrajectorySequence(traj3);
 
-        robot.absoluteasynchLift(robot.stackPos, 0.8, this);
-        //robot.wait(900, this);
         TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
                 .strafeLeft(12)
                 .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL)
                 .turn(Math.toRadians(90))
-                //.lineToLinearHeading(stackh,
-                //        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.5, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                //        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .lineTo(stack,
-                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
+
+        TrajectorySequence backSmall = drive.trajectorySequenceBuilder(traj4.end())
+                .back(2,
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
+                .build();
+
+        TrajectorySequence traj5 = drive.trajectorySequenceBuilder(backSmall.end())
+                .back(24)
+                .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL) // max angle velocity was 0.7
+                .turn(Math.toRadians(-90))
+                .back(3,
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.5, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH), //max vel was 0.2
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.7))
+                .lineTo(highJunction)
+                .build();
+
+        robot.wait(1000, this);
+
+       // drive.followTrajectorySequence(traj2);
+
+        drive.followTrajectorySequence(traj3);
+        robot.absoluteasynchLift(robot.stackPos, 0.8, this);
+        robot.wait(1000, this);
 
         drive.followTrajectorySequence(traj4);
         robot.intake(true);     // first cone
         robot.wait(300, this);
+
         drive.followTrajectorySequence(backSmall);
         robot.absoluteasynchLift(robot.stackPos - 1000, 1, this);
-        TrajectorySequence realign2 = realign;
         robot.wait(300, this);
+
         drive.followTrajectorySequence(traj5);
         robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
         robot.wait(1000, this);
+
+        TrajectorySequence realign2;
+
+        if (movement[1] > 0)
+            realign2 = drive.trajectorySequenceBuilder(traj5.end())
+                    .forward(5 + movement[1])
+                    .strafeRight(movement[0])
+                    .build();
+        else
+            realign2 = drive.trajectorySequenceBuilder(traj5.end())
+                    .forward(5 + movement[1])
+                    .strafeLeft(-movement[0])
+                    .build();
+
         drive.followTrajectorySequence(realign2);
         robot.intake(false);    // second cone
         robot.wait(200, this);
+
 
         TrajectorySequence end;
 
         if (route == 1) {
             end = drive.trajectorySequenceBuilder(realign2.end())
-                    .back(3.8)
-                    .strafeLeft(12+24)
+                    .back(3.8 - 0.25)
+                    .strafeLeft(12+23)
                     .addTemporalMarker(1, ()->{
                         robot.absoluteasynchLift(-380, 0.8, this);
                     })
                     .build();
         } else if (route == 2) {
             end = drive.trajectorySequenceBuilder(realign2.end())
-                    .back(3.8)
+                    .back(3.8 - 0.25)
                     .strafeLeft(12)
                     .addTemporalMarker(1, ()->{
                         robot.absoluteasynchLift(-380, 0.8, this);
@@ -413,7 +420,7 @@ public class LCRedLeft extends LinearOpMode{
                     .build();
         } else {
             end = drive.trajectorySequenceBuilder(realign2.end())
-                    .back(3.8)
+                    .back(3.8 - 0.25)
                     .strafeRight(12)
                     .addTemporalMarker(1, ()->{
                         robot.absoluteasynchLift(-380, 0.8, this);
@@ -424,21 +431,25 @@ public class LCRedLeft extends LinearOpMode{
         }
 
         drive.followTrajectorySequence(end);
-        Pose2d poseAutoEnd = drive.getPoseEstimate();
+        Pose2d pose = drive.getPoseEstimate();
+
+        // drive.followTrajectorySequence(sanityTest);
+
 
     }
 
     void tagToTelemetry(AprilTagDetection detection)
     {
         telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
-        telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER));
-        telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER));
-        telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z*FEET_PER_METER));
-        telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", Math.toDegrees(detection.pose.yaw)));
-        telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", Math.toDegrees(detection.pose.pitch)));
-        telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
+        //telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER));
+        //telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER));
+        //telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z*FEET_PER_METER));
+        //telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", Math.toDegrees(detection.pose.yaw)));
+        //telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", Math.toDegrees(detection.pose.pitch)));
+        //telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
     }
 
+    /*
     double[] getMovement(double[] cords) {
         double x = (cords[0] - 640) / (150);
         if ( x < 0.2) x*=1.2;
@@ -448,11 +459,37 @@ public class LCRedLeft extends LinearOpMode{
 
         double[] movement = {x, y};
 
-        if(Math.abs(x) > 3 || Math.abs(y) > 3 || Math.min(cords[0], cords[1]) < 0){
+        if(Math.abs(x) > 2.5 || Math.abs(y) > 2.5 || Math.min(cords[0], cords[1]) < 0){
             movement[0] = 0;
             movement[1] = 0;
         }
 
+        if (Math.abs(movement[0]) < 0.25) movement[0] = 0;
+        if (Math.abs(movement[1]) < 0.25) movement[1] = 0;
+
         return movement;
+    }
+     */
+
+    public double[] getMovement(double[] cords) {
+        double x = (cords[0] - 640) / (150);
+        if ( x < 0.2) x*=1.2;
+        //double y = -(360 - cords[1]) / (720/5.25);
+        double y = (360 - cords[1]) / 110;
+        if(y>2) y*=.8;
+
+        double[] movement = {x, y};
+
+        return movement;
+    }
+
+    public void switchCam() {
+        if (switchableWebcam.getActiveCamera() == aprilTagCam) {
+            switchableWebcam.setActiveCamera(junctionCam);
+            switchableWebcam.setPipeline(junctionTopPipeline3);
+        } else if (switchableWebcam.getActiveCamera() == junctionCam) {
+            switchableWebcam.setActiveCamera(aprilTagCam);
+            switchableWebcam.setPipeline(aprilTagDetectionPipeline);
+        }
     }
 }

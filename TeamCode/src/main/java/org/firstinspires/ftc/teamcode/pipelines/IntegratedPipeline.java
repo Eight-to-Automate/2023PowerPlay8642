@@ -1,25 +1,11 @@
-/*
- * Copyright (c) 2021 OpenFTC Team
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package org.firstinspires.ftc.teamcode.pipelines;
+
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+import org.openftc.easyopencv.OpenCvPipeline;
 
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.CvType;
@@ -37,8 +23,12 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
 
-public class AprilTagDetectionPipeline extends OpenCvPipeline
-{
+public class IntegratedPipeline extends OpenCvPipeline{
+
+    boolean tag_checking = false;
+
+    private Point centroid;
+
     private long nativeApriltagPtr;
     private Mat grey = new Mat();
     private ArrayList<AprilTagDetection> detections = new ArrayList<>();
@@ -67,7 +57,7 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
     private boolean needToSetDecimation;
     private final Object decimationSync = new Object();
 
-    public AprilTagDetectionPipeline(double tagsize, double fx, double fy, double cx, double cy)
+    public IntegratedPipeline(double tagsize, double fx, double fy, double cx, double cy)
     {
         this.tagsize = tagsize;
         this.tagsizeX = tagsize;
@@ -99,9 +89,11 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
         }
     }
 
-    @Override
-    public Mat processFrame(Mat input)
-    {
+
+    public Mat processFrame(Mat input) {
+
+        if(tag_checking){
+
         // Convert to greyscale
         Imgproc.cvtColor(input, grey, Imgproc.COLOR_RGBA2GRAY);
 
@@ -126,22 +118,103 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
         // OpenCV because I haven't yet figured out how to re-use AprilTag's pose in OpenCV.
         for(AprilTagDetection detection : detections)
         {
-            Pose pose = poseFromTrapezoid(detection.corners, cameraMatrix, tagsizeX, tagsizeY);
+            AprilTagDetectionPipeline.Pose pose = poseFromTrapezoid(detection.corners, cameraMatrix, tagsizeX, tagsizeY);
             drawAxisMarker(input, tagsizeY/2.0, 6, pose.rvec, pose.tvec, cameraMatrix);
             draw3dCubeMarker(input, tagsizeX, tagsizeX, tagsizeY, 5, pose.rvec, pose.tvec, cameraMatrix);
         }
 
+        grey.release();
+        return input; }
+
+        Mat mat = new Mat();
+        // Step 1 : mat turns into HSV values
+        Imgproc.cvtColor(input, mat, Imgproc.COLOR_RGB2HSV);
+
+        Mat blurred = new Mat();
+        // Step 2 : Bilateral blur
+        double blurRadius = 7.207207207207208;
+        int radius = (int)(7.707207207207208 + 0.5);
+        Imgproc.bilateralFilter(mat, blurred, -1, radius, radius);
+
+        Scalar lowHSV = new Scalar(53.41726618705036, 27.51798561151079, 48.156474820143885);
+        Scalar highHSV = new Scalar(123.93939393939397, 255.0, 224.94949494949495);
+        Mat thresh = new Mat();
+        //Get a black and white image
+        Core.inRange(blurred, lowHSV, highHSV, thresh);
+
+        Mat eroded = new Mat();
+        // Step CV_erode0:
+        Mat kernel = new Mat();
+        Point anchor = new Point(-1,-1);
+        Scalar borderValue = new Scalar(-1);
+
+        Imgproc.erode(thresh, eroded, kernel, anchor, 4, Core.BORDER_CONSTANT, borderValue);
+
+        kernel.release();
+
+        Mat circles = new Mat();
+        Imgproc.HoughCircles(eroded, circles, Imgproc.HOUGH_GRADIENT, 1.5, 15, 300, 0.8, 50 , 125);
+        int largest_radius = 0; Point largest_center = new Point(0,0);
+        for (int i = 0; i < circles.cols(); i++ ) {
+            double[] data = circles.get(0, i);
+            Point center = new Point(Math.round(data[0]), Math.round(data[1]));
+            if (data[2] > largest_radius){
+                largest_radius = (int) Math.round(data[2]);
+                largest_center = center;
+            }
+        }
+
+        //draw outline
+        Imgproc.circle(eroded, largest_center, largest_radius, new Scalar(0,0,255), 3, 8, 0 );
+        centroid = largest_center;
+
+       //**********************************************************************************************
+        //CONTOUR DETECTION
+/*
+        ArrayList<MatOfPoint> contours = new ArrayList<>();
+
+        Mat hierarchey = new Mat();
+
+        //finds contour
+        Imgproc.findContours(eroded, contours, hierarchey, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+
+        //sorts through and finds largest one
+
+        int largestIndex = 0;
+        int largest = contours.get(0).toArray().length;
+
+        for (int i = 0; i < contours.size(); i++) {
+            int currentSize = contours.get(i).toArray().length;
+            if (currentSize > largest) {
+
+                largest = currentSize;
+                largestIndex = i;
+            }
+        }
+
+        //Draw rectangle on largest contours
+
+        MatOfPoint2f areaPoints = new MatOfPoint2f(contours.get(largestIndex).toArray());
+        Rect rect = Imgproc.boundingRect(areaPoints);
+
+        Imgproc.rectangle(input, rect, new Scalar(255, 0, 0));
+
+        centerX = (rect.x + (rect.x + rect.width)) / 2;
+        centerY = (rect.y + (rect.y + rect.width)) / 2;
+ */
+        input.release();
+        eroded.copyTo(input);
+        eroded.release();
+        mat.release();
+        thresh.release();
+        //hierarchey.release();
         return input;
     }
 
-    public void setDecimation(float decimation)
-    {
-        synchronized (decimationSync)
-        {
-            this.decimation = decimation;
-            needToSetDecimation = true;
-        }
+    public Point getCentroid() {
+        return centroid;
     }
+
 
     public ArrayList<AprilTagDetection> getLatestDetections()
     {
@@ -268,7 +341,7 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
      * @param tagsizeY the original height of the tag
      * @return the 6DOF pose of the camera relative to the tag
      */
-    Pose poseFromTrapezoid(Point[] points, Mat cameraMatrix, double tagsizeX , double tagsizeY)
+    AprilTagDetectionPipeline.Pose poseFromTrapezoid(Point[] points, Mat cameraMatrix, double tagsizeX , double tagsizeY)
     {
         // The actual 2d points of the tag detected in the image
         MatOfPoint2f points2d = new MatOfPoint2f(points);
@@ -282,16 +355,12 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
         MatOfPoint3f points3d = new MatOfPoint3f(arrayPoints3d);
 
         // Using this information, actually solve for pose
-        Pose pose = new Pose();
+        AprilTagDetectionPipeline.Pose pose = new AprilTagDetectionPipeline.Pose();
         Calib3d.solvePnP(points3d, points2d, cameraMatrix, new MatOfDouble(), pose.rvec, pose.tvec, false);
 
         return pose;
     }
 
-    /*
-     * A simple container to hold both rotation and translation
-     * vectors, which together form a 6DOF pose.
-     */
     static class Pose
     {
         Mat rvec;
@@ -309,4 +378,5 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
             this.tvec = tvec;
         }
     }
+
 }

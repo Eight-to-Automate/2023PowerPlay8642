@@ -29,50 +29,43 @@
 
 package org.firstinspires.ftc.teamcode.testing;
 
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
-import org.firstinspires.ftc.teamcode.pipelines.JunctionTopPipeline3;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.pipelines.VidPipeline;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.opencv.core.*;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvPipeline;
-import org.opencv.core.Point;
-import org.firstinspires.ftc.teamcode.drive.DriveConstants;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 
 
-@Autonomous(name="AutoAimTest", group="Linear Opmode")
+@Autonomous(name="AutoAimDemo2", group="Linear Opmode")
 //@Disabled
-public class AutoAimTracking extends LinearOpMode {
+public class AutoAimDemo2 extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     RobotPowerPlay robot = new RobotPowerPlay();
-    JunctionTopPipeline3 pipeline;
+    VidPipeline pipeline;
     OpenCvCamera camera;
-    boolean cameraOpened = false;
 
     @Override
     public void runOpMode() {
+        robot.initAutoRR(hardwareMap, this);
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         // *************************************************************************************************
         //Auto INIT
         robot.initAutoRR(hardwareMap, this);
 
-        pipeline = new JunctionTopPipeline3(false);
+        robot.intake(true);
+
+        pipeline = new VidPipeline();
 
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"));
         camera.setPipeline(pipeline);
@@ -81,88 +74,28 @@ public class AutoAimTracking extends LinearOpMode {
             @Override
             public void onOpened() {
                 camera.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
-                /*
-                telemetry.addLine("camera opened");
-                telemetry.addData("opened runtime", runtime.milliseconds());
-                telemetry.update();
-                cameraOpened = true;
-                */
             }
 
             @Override
             public void onError(int errorCode) {
-
-                /* This will be called if the camera could not be opened*/
-
             }
         });
 
-        drive.setPoseEstimate(new Pose2d(0,0, Math.toRadians(0)));
-
-        //telemetry.addData("initialized without camera", true);
-        //telemetry.update();
-
-        /*
-        Point testc  = pipeline.getCentroid();
-        telemetry.addData("x pixel position", testc.x);
-        telemetry.addData("y pixel position", testc.y);
-        telemetry.update();
-         */
-
         waitForStart(); //******************************************************************************
-        /*
-        runtime.reset();
-        double runtimeStart = runtime.milliseconds();
-
-        telemetry.addData("runtime at start", runtimeStart);
-        telemetry.update();
-*/
-        // robot.wait(50, this);
-
-        //robot.wait(2000, this);
 
         //double startT = getRuntime();
 
         double[] cords = {-1, -1};
 
-        //while (!cameraOpened && opModeIsActive()) {}
-
-        //camera.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
-
         Point centroid;
 
-
-        while (opModeIsActive() && cords[0] == -1 && cords[1] == -1) {
-            centroid = pipeline.getCentroid();
-            cords[0] = centroid.x;
-            cords[1] = centroid.y;
-            telemetry.addData("x pixel position", cords[0]);
-            telemetry.addData("y pixel position", cords[1]);
-            telemetry.update();
-        }
-
-
-        //telemetry.addData("pipline time", camera.getPipelineTimeMs());
-        //telemetry.update();
-
-        //telemetry.addData("elapsed time", runtime.milliseconds() - runtimeStart);
-
-        //camera.stopStreaming();
-        //camera.stopRecordingPipeline();
-        //camera.pauseViewport();
-
-
+        centroid = pipeline.centroid;
+        cords[0] = centroid.x;
+        cords[1] = centroid.y;
 
         if (cords[0] == -1 && cords[1] == -1) {
             telemetry.addLine("target not found");
         }
-        /*
-        telemetry.addData("x pixel position", cords[0]);
-        telemetry.addData("y pixel position", cords[1]);
-        telemetry.update();
-
-         */
-
 
         double[] movement = getMovement(cords);
 
@@ -170,9 +103,12 @@ public class AutoAimTracking extends LinearOpMode {
         telemetry.addData("y pixel position", cords[1]);
         telemetry.addData("Move in x", movement[0]);
         telemetry.addData("move in y", movement[1]);
+        telemetry.addData("Pipeline Time", camera.getPipelineTimeMs());
+        telemetry.addData("Overhead Time", camera.getOverheadTimeMs());
+        telemetry.addData("Largest circle's radius," , pipeline.largest_radius);
         telemetry.update();
 
-
+        /*
         TrajectorySequence realign;
 
         if (movement[1] > 0)
@@ -188,27 +124,16 @@ public class AutoAimTracking extends LinearOpMode {
                     .build();
         }
 
+        drive.setPoseEstimate(new Pose2d(0,0, Math.toRadians(0)));
         drive.followTrajectorySequence(realign);
+
+         */
 
         while (opModeIsActive()) {}
 
     }
 
-    /*
     public double[] getMovement(double[] cords) {
-        double x = (cords[0] - 640) / (150);
-        if (x < 0.2) x*=1.2;
-        //double y = -(360 - cords[1]) / (720/5.25);
-        double y = (360 - cords[1]) / 110;
-        if(y>2) y*=.8;
-
-        double[] movement = {x, y};
-
-        return movement;
-    }
-     */
-
-    double[] getMovement(double[] cords) {
         double x = (cords[0] - 640) / (150);
         if ( x < 0.2) x*=1.2;
         //double y = -(360 - cords[1]) / (720/5.25);
@@ -216,11 +141,6 @@ public class AutoAimTracking extends LinearOpMode {
         if(y>2) y*=.8;
 
         double[] movement = {x, y};
-
-        if(Math.abs(x) > 3 || Math.abs(y) > 3 || Math.min(cords[0], cords[1]) < 0){
-            movement[0] = 0;
-            movement[1] = 0;
-        }
 
         return movement;
     }

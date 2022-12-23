@@ -31,6 +31,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
+import org.firstinspires.ftc.teamcode.TeleOp.PoseStorage;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.pipelines.AprilTagDetectionPipeline;
@@ -349,15 +350,11 @@ public class RRMeet3BlueLeft extends LinearOpMode{
         robot.wait(300, this);
 
         drive.followTrajectorySequence(end);
-        Pose2d pose = drive.getPoseEstimate();
 
-
+        //pose transfer to teleOp
+        PoseStorage.currentPose = drive.getPoseEstimate();
 
         // drive.followTrajectorySequence(sanityTest);
-
-
-
-
 
     }
 

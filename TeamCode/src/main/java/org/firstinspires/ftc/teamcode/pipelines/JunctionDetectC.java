@@ -17,6 +17,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 // import org.opencv.imgproc.Moments;
 // import java.util.ArrayList;
 
+// Hough Circles Pipeline
 public class JunctionDetectC extends OpenCvPipeline{
 
     public Point centroid;
@@ -29,20 +30,20 @@ public class JunctionDetectC extends OpenCvPipeline{
         Mat hsv = new Mat();
         Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
 
-        Mat thresh = new Mat();
-        Core.inRange(hsv, lowHSV, highHSV, thresh);
+        // Mat thresh = new Mat();
+        Core.inRange(hsv, lowHSV, highHSV, hsv);
 
         Mat mask = new Mat();
-        input.copyTo(mask, thresh);
+        input.copyTo(mask, hsv);
 
-        Mat gray = new Mat();
-        Imgproc.cvtColor(mask, gray, Imgproc.COLOR_RGBA2GRAY);
+        // Mat gray = new Mat();
+        Imgproc.cvtColor(mask, mask, Imgproc.COLOR_RGBA2GRAY);
 
-        Mat blur = new Mat();
-        Imgproc.medianBlur(gray, blur, 1);
+        // Mat blur = new Mat();
+        Imgproc.medianBlur(mask, mask, 1);
 
         Mat circles = new Mat();
-        Imgproc.HoughCircles(gray, circles, Imgproc.HOUGH_GRADIENT, 1.5, 300, 300, 50, 55, 75);
+        Imgproc.HoughCircles(mask, circles, Imgproc.HOUGH_GRADIENT, 1.5, 300, 300, 50, 55, 75);
         for (int i = 0; i < circles.cols(); i++ ) {
             double[] data = circles.get(0, i);
             Point center = new Point(Math.round(data[0]), Math.round(data[1]));
@@ -55,12 +56,9 @@ public class JunctionDetectC extends OpenCvPipeline{
             Imgproc.putText(input, Integer.toString(radius), center, 1, 2, new Scalar(255,255,255));
         }
 
-        gray.release();
+        hsv.release();
         mask.release();
-        blur.release();
-        //input.release();
         circles.release();
-        thresh.release();
         return input;
     }
 

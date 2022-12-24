@@ -70,7 +70,7 @@ public class VidPipeline extends OpenCvPipeline{
         }
 
         //draw outline
-        Imgproc.circle(circles, largest_center, largest_radius, new Scalar(0,0,255), 3, 8, 0 );
+        Imgproc.circle(input, largest_center, largest_radius, new Scalar(0,0,255), 3, 8, 0 );
         centroid = largest_center;
 
        //**********************************************************************************************

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.TeleOp;
+package org.firstinspires.ftc.teamcode.testing;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
@@ -11,10 +11,15 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotFreightFrenzy;
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
-@TeleOp(name="TeleMeet1", group="Iterative Opmode")
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 
-public class TelePowerPlayMeet1 extends OpMode {
+
+@TeleOp(name="TeleMeetGuidedMovementTest", group="Iterative Opmode")
+
+public class TelePowerPlayGuidedMovementTest extends OpMode {
     RobotPowerPlay robot = new RobotPowerPlay();
 
     // Declare OpMode members
@@ -22,8 +27,6 @@ public class TelePowerPlayMeet1 extends OpMode {
     double initialST; // Initial time for storage button timer
     double slowTime; // initial time for slowmode timeout
     double slowTime2; // initial time for super slowmode timeout
-
-    double checkTimeL, checkTimeH;
 
     // set up variables for motor powers
     double frontLeftPower;
@@ -78,6 +81,18 @@ public class TelePowerPlayMeet1 extends OpMode {
     boolean carouselMovingBlue = false;
     boolean carouselMovingRed = false;
 
+
+    double posX;
+    double posY;
+    double junctionX;
+    double junctionY;
+    double slowAreaRadius;
+    double stopAreaRadius;
+    SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);//initialize roadrunner drive
+
+
+
+
     // Exponential drive values
     public double exponential(double value, int constant) {
         double cubed =  value*value*value;
@@ -95,6 +110,9 @@ public class TelePowerPlayMeet1 extends OpMode {
         //robot.startDriveEncoderless();
         // robot.lifter.setMode(DcMotorEx.ZeroPowerBehavior.BRAKE);    // needed for 20:1 motor
         robot.lifter.setTargetPositionTolerance(15);
+
+
+        drive.setPoseEstimate(new Pose2d(62,-62,Math.toRadians(180))); //sets initial robot position at the Left Red terminal (bottom left corner) facing forwards
     }
 
     @Override
@@ -162,6 +180,74 @@ public class TelePowerPlayMeet1 extends OpMode {
         backRightPower = Range.clip(backRightPower, -1, 1);
         lifterPower = Range.clip(lifterPower, -1, 1);
 
+
+
+
+        //read roadrunner pose and update pose
+        drive.update();
+        Pose2d poseEstimate = drive.getPoseEstimate();
+
+
+        //record x and y positions
+        telemetry.addData("XPOS: ", poseEstimate.getX());
+        telemetry.addData("YPOS: ", poseEstimate.getY());
+        telemetry.addData("Heading: ", poseEstimate.getHeading());
+        telemetry.update();
+        posX = poseEstimate.getX();
+        posY = poseEstimate.getY();
+
+        //(47,-47) ground junction nearest to robot
+        junctionX = 47;
+        junctionY = -47;
+        slowAreaRadius = 6;//area around the junction to slow down the robot
+        stopAreaRadius = 3;//area around the junction the robot cannot enter
+
+
+        // Reduce power of motors as robot nears ground junction area
+        if((posX < (slowAreaRadius + junctionX) && posX > (-slowAreaRadius+ junctionX)) && (posY < (slowAreaRadius + junctionY) && posY > (-slowAreaRadius + junctionY))){//if robot is within a 6x6 box around ground junction
+            telemetry.addData("Slow area activated!:   ", true);
+            telemetry.update();
+
+            if((posX < stopAreaRadius && posX > -stopAreaRadius) && (posY < stopAreaRadius && posY > -stopAreaRadius)) {//if robot is within a 3x3 box around ground junction
+                telemetry.addData("Stop area activated!: ",true);
+                telemetry.update();
+                // Stop and reverse robot away from ground junction area if too close
+
+                frontLeftPower *= -0.1;
+                frontRightPower *= -0.1;
+                backLeftPower *= -0.1;
+                backRightPower *= -0.1;
+
+
+            }else{
+                telemetry.addData("is not in stop area: ", false);
+                telemetry.update();
+
+                frontLeftPower *= ((posX - slowAreaRadius)/(slowAreaRadius+stopAreaRadius));
+                frontRightPower *= ((posX - slowAreaRadius)/(slowAreaRadius+stopAreaRadius));
+                backLeftPower *= ((posX - slowAreaRadius)/(slowAreaRadius+stopAreaRadius));
+                backRightPower *= ((posX - slowAreaRadius)/(slowAreaRadius+stopAreaRadius));
+            }
+
+
+
+        }else{
+            telemetry.addData("is not in slow area: ", false);
+            telemetry.update();
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
         // Reducing power for each drive motor to one third of its original power for flash freeze
         if (lowSpeedActivated) { // was divison by 1.5 - 2/3, now times .8
             frontLeftPower /= 0.6;
@@ -190,23 +276,16 @@ public class TelePowerPlayMeet1 extends OpMode {
 
         // Lifter implementation
 
-        if (getRuntime() > checkTimeL && getRuntime() < checkTimeH){
-            if(robot.lifter.isBusy()) {
-                robot.lifter.setPower(0);
-            }
-        }
 
         if (gamepad2.b) { // Home Position
             if (!movingLifter) {
                 //robot.storage.setPosition(0); // closes storage automatically - caused issues sometimes
                 if (lifterLocation != lifterStates.Home) {
-                        movingLifter = true;
-                        robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                        robot.lifter.setTargetPosition(robot.lifterMinimum);
-                        robot.lifter.setPower(1);
-                        checkTimeL = getRuntime() + 3000;
-                        checkTimeH = checkTimeL + 200;
-                        targetLifterLocation = lifterStates.Home;
+                    movingLifter = true;
+                    robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    robot.lifter.setTargetPosition(robot.lifterMinimum);
+                    robot.lifter.setPower(1);
+                    targetLifterLocation = lifterStates.Home;
                 }
             }
         }
@@ -288,27 +367,15 @@ public class TelePowerPlayMeet1 extends OpMode {
                     movingLifter = false;
                     lifterLocation = targetLifterLocation;
                 }
-            }/* else { // Check if it is for home position
-                if (robot.lifterSwitchTriggered()) { // Stops if limit switch is pressed
+            } else {
+                if (!robot.lifter.isBusy()) {
                     robot.lifter.setPower(0);
-                    // bet this line below is why the home position code never worked - should get real motor encoder position
-                    robot.setLifterMinimum(robot.lifter.getCurrentPosition());// Sets this position as the new "0" in terms of encoder count
-                    robot.lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    robot.lifter.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
                     movingLifter = false;
-                    firstHomeLift = false;
                     lifterLocation = lifterStates.Home;
-                    targetLifterLocation = lifterStates.Manual; // ends the override using high button
-                }*/
-                else {
-                    if (!robot.lifter.isBusy()) {
-                        robot.lifter.setPower(0);
-                        movingLifter = false;
-                        lifterLocation = lifterStates.Home;
-                        targetLifterLocation = lifterStates.Manual;
+                    targetLifterLocation = lifterStates.Manual;
                 }
-            }}
-        else { // Manual lifter motion
+            }
+        } else { // Manual lifter motion
             robot.lifter.setPower(lifterPower); // Performs safety checks internally
             if (Math.abs(lifterPower) > 0.1) { // Clear automated state if moving manually
                 if (lifterLocation != lifterStates.Manual) {
@@ -385,16 +452,12 @@ public class TelePowerPlayMeet1 extends OpMode {
 
         telemetry.addData("Lifter Power: ", lifterPower);
         telemetry.addData("Lifter Ticks: ", robot.lifter.getCurrentPosition());
-        telemetry.addData("Low: ", robot.lifterMinimum);
+
         // update telemetry of drive motors in order to figure out why the robot is not driving straight 11/8/22
         telemetry.addData("front left ticks", robot.frontLeftMotor.getCurrentPosition());
         telemetry.addData("back left ticks", robot.backLeftMotor.getCurrentPosition());
         telemetry.addData("front right ticks", robot.frontRightMotor.getCurrentPosition());
         telemetry.addData("back right ticks", robot.backRightMotor.getCurrentPosition());
-
-        //telemetry.addData("right encoder", robot.rightEncoder.getCurrentPosition());
-        //telemetry.addData("left encoder", robot.leftEncoder.getCurrentPosition());
-        //telemetry.addData("lateral encoder", robot.frontEncoder.getCurrentPosition());
 
         // flash freeze states
         telemetry.addData("slow mode?", lowSpeedActivated);

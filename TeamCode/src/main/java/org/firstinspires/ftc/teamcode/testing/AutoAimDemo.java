@@ -72,8 +72,6 @@ public class AutoAimDemo extends LinearOpMode {
         //Auto INIT
         robot.initAutoRR(hardwareMap, this);
 
-        robot.intake(true);
-
         pipeline = new JunctionTopPipeline3(false);
 
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"));
@@ -114,6 +112,7 @@ public class AutoAimDemo extends LinearOpMode {
         telemetry.addData("move in y", movement[1]);
         telemetry.update();
 
+        /*
         TrajectorySequence realign;
 
         if (movement[1] > 0)
@@ -131,19 +130,23 @@ public class AutoAimDemo extends LinearOpMode {
 
         drive.setPoseEstimate(new Pose2d(0,0, Math.toRadians(0)));
         drive.followTrajectorySequence(realign);
-
+*/
         while (opModeIsActive()) {}
 
     }
 
-    public double[] getMovement(double[] cords) {
+    double[] getMovement(double[] cords) {
         double x = (cords[0] - 640) / (150);
         if ( x < 0.2) x*=1.2;
-        //double y = -(360 - cords[1]) / (720/5.25);
         double y = (360 - cords[1]) / 110;
         if(y>2) y*=.8;
 
         double[] movement = {x, y};
+
+        if(Math.abs(x) > 3 || Math.abs(y) > 3 || Math.min(cords[0], cords[1]) < 0){
+            movement[0] = 0;
+            movement[1] = 0;
+        }
 
         return movement;
     }

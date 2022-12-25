@@ -20,7 +20,7 @@
  */
 
 
-package org.firstinspires.ftc.teamcode.Autonomous.Meet3;
+package org.firstinspires.ftc.teamcode.Autonomous.LeagueChampionship;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -41,8 +41,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
-@Autonomous(name="RRMeet3RedRight", group = "motion")
-public class RRMeet3RedRight extends LinearOpMode{
+@Autonomous(name="WorkingRight", group = "motion")
+public class WorkingRight extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -136,7 +136,7 @@ public class RRMeet3RedRight extends LinearOpMode{
 
         //was 5.7 forward bfr meet3 changes
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
-                .forward(6.5,
+                .forward(5,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
                 .build();

@@ -45,7 +45,6 @@ public class ExampleDetector extends LinearOpMode
     PowerPlayPipeline pipeline;
 
 
-
     @Override
     public void runOpMode() {
         pipeline = new PowerPlayPipeline(true, ColorVals.HUE_MIN, ColorVals.HUE_MAX, ColorVals.SATURATION_MIN, ColorVals.SATURATION_MAX, ColorVals.VALUE_MIN, ColorVals.VALUE_MAX);

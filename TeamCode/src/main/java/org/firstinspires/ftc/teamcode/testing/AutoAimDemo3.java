@@ -81,7 +81,9 @@ public class AutoAimDemo3 extends LinearOpMode {
         });
 
         waitForStart(); //******************************************************************************
-
+        telemetry.addData("Pipeline Time", camera.getPipelineTimeMs());
+        telemetry.addData("Overhead Time", camera.getOverheadTimeMs());
+        telemetry.addData("Largest circle's radius," , pipeline.largest_radius);
         //double startT = getRuntime();
 
         double[] cords = {-1, -1};

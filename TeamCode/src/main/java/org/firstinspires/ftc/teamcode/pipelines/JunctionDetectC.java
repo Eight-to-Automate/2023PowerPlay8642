@@ -22,8 +22,10 @@ public class JunctionDetectC extends OpenCvPipeline{
 
     private Point centroid;
     public int largest_radius;
-    Scalar lowHSV = new Scalar(70,0,0);
-    Scalar highHSV = new Scalar(90,255,255);
+   // Scalar lowHSV = new Scalar(70,0,0);
+  //  Scalar highHSV = new Scalar(90,255,255);
+    Scalar lowHSV = new Scalar(10,0,103);
+    Scalar highHSV = new Scalar(94,255,246);
 
     public Mat processFrame(Mat input) {
 
@@ -43,7 +45,7 @@ public class JunctionDetectC extends OpenCvPipeline{
         Imgproc.medianBlur(mask, mask, 1);
 
         Mat circles = new Mat();
-        Imgproc.HoughCircles(mask, circles, Imgproc.HOUGH_GRADIENT, 1.5, 300, 300, 50, 55, 75);
+        Imgproc.HoughCircles(mask, circles, Imgproc.HOUGH_GRADIENT, 1.5, 300, 200, 70, 62, 88);// radius is typically around 75-80 but varies with angle.threshold of 200-220 worked better than 300
         for (int i = 0; i < circles.cols(); i++ ) {
             double[] data = circles.get(0, i);
             Point center = new Point(Math.round(data[0]), Math.round(data[1]));
@@ -56,7 +58,7 @@ public class JunctionDetectC extends OpenCvPipeline{
             int radius = (int) Math.round(data[2]);
             Imgproc.circle(input, center, radius, new Scalar(0,0,255), 3, 8, 0 );
 
-            Imgproc.putText(input, Integer.toString(radius), center, 1, 2, new Scalar(255,255,255));
+            Imgproc.putText(input, Integer.toString(radius), center, 17, 5, new Scalar(255,255,255));
         }
 
         hsv.release();

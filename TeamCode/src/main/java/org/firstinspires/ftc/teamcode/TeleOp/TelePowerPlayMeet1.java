@@ -25,6 +25,8 @@ public class TelePowerPlayMeet1 extends OpMode {
 
     double checkTimeL, checkTimeH;
 
+    double bfrReset;
+
     // set up variables for motor powers
     double frontLeftPower;
     double frontRightPower;
@@ -155,12 +157,19 @@ public class TelePowerPlayMeet1 extends OpMode {
 
         lifterPower = ry2;
 
+
         // Make sure driving power is -1 to 1 and set max/min values
         frontLeftPower = Range.clip(frontLeftPower, -1, 1);
         frontRightPower = Range.clip(frontRightPower, -1, 1);
         backLeftPower = Range.clip(backLeftPower, -1, 1);
         backRightPower = Range.clip(backRightPower, -1, 1);
-        lifterPower = Range.clip(lifterPower, -1, 1);
+        //lifterPower = Range.clip(lifterPower, -1, 1);
+
+
+        if (robot.lifterSwitchTriggered()) lifterPower = Range.clip(lifterPower, -1, 0);
+        else lifterPower = Range.clip(lifterPower, -1, 1);
+
+
 
         // Reducing power for each drive motor to one third of its original power for flash freeze
         if (lowSpeedActivated) { // was divison by 1.5 - 2/3, now times .8
@@ -199,6 +208,7 @@ public class TelePowerPlayMeet1 extends OpMode {
         if (gamepad2.b) { // Home Position
             if (!movingLifter) {
                 //robot.storage.setPosition(0); // closes storage automatically - caused issues sometimes
+                /*
                 if (lifterLocation != lifterStates.Home) {
                         movingLifter = true;
                         robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
@@ -207,6 +217,20 @@ public class TelePowerPlayMeet1 extends OpMode {
                         checkTimeL = getRuntime() + 3000;
                         checkTimeH = checkTimeL + 200;
                         targetLifterLocation = lifterStates.Home;
+                }
+
+                 */
+
+                if (lifterLocation != lifterStates.Home) {
+                    if (!robot.lifterSwitch1.getState() && !robot.lifterSwitch2.getState()) { // do not try to move further down if switch is activated
+                        movingLifter = true;
+                        robot.lifter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        robot.lifter.setPower(1);
+                        targetLifterLocation = lifterStates.Home;
+                    } else { // Set the lifter to the home state if it is at home
+                        robot.lifter.setPower(0);
+                        lifterLocation = lifterStates.Home;
+                    }
                 }
             }
         }
@@ -288,27 +312,34 @@ public class TelePowerPlayMeet1 extends OpMode {
                     movingLifter = false;
                     lifterLocation = targetLifterLocation;
                 }
-            }/* else { // Check if it is for home position
+            } else { // Check if it is for home position
                 if (robot.lifterSwitchTriggered()) { // Stops if limit switch is pressed
                     robot.lifter.setPower(0);
                     // bet this line below is why the home position code never worked - should get real motor encoder position
-                    robot.setLifterMinimum(robot.lifter.getCurrentPosition());// Sets this position as the new "0" in terms of encoder count
+                    bfrReset = robot.lifter.getCurrentPosition();
                     robot.lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    double timeS = runtime.milliseconds();
+                    while (runtime.milliseconds() < timeS + 20){}
+
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
                     movingLifter = false;
                     firstHomeLift = false;
                     lifterLocation = lifterStates.Home;
                     targetLifterLocation = lifterStates.Manual; // ends the override using high button
-                }*/
-                else {
+                }
+                else if (robot.lifter.getCurrentPosition() > -500){
+                    robot.lifter.setPower(0.2);
+                }
+                /*else {
                     if (!robot.lifter.isBusy()) {
                         robot.lifter.setPower(0);
                         movingLifter = false;
                         lifterLocation = lifterStates.Home;
                         targetLifterLocation = lifterStates.Manual;
-                }
-            }}
-        else { // Manual lifter motion
+                    }
+                }*/
+            }
+        } else { // Manual lifter motion
             robot.lifter.setPower(lifterPower); // Performs safety checks internally
             if (Math.abs(lifterPower) > 0.1) { // Clear automated state if moving manually
                 if (lifterLocation != lifterStates.Manual) {
@@ -348,6 +379,8 @@ public class TelePowerPlayMeet1 extends OpMode {
                 targetLifterLocation = lifterStates.Between;
             }
         }
+
+
         //}if(gamepad2.left_bumper){
         //    robot.lifter.setTargetPosition(-513);
         //}if(gamepad2.left_trigger>0){
@@ -384,7 +417,8 @@ public class TelePowerPlayMeet1 extends OpMode {
         // robot.lifter.setPower(lifterPower);
 
         telemetry.addData("Lifter Power: ", lifterPower);
-        telemetry.addData("Lifter Ticks: ", robot.lifter.getCurrentPosition());
+        telemetry.addData("Lifter ticks before reset", bfrReset);
+        telemetry.addData("current Lifter Ticks: ", robot.lifter.getCurrentPosition());
         telemetry.addData("Low: ", robot.lifterMinimum);
         // update telemetry of drive motors in order to figure out why the robot is not driving straight 11/8/22
         telemetry.addData("front left ticks", robot.frontLeftMotor.getCurrentPosition());
@@ -399,6 +433,9 @@ public class TelePowerPlayMeet1 extends OpMode {
         // flash freeze states
         telemetry.addData("slow mode?", lowSpeedActivated);
         telemetry.addData("super slow mode?", superLowSpeedActivated);
+
+        telemetry.addData("At home? ", lifterLocation == lifterStates.Home);
+        telemetry.addData("Limit switches activated? ", robot.lifterSwitchTriggered());
 
         // Update telemetry at end
         telemetry.update();

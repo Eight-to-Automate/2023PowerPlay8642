@@ -41,8 +41,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
-@Autonomous(name="workingLeft", group = "motion")
-public class WorkingLeft extends LinearOpMode{
+@Autonomous(name="Left3cone", group = "motion")
+public class Left3cone extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -74,17 +74,9 @@ public class WorkingLeft extends LinearOpMode{
 
     // positions for localization
     Pose2d startPos1 = new Pose2d(-35.7,-62.7, Math.toRadians(90));
-    // Vector2d forward1 = new Vector2d(-36, -3.5);
+    Vector2d stack = new Vector2d(-62.7, -10.5);  // was 62.75, 11.75 // was -63, -10.5
     Vector2d forward2 = new Vector2d(-35.7, -7.5);// was -35.75. -9.5
     Vector2d highJunction = new Vector2d(-23.5, -14.5);     //was -23.5, -14.5 meet 3
-    Pose2d highJunctionH = new Pose2d(-3.75, -15.5, Math.toRadians(90));
-    //Vector2d getHighJunctionClose = new Vector2d(4.5, -25.1875);
-    Vector2d stack = new Vector2d(-63, -10.5);  // was 62.75, 11.75
-    Pose2d stackh = new Pose2d(-63, -12, Math.toRadians(180));
-
-    Vector2d zone1 = new Vector2d(-59, -12);
-    Vector2d zone2 = new Vector2d(-36,-12);
-    Vector2d zone3 = new Vector2d(-12, -12);
 
     @Override
     public void runOpMode()
@@ -132,18 +124,18 @@ public class WorkingLeft extends LinearOpMode{
                 .lineTo(highJunction,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-               .build();
+                .build();
 
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
                 .forward(5,         // was 5.7 - 0.45-.25 for meet 3
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
                 .build();
 
         TrajectorySequence traj3 = drive.trajectorySequenceBuilder(traj2.end())
-                .back(6,
+                .back(5,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
                 .build();
 
         TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
@@ -160,6 +152,75 @@ public class WorkingLeft extends LinearOpMode{
 
         TrajectorySequence backSmall = drive.trajectorySequenceBuilder(traj4.end())
                 .back(2,
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.5, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
+                //   .strafeLeft(3,
+                //         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.2, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                //          SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.1))
+                .build();
+
+
+        TrajectorySequence traj5 = drive.trajectorySequenceBuilder(backSmall.end())
+                .back(48,
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
+                .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL) // max angle velocity was 0.7
+                .turn(Math.toRadians(-42))
+                .build();
+
+        TrajectorySequence traj6 = drive.trajectorySequenceBuilder(traj5.end())
+                .forward(6,   // was 5.5 meet 3.
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
+                .build();
+
+        TrajectorySequence traj7 = drive.trajectorySequenceBuilder(traj6.end())
+                .back(6,   // was 5.5 meet 3.
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
+                .build();
+
+
+        TrajectorySequence traj8 = drive.trajectorySequenceBuilder(traj7.end())
+                .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL)
+                .turn(Math.toRadians(42))
+                .lineTo(stack,
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL * 0.8))
+                .build();
+
+
+        TrajectorySequence backSmall2 = drive.trajectorySequenceBuilder(traj6.end())
+                .back(2,
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.5, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
+                //   .strafeLeft(3,
+                //         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.2, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                //          SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.1))
+                .build();
+
+        TrajectorySequence traj9 = drive.trajectorySequenceBuilder(backSmall2.end())
+                .back(48,
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
+                .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL) // max angle velocity was 0.7
+                .turn(Math.toRadians(-42))
+                .build();
+
+        TrajectorySequence traj10 = drive.trajectorySequenceBuilder(traj9.end())
+                .forward(6,   // was 5.5 meet 3.
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
+                .build();
+
+
+
+
+
+
+        /*
+        TrajectorySequence backSmall = drive.trajectorySequenceBuilder(startPos1)
+                .back(2,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.4, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.3))
                 //   .strafeLeft(3,
@@ -168,22 +229,20 @@ public class WorkingLeft extends LinearOpMode{
                 .build();
 
         TrajectorySequence traj5 = drive.trajectorySequenceBuilder(backSmall.end())
-                .back(24)
+                .back(51.5,
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
                 .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL) // max angle velocity was 0.7
-                .turn(Math.toRadians(-90))
-                .back(3,
-                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.5, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH), //max vel was 0.2
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.7))
-                .lineTo(highJunction)
+                .turn(Math.toRadians(-30))
                 .build();
 
         TrajectorySequence traj6 = drive.trajectorySequenceBuilder(traj5.end())
-                .forward(4.2,   // was 5.5 meet 3.
+                .forward(8,   // w as 5.5 meet 3.
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
                 .build();
 
-
+*/
 
         // TrajectorySequence sanityTest = drive.trajectorySequenceBuilder(new Pose2d(-36,-63.5, Math.toRadians(90)))
         //         .lineTo(new Vector2d(-36,0))
@@ -295,35 +354,31 @@ public class WorkingLeft extends LinearOpMode{
 
         if (route == 1) {
             end = drive.trajectorySequenceBuilder(traj6.end())
-                    .back(3.8-0.25)
-                    .strafeLeft(12+23)
+                    .back(6)
+                    .turn(Math.toRadians(42))
                     .addTemporalMarker(1, ()->{
                         robot.absoluteasynchLift(-380, 0.8, this);
                     })
+                    .forward(48)
                     .build();
         } else if (route == 2) {
             end = drive.trajectorySequenceBuilder(traj6.end())
-                    .back(3.8-0.25)
-                    .strafeLeft(12)
+                    .back(6)
+                    .turn(Math.toRadians(42))
                     .addTemporalMarker(1, ()->{
                         robot.absoluteasynchLift(-380, 0.8, this);
                     })
-                    .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL)
-                    .turn(Math.toRadians(90))
+                    .forward(24)
                     .build();
         } else {
             end = drive.trajectorySequenceBuilder(traj6.end())
-                    .back(3.8-0.25)
-                    .strafeRight(13)
+                    .back(6)
+                    .turn(Math.toRadians(42))
                     .addTemporalMarker(1, ()->{
                         robot.absoluteasynchLift(-380, 0.8, this);
                     })
-                    .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL)
-                    .turn(Math.toRadians(90))
                     .build();
         }
-
-
 
         drive.followTrajectorySequence(traj1);
         robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
@@ -333,10 +388,10 @@ public class WorkingLeft extends LinearOpMode{
         robot.wait(300, this);
         drive.followTrajectorySequence(traj3);
         robot.absoluteasynchLift(robot.stackPos, 0.8, this);
-        robot.wait(1000, this);
+        robot.wait(300, this);
         drive.followTrajectorySequence(traj4);
         robot.intake(true);     // first cone
-        robot.wait(300, this);
+        //robot.wait(300, this);
         drive.followTrajectorySequence(backSmall);
         robot.intake(true);     // first cone  close again in case gripper was against the wall
         robot.wait(100, this);
@@ -344,19 +399,30 @@ public class WorkingLeft extends LinearOpMode{
         robot.wait(400, this);
         drive.followTrajectorySequence(traj5);
         robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
-        robot.wait(1000, this);
+        robot.wait(500, this);
         drive.followTrajectorySequence(traj6);
-        robot.intake(false);    // second cone
+        robot.intake(false);    // drop second cone
+        robot.wait(300, this);
+        drive.followTrajectorySequence(traj7);// go back
+        robot.absoluteasynchLift(-390, 0.8, this);
+        drive.followTrajectorySequence(traj8); //back to stack
+        robot.wait(200, this);
+        robot.intake(true);
+        robot.wait(300, this);
+        drive.followTrajectorySequence(backSmall2);
+        robot.intake(true);     // close again in case gripper was against the wall
+        robot.wait(100, this);
+        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+        robot.wait(400, this);
+        drive.followTrajectorySequence(traj9);
+        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.wait(500, this);
+        drive.followTrajectorySequence(traj10);
+        robot.intake(false);    // drop second cone
         robot.wait(300, this);
 
-        drive.followTrajectorySequence(end);
         Pose2d pose = drive.getPoseEstimate();
-
-
-
         // drive.followTrajectorySequence(sanityTest);
-
-
 
 
 

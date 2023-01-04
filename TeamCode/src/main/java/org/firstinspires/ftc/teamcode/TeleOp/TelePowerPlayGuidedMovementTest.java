@@ -109,7 +109,7 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
 
         // Retrieve our pose from the PoseStorage.currentPose static field
         // See AutoTransferPose.java for further details
-       // drive.setPoseEstimate(PoseStorage.currentPose);
+        // drive.setPoseEstimate(PoseStorage.currentPose);
 
         waitForStart();
         runtime.reset();
@@ -131,7 +131,7 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
 
 
 
-           // double ry2 = gamepad2.left_stick_y;
+            // double ry2 = gamepad2.left_stick_y;
 
 
             // Calculate motor power
@@ -148,8 +148,8 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
 
 
             //record x and y positions
-            telemetry.addData("XPOS: ", poseEstimate.getX());
-            telemetry.addData("YPOS: ", poseEstimate.getY());
+            telemetry.addData("X: ", poseEstimate.getX());
+            telemetry.addData("Y: ", poseEstimate.getY());
             telemetry.addData("Heading: ", poseEstimate.getHeading());
 
             posX = poseEstimate.getX();
@@ -159,22 +159,33 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
             junctionX = 47;
             junctionY = -47;
             robotRadius = 16;
-            slowAreaRadius = 6 + (robotRadius/2);//area around the junction to slow down the robot
-            stopAreaRadius = 4 + (robotRadius/2);//area around the junction the robot cannot enter
+            slowAreaRadius = 6.0 + (robotRadius/2.0);//area around the junction to slow down the robot
+            stopAreaRadius = 4.0 + (robotRadius/2.0);//area around the junction the robot cannot enter
 
 
             // Reduce power of motors as robot nears ground junction area
+
+            telemetry.addData("xPOS: ",posX);
+            telemetry.addData("yPOS: ",posY);
+            telemetry.addData("x SLOW positive AREA: ",(slowAreaRadius + junctionX));
+            telemetry.addData("y SLOW positive AREA",(slowAreaRadius + junctionY));
+
             if((posX < (slowAreaRadius + junctionX) && posX > (-slowAreaRadius+ junctionX)) && (posY < (slowAreaRadius + junctionY) && posY > (-slowAreaRadius + junctionY))){//if robot is within a 6x6 box around ground junction
+
                 telemetry.addData("Slow area activated!:   ", true);
 
-                if((posX < stopAreaRadius && posX > -stopAreaRadius) && (posY < stopAreaRadius && posY > -stopAreaRadius)) {//if robot is within a 3x3 box around ground junction
+                telemetry.addData("x STOP positive AREA: ",(stopAreaRadius + junctionX));
+                telemetry.addData("y STOP positive AREA",(stopAreaRadius + junctionY));
+
+                if((posX < (stopAreaRadius + junctionX) && posX > (-stopAreaRadius + junctionX)) && (posY < (stopAreaRadius + junctionY) && posY > (-stopAreaRadius + junctionY))) {//if robot is within a 3x3 box around ground junction
                     telemetry.addData("Stop area activated!: ",true);
                     // Stop and reverse robot away from ground junction area if too close
 
-                    frontLeftPower *= -0.1;
-                    frontRightPower *= -0.1;
-                    backLeftPower *= -0.1;
-                    backRightPower *= -0.1;
+
+                    frontLeftPower *= -0.3;
+                    frontRightPower *= -0.3;
+                    backLeftPower *= -0.3;
+                    backRightPower *= -0.3;
 
 
                 }else{

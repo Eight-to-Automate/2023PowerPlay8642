@@ -117,8 +117,7 @@ public class SampleMecanumDrive extends MecanumDrive{
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);  // error time out 0.5", 0.5" 5 degrees, 05 seconds
         // to increase accuracy, decrease angle and increase timeout
-
-        LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
+     LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 

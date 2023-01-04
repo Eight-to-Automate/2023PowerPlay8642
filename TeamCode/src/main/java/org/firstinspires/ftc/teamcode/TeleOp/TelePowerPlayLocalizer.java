@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,12 +8,13 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.RobotFreightFrenzy;
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 
-@TeleOp(name="TeleMeet1", group="Iterative Opmode")
+@TeleOp(name="TelePowerPlayLocalizer", group="Iterative Opmode")
 
-public class TelePowerPlayMeet1 extends OpMode {
+public class TelePowerPlayLocalizer extends OpMode {
     RobotPowerPlay robot = new RobotPowerPlay();
 
     // Declare OpMode members
@@ -22,6 +22,8 @@ public class TelePowerPlayMeet1 extends OpMode {
     double initialST; // Initial time for storage button timer
     double slowTime; // initial time for slowmode timeout
     double slowTime2; // initial time for super slowmode timeout
+
+    StandardTrackingWheelLocalizer myLocalizer;
 
     double checkTimeL, checkTimeH;
 
@@ -79,6 +81,7 @@ public class TelePowerPlayMeet1 extends OpMode {
     boolean bumperPressed = false;
     boolean carouselMovingBlue = false;
     boolean carouselMovingRed = false;
+    boolean firstRun = true;
 
     // Exponential drive values
     public double exponential(double value, int constant) {
@@ -106,6 +109,15 @@ public class TelePowerPlayMeet1 extends OpMode {
 
     @Override
     public void loop() {
+
+        if (firstRun) {
+            myLocalizer = new StandardTrackingWheelLocalizer(hardwareMap);
+
+            // Set your initial pose to x: 10, y: 10, facing 90 degrees
+            myLocalizer.setPoseEstimate(new Pose2d(-35.7,-62.7, Math.toRadians(90)));
+
+            firstRun = false;
+        }
 
         // controller variables
         double y = gamepad1.left_stick_y;
@@ -173,10 +185,10 @@ public class TelePowerPlayMeet1 extends OpMode {
 
         // Reducing power for each drive motor to one third of its original power for flash freeze
         if (lowSpeedActivated) { // was divison by 1.5 - 2/3, now times .8
-            frontLeftPower /= 0.8;
-            frontRightPower /= 0.8;
-            backLeftPower /= 0.8;
-            backRightPower /= 0.8;}
+            frontLeftPower /= 0.6;
+            frontRightPower /= 0.6;
+            backLeftPower /= 0.6;
+            backRightPower /= 0.6;}
 
         else if (superLowSpeedActivated){
             frontLeftPower /= 2;
@@ -192,7 +204,7 @@ public class TelePowerPlayMeet1 extends OpMode {
         //******************************************************************************************
 
         // Set all the drive motors power
-        robot.setDrivePower(frontLeftPower * 0.8, frontRightPower * 0.8, backRightPower * 0.8, backLeftPower * 0.8);
+        robot.setDrivePower(frontLeftPower * 0.6, frontRightPower * 0.6, backRightPower * 0.6, backLeftPower * 0.6);
 
 
         //******************************************************************************************
@@ -443,6 +455,15 @@ public class TelePowerPlayMeet1 extends OpMode {
 
 
         // robot.lifter.setPower(lifterPower);
+
+        myLocalizer.update();
+
+        // Retrieve your pose
+        Pose2d myPose = myLocalizer.getPoseEstimate();
+
+        telemetry.addData("x", myPose.getX());
+        telemetry.addData("y", myPose.getY());
+        telemetry.addData("heading", myPose.getHeading());
 
         telemetry.addData("Lifter Power: ", lifterPower);
         telemetry.addData("Lifter ticks before reset", bfrReset);

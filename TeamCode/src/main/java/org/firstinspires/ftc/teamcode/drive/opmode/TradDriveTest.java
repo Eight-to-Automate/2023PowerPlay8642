@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotFreightFrenzy;
 
-@Disabled
+//@Disabled
 @TeleOp(name="TradDriveTest", group="Iterative Opmode")
 
 public class TradDriveTest extends OpMode {

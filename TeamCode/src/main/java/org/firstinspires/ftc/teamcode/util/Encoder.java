@@ -12,6 +12,7 @@ public class Encoder {
     private final static int CPS_STEP = 0x10000;
 
     private static double inverseOverflow(double input, double estimate) {
+        /*
         // convert to uint16
         int real = (int) input & 0xffff;
         // initial, modulo-based correction: it can recover the remainder of 5 of the upper 16 bits
@@ -19,6 +20,17 @@ public class Encoder {
         real += ((real % 20) / 4) * CPS_STEP;
         // estimate-based correction: it finds the nearest multiple of 5 to correct the upper bits by
         real += Math.round((estimate - real) / (5 * CPS_STEP)) * 5 * CPS_STEP;
+
+         */
+
+        // convert to uint16
+        int real = (int) input & 0xffff;
+        // initial, modulo-based correction: it can recover the remainder of 5 of the upper 16 bits
+        // because the velocity is always a multiple of 20 cps due to Expansion Hub's 50ms measurement window
+        real += ((real % 20) / 4) * CPS_STEP;
+        // estimate-based correction: it finds the nearest multiple of 5 to correct the upper bits by
+        real += Math.round((estimate - real) / (5 * CPS_STEP)) * 5 * CPS_STEP;
+
         return real;
     }
 

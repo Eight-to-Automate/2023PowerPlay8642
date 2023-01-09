@@ -89,10 +89,12 @@ import static java.lang.Math.abs;
 @Config
 //@Disabled
 public class SampleMecanumDrive extends MecanumDrive{
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8.4, 0.004, 0.05);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(8.3, 0.005, 0.05);
+//    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8.4, 0.004, 0.05);
+//    public static PIDCoefficients HEADING_PID = new PIDCoefficients(8.3, 0.005, 0.05);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(1, 0, 0);//  changed to these values on 1-8-23
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(11.9, 0.006, 0.9);
 
-    public static double LATERAL_MULTIPLIER = 1.632; // was 44/37.5; // 37.625/43.7 // 42.33 // 44.45// 41.48
+    public static double LATERAL_MULTIPLIER = 1.71; //last used 1.632 // was 44/37.5; // 37.625/43.7 // 42.33 // 44.45// 41.48
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
@@ -126,10 +128,10 @@ public class SampleMecanumDrive extends MecanumDrive{
         }
 
         // TODO: adjust the names of the following hardware devices to match your configuration
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
+       /* imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-        imu.initialize(parameters);
+        imu.initialize(parameters);*/
 
         // TODO: If the hub containing the IMU you are using is mounted so that the "REV" logo does
         // not face up, remap the IMU axes so that the z-axis points upward (normal to the floor.)
@@ -334,14 +336,19 @@ public class SampleMecanumDrive extends MecanumDrive{
     }
 
     @Override
+   // public double getRawExternalHeading() {
+    //    return imu.getAngularOrientation().firstAngle;
+  //  }
     public double getRawExternalHeading() {
-        return imu.getAngularOrientation().firstAngle;
+        return 0;
     }
 
+
     @Override
-    public Double getExternalHeadingVelocity() {
-        return (double) imu.getAngularVelocity().zRotationRate;
-    }
+   public Double getExternalHeadingVelocity() {
+      return (double) imu.getAngularVelocity().zRotationRate;
+  }
+
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
         return new MinVelocityConstraint(Arrays.asList(

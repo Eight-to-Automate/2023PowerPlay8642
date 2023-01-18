@@ -39,6 +39,7 @@ import java.util.ArrayList;
 
 public class AprilTagDetectionPipeline extends OpenCvPipeline
 {
+    public boolean tagActive = true;
     private long nativeApriltagPtr;
     private Mat grey = new Mat();
     private ArrayList<AprilTagDetection> detections = new ArrayList<>();
@@ -102,6 +103,8 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
     @Override
     public Mat processFrame(Mat input)
     {
+        if (!tagActive) return input;
+
         // Convert to greyscale
         Imgproc.cvtColor(input, grey, Imgproc.COLOR_RGBA2GRAY);
 
@@ -309,4 +312,9 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
             this.tvec = tvec;
         }
     }
+
+    public void setState (boolean input){
+        tagActive = input;
+    }
+
 }

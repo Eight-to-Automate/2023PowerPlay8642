@@ -86,6 +86,12 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
     double slowAreaRadius;
     double stopAreaRadius;
     double robotRadius;
+    double heading;
+    double joystickHeading;
+    double movementHeading;
+    double junctionDistanceX;
+    double junctionDistanceY;
+    double nudgeConstant;
 
 
     @Override
@@ -117,7 +123,11 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive() && !isStopRequested()) {
-            //Guided Movement
+
+
+
+
+
 
             // controller variables
             double y = gamepad1.left_stick_y;
@@ -134,6 +144,244 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
             // double ry2 = gamepad2.left_stick_y;
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+            //Guided Movement
+
+
+            //read roadrunner pose and update pose
+            drive.update();
+            Pose2d poseEstimate = drive.getPoseEstimate();
+
+
+
+            //record x and y positions
+            telemetry.addData("X: ", poseEstimate.getX());
+            telemetry.addData("Y: ", poseEstimate.getY());
+            telemetry.addData("Heading(degrees): ", Math.toDegrees(poseEstimate.getHeading()));
+
+
+            //update values
+            posX = poseEstimate.getX();
+            posY = poseEstimate.getY();
+            heading = Math.toDegrees(poseEstimate.getHeading());  //global robot heading    180 degrees is forward/up(|)  0 degrees is right -> just like a normal coordinate plane
+            joystickHeading = Math.toDegrees(Math.atan((gamepad1.left_stick_y)/(gamepad1.left_stick_x)));  //angle of joystick which is equal to direction of movement from robot's POV
+            movementHeading = heading + joystickHeading; //global robot movement heading   180 degrees is forward/up(|)  0 degrees is right -> just like a normal coordinate plane
+
+
+            //return heading values
+            telemetry.addData("Joystick Heading Angle (Degrees): ",joystickHeading);
+            telemetry.addData("Global Movement Heading Angle(Degrees): ",movementHeading);
+
+            //(47,-47) ground junction nearest to robot
+            //junctionX = 47;
+            // junctionY = -47;
+//ALL JUNCTION POSITIONS-------------------------------------------------------------------------------------------
+            //top right junction (47, 47)
+            //top left junction (-47, 47)
+            //bottom left junction (-47, -47)
+            //bottom right junction(47, -47)
+
+            //middle right junction (47, 0)
+            //middle left junction (-47, 0)
+            //middle top junction (0, 47)
+            //middle bottom junction (0, -47)
+
+            //center junction (0, 0)
+
+
+            //Switch restricted junction based on which section of map robot is in
+
+
+
+            //each tile is 70/3 inches by 70/3 inches wide
+
+
+            if((posX >= -70 / 3.0) && (posX <= 70 / 3.0)){// middle junctions
+                if((posY <= 70 / 3.0) && (posY >= -70 / 3.0)){// center junction
+                    //(0, 0)
+                    junctionX = 0;
+                    junctionY = 0;
+                }
+                if(posY > 70 / 3.0){// top middle junction
+                    //(0, 47)
+                    junctionX = 0;
+                    junctionY = 47;
+
+                }
+                if(posY < 70 / 3.0){// bottom middle junction
+                    //(0, -47)
+                    junctionX = 0;
+                    junctionY = -47;
+
+                }
+
+            }
+            if(posX > 70 / 3.0) {//right side junctions
+                if((posY <= 70 / 3.0) && (posY >= -70 / 3.0)){// middle right junction
+                    //(47, 0)
+                    junctionX = 47;
+                    junctionY = 0;
+
+                }
+                if(posY > 70 / 3.0){// top right junction
+                    //(47, 47)
+                    junctionX = 47;
+                    junctionY = 47;
+
+                }
+                if(posY < 70 / 3.0){// bottom right junction
+                    //(47, -47)
+                    junctionX = 47;
+                    junctionY = -47;
+
+                }
+            }
+            if(posX < 70 / 3.0){// left side junctions
+                if((posY <= 70 / 3.0) && (posY >= -70 / 3.0)){// middle left junction
+                    //(-47, 0)
+                    junctionX = -47;
+                    junctionY = 0;
+
+                }
+                if(posY > 70 / 3.0){// top left junction
+                    //(-47, 47)
+                    junctionX = -47;
+                    junctionY = 47;
+
+                }
+                if(posY < 70 / 3.0){// bottom left junction
+                    //(-47, -47)
+                    junctionX = -47;
+                    junctionY = -47;
+
+                }
+            }
+            telemetry.addData("JunctionX : ", junctionX);
+            telemetry.addData("JunctionY : ", junctionY);
+
+
+
+
+
+
+//------------------------------------------------------------------------------------------------------------------
+
+
+
+            robotRadius = 7;//from approx center to corner of extrusion
+            slowAreaRadius = 5.0 + (robotRadius);//area around the junction to slow down the robot
+            stopAreaRadius = 4.0 + (robotRadius);//area around the junction the robot cannot enter
+            junctionDistanceX = posX - junctionX;
+            junctionDistanceY = posY - junctionY;
+
+
+            //set nudge constant
+            // how much the robot is nudged away from the junction robot just stops at the edge if set to 1
+            nudgeConstant = 1;
+            /*
+            // clip range from 1 to 10 to prevent robot from zooming away
+            nudgeConstant = Range.clip(nudgeConstant, 1, 10);
+            */
+
+
+            if ((posX < (slowAreaRadius + junctionX) && posX > (-slowAreaRadius + junctionX)) && (posY < (slowAreaRadius + junctionY) && posY > (-slowAreaRadius + junctionY))) {//if robot is within a 3x3 box around ground junction
+                telemetry.addData("Stop area activated!: ", true);
+                // Stop and reverse robot away from ground junction area if too close
+                if (posX >= junctionX) {//means is on right side of junction  //if robot is on the right side and above it (Quadrant 1 if centered around junction)
+                    //find vector perpendicular to current movement vector and pushes robot that direction
+                    // nudge robot to the right
+                    telemetry.addData("On right side of junction", true);
+                    if (posY >= junctionY) {//if robot is on right side and above it
+                        if (((movementHeading >= 180 && movementHeading <= 270)) || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) {// if robot is in Q 1
+                            y += ((stopAreaRadius / junctionDistanceY) - y) * nudgeConstant;// nudge robot up
+                            x += ((stopAreaRadius / junctionDistanceX) - x);
+                            telemetry.addData("nudged UP and RIGHT", true);
+                            if(Math.abs(x)<= 0.05 && Math.abs(x) >= 0.05){//if robot is being told to move slowly, prevent it from moving in that direction
+                                x = 0;
+                            }
+                            if(Math.abs(y)<= 0.05 && Math.abs(x) >= 0.05){//if robot is being told to move slowly, prevent it from moving in that direction
+                                y = 0;
+                            }
+                        }
+                    } else if (posY < junctionY) {// if robot is in quadrant 4
+                        if ((movementHeading >= 90 && movementHeading <= 180) || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) {// if robot is in Q
+                            y += -((stopAreaRadius / junctionDistanceY) - y) * nudgeConstant;//nudge robot down
+                            x += ((stopAreaRadius / junctionDistanceX) - x);
+                            if(Math.abs(x)<= 0.05 && Math.abs(x) >= 0.05){//if robot is being told to move slowly, prevent it from moving in that direction
+                                x = 0;
+                            }
+                            if(Math.abs(y)<= 0.05 && Math.abs(x) >= 0.05){//if robot is being told to move slowly, prevent it from moving in that direction
+                                y = 0;
+                            }
+                            telemetry.addData("nudged UP and DOWN", true);
+                        }
+                    }
+
+
+                } else if (posX < junctionX) {//means is on left side of junction
+
+                    telemetry.addData("On left side of junction", true);
+                    if (posY >= junctionY) {//if robot is on left side and above it
+                        if ((movementHeading >= 270 && movementHeading <= 360) || movementHeading == 0 || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) {// takes into account rollback to zero
+                            y += ((stopAreaRadius / junctionDistanceY) - y) * nudgeConstant;// nudge robot up
+                            x += -((stopAreaRadius / junctionDistanceX) - x); // nudge robot to the left
+                            telemetry.addData("nudged UP and LEFT", true);
+                            if(Math.abs(x)<= 0.05 && Math.abs(x) >= 0.05){//if robot is being told to move slowly, prevent it from moving in that direction
+                                x = 0;
+                            }
+                            if(Math.abs(y)<= 0.05 && Math.abs(x) >= 0.05){//if robot is being told to move slowly, prevent it from moving in that direction
+                                y = 0;
+                            }
+                        }
+                    } else if (posY < junctionY) {// if robot is in quadrant 3
+                        if ((movementHeading >= 0 && movementHeading <= 180) || movementHeading == 360 || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) {
+                            y += -((stopAreaRadius / junctionDistanceY) - y) * nudgeConstant;//nudge robot down
+                            x += -((stopAreaRadius / junctionDistanceX) - x); // nudge robot to the left
+                            telemetry.addData("nudged DOWN and LEFT", true);
+                            if(Math.abs(x)<= 0.05 && Math.abs(x) >= 0.05){//if robot is being told to move slowly, prevent it from moving in that direction
+                                x = 0;
+                            }
+                            if(Math.abs(y)<= 0.05 && Math.abs(x) >= 0.05){//if robot is being told to move slowly, prevent it from moving in that direction
+                                y = 0;
+                            }
+                        }
+                    }
+
+                }
+
+            }
+
+
+
+                /*} else {
+                    telemetry.addData("is not in stop area: ", false);
+
+                    //frontLeftPower *= ((posX - slowAreaRadius) / (slowAreaRadius + stopAreaRadius));
+                    // frontRightPower *= ((posX - slowAreaRadius) / (slowAreaRadius + stopAreaRadius));
+                    // backLeftPower *= ((posX - slowAreaRadius) / (slowAreaRadius + stopAreaRadius));
+                    // backRightPower *= ((posX - slowAreaRadius) / (slowAreaRadius + stopAreaRadius));
+                }*/
+
+
+            /*} else {
+                telemetry.addData("is not in slow area: ", false);
+            }*/
+
+
+
+
+
             // Calculate motor power
 
             frontLeftPower = y + x + rx;
@@ -142,66 +390,15 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
             backRightPower = y + x - rx;
 
 
-            //read roadrunner pose and update pose
-            drive.update();
-            Pose2d poseEstimate = drive.getPoseEstimate();
-
-
-            //record x and y positions
-            telemetry.addData("X: ", poseEstimate.getX());
-            telemetry.addData("Y: ", poseEstimate.getY());
-            telemetry.addData("Heading: ", poseEstimate.getHeading());
-
-            posX = poseEstimate.getX();
-            posY = poseEstimate.getY();
-
-            //(47,-47) ground junction nearest to robot
-            junctionX = 47;
-            junctionY = -47;
-            robotRadius = 16;
-            slowAreaRadius = 6.0 + (robotRadius/2.0);//area around the junction to slow down the robot
-            stopAreaRadius = 4.0 + (robotRadius/2.0);//area around the junction the robot cannot enter
-
-
-            // Reduce power of motors as robot nears ground junction area
-
-            telemetry.addData("xPOS: ",posX);
-            telemetry.addData("yPOS: ",posY);
-            telemetry.addData("x SLOW positive AREA: ",(slowAreaRadius + junctionX));
-            telemetry.addData("y SLOW positive AREA",(slowAreaRadius + junctionY));
-
-            if((posX < (slowAreaRadius + junctionX) && posX > (-slowAreaRadius+ junctionX)) && (posY < (slowAreaRadius + junctionY) && posY > (-slowAreaRadius + junctionY))){//if robot is within a 6x6 box around ground junction
-
-                telemetry.addData("Slow area activated!:   ", true);
-
-                telemetry.addData("x STOP positive AREA: ",(stopAreaRadius + junctionX));
-                telemetry.addData("y STOP positive AREA",(stopAreaRadius + junctionY));
-
-                if((posX < (stopAreaRadius + junctionX) && posX > (-stopAreaRadius + junctionX)) && (posY < (stopAreaRadius + junctionY) && posY > (-stopAreaRadius + junctionY))) {//if robot is within a 3x3 box around ground junction
-                    telemetry.addData("Stop area activated!: ",true);
-                    // Stop and reverse robot away from ground junction area if too close
-
-
-                    frontLeftPower *= -0.3;
-                    frontRightPower *= -0.3;
-                    backLeftPower *= -0.3;
-                    backRightPower *= -0.3;
-
-
-                }else{
-                    telemetry.addData("is not in stop area: ", false);
-
-                    frontLeftPower *= ((posX - slowAreaRadius)/(slowAreaRadius+stopAreaRadius));
-                    frontRightPower *= ((posX - slowAreaRadius)/(slowAreaRadius+stopAreaRadius));
-                    backLeftPower *= ((posX - slowAreaRadius)/(slowAreaRadius+stopAreaRadius));
-                    backRightPower *= ((posX - slowAreaRadius)/(slowAreaRadius+stopAreaRadius));
-                }
 
 
 
-            }else{
-                telemetry.addData("is not in slow area: ", false);
-            }
+            // Make sure driving power is -1 to 1 and set max/min values
+            frontLeftPower = Range.clip(frontLeftPower, -1, 1);
+            frontRightPower = Range.clip(frontRightPower, -1, 1);
+            backLeftPower = Range.clip(backLeftPower, -1, 1);
+            backRightPower = Range.clip(backRightPower, -1, 1);
+
             // Set all the drive motors power
             robot.setDrivePower(frontLeftPower * -0.6, frontRightPower * 0.6, backRightPower * 0.6, backLeftPower * -0.6);
 

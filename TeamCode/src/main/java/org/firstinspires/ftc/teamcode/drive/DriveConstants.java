@@ -33,9 +33,9 @@ public class DriveConstants {
      * If using the built-in motor velocity PID, update MOTOR_VELO_PID with the tuned coefficients
      * from DriveVelocityPIDTuner.
      */
-    public static final boolean RUN_USING_ENCODER = false;
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0,
-            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
+    public static final boolean RUN_USING_ENCODER = true;
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(8, 0, 5,
+            12.57); // 30, 0, 5, 12.57
 
     /*
      * These are physical constants that can be determined from your robot (including the track
@@ -51,8 +51,8 @@ public class DriveConstants {
 
     // 48 inches / (1714 ticks / 288 * 4 * pi
 
-   // public static double TRACK_WIDTH = 12.69; //13.5 - 1.875; // in     for drive base: 11.6 // measured accurately 13.625
-    public static double TRACK_WIDTH = 18.76; // was 18 on meet 3  13.81 after correcting odometery wheel pose from CAD (test shoes 13.19)     for drive base: 11.6 // measured accurately 13.625
+    // public static double TRACK_WIDTH = 12.69; //13.5 - 1.875; // in     for drive base: 11.6 // measured accurately 13.625
+    public static double TRACK_WIDTH = 13.9; // was 18 on meet 3  13.81 after correcting odometery wheel pose from CAD (test shoes 13.19)     for drive base: 11.6 // measured accurately 13.625
     //18.76
 
     /*
@@ -62,9 +62,9 @@ public class DriveConstants {
      * empirically tuned.
      */
 
-    public static double kV = 0.0160; // 0.0155
-    public static double kA = 0.0028; // 0.0025
-    public static double kStatic = 0.01;
+    public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
+    public static double kA = 0;
+    public static double kStatic = 0;
 
     /*
      * These values are used to generate the trajectories for you robot. To ensure proper operation,
@@ -74,10 +74,10 @@ public class DriveConstants {
      * small and gradually increase them later after everything is working. All distance units are
      * inches.
      */
-    public static double MAX_VEL = 0.9 * 50.18793796530113;
-    public static double MAX_ACCEL = 0.9 * 50.18793796530113;
-    public static double MAX_ANG_VEL = 3.3; // 3.3; //  0.9 * 4.57
-    public static double MAX_ANG_ACCEL = 3.3; // 0.9 * 4.64364461679525
+    public static double MAX_VEL = 0.8 * 50.18793796530113;
+    public static double MAX_ACCEL = 0.67 * 50.18793796530113;  // was 0.8  1-17-23
+    public static double MAX_ANG_VEL = 3.3; // 3.3 1-17-23; //  0.9 * 4.57
+    public static double MAX_ANG_ACCEL = 3.0; // was 3.3 1-17-23   // 0.9 * 4.64364461679525
 
     public static double encoderTicksToInches(double ticks) {
         return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;

@@ -80,6 +80,8 @@ public class AutoAimDemo3 extends LinearOpMode {
             }
         });
 
+
+
         waitForStart(); //******************************************************************************
         telemetry.addData("Pipeline Time", camera.getPipelineTimeMs());
         telemetry.addData("Overhead Time", camera.getOverheadTimeMs());
@@ -88,11 +90,13 @@ public class AutoAimDemo3 extends LinearOpMode {
 
         double[] cords = {-1, -1};
 
-        Point centroid;
+        /*Point centroid;
 
         centroid = pipeline.getCentroid();
         cords[0] = centroid.x;
         cords[1] = centroid.y;
+
+         */
 
         if (cords[0] == -1 && cords[1] == -1) {
             telemetry.addLine("target not found");
@@ -107,7 +111,18 @@ public class AutoAimDemo3 extends LinearOpMode {
         telemetry.addData("Pipeline Time", camera.getPipelineTimeMs());
         telemetry.addData("Overhead Time", camera.getOverheadTimeMs());
         telemetry.addData("Largest circle's radius," , pipeline.largest_radius);
-        telemetry.update();
+        double start = getRuntime();
+        Point curr;
+        while (getRuntime() < start + 5000){
+            curr = pipeline.getCentroid();
+            if (curr!=null){
+                telemetry.addData("CenterX = ", curr.x);
+                telemetry.addData("CenterY = ", curr.y);
+            }
+            else telemetry.addLine("Haven't updated centroid yet / it is empty");
+            telemetry.update();
+        }
+
 
         /*
         TrajectorySequence realign;

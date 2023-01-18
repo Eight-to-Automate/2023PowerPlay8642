@@ -20,6 +20,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 // Hough Circles Pipeline
 public class JunctionDetectC extends OpenCvPipeline{
 
+    public boolean juncActive = true;
     private Point centroid;
     public int largest_radius;
    // Scalar lowHSV = new Scalar(70,0,0);
@@ -28,6 +29,8 @@ public class JunctionDetectC extends OpenCvPipeline{
     Scalar highHSV = new Scalar(94,255,246);
 
     public Mat processFrame(Mat input) {
+
+        if(!juncActive) return input;
 
         Mat hsv = new Mat();
         Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
@@ -56,9 +59,10 @@ public class JunctionDetectC extends OpenCvPipeline{
             Imgproc.circle(input, center, 1, new Scalar(0, 0, 255), 3, 8, 0 );
             // circle outline
             int radius = (int) Math.round(data[2]);
-            Imgproc.circle(input, center, radius, new Scalar(0,0,255), 3, 8, 0 );
-
+            Imgproc.circle(input, center, radius, new Scalar(0,0,255), 6, 8, 0 );
+            largest_radius = Math.max(radius, largest_radius);
             Imgproc.putText(input, Integer.toString(radius), center, 17, 5, new Scalar(255,255,255));
+            centroid = center;
         }
 
         hsv.release();
@@ -69,6 +73,10 @@ public class JunctionDetectC extends OpenCvPipeline{
 
     public Point getCentroid() {
         return centroid;
+    }
+
+    public void setState(boolean input){
+        juncActive = input;
     }
 
 }

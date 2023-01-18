@@ -89,12 +89,13 @@ import static java.lang.Math.abs;
 @Config
 //@Disabled
 public class SampleMecanumDrive extends MecanumDrive{
-//    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8.4, 0.004, 0.05);
+    //    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8.4, 0.004, 0.05);
 //    public static PIDCoefficients HEADING_PID = new PIDCoefficients(8.3, 0.005, 0.05);
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(1, 0, 0);//  changed to these values on 1-8-23
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(11.9, 0.006, 0.9);
+    //    public static PIDCoefficients HEADING_PID = new PIDCoefficients(4.8, 0.006, 0.07);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(4, 0, 0.01);//  changed to these values on 1-8-23
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(11.3, 0.04, .03);
 
-    public static double LATERAL_MULTIPLIER = 1.71; //last used 1.632 // was 44/37.5; // 37.625/43.7 // 42.33 // 44.45// 41.48
+    public static double LATERAL_MULTIPLIER = 1; //last used 1.632 // was 44/37.5; // 37.625/43.7 // 42.33 // 44.45// 41.48
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
@@ -119,7 +120,7 @@ public class SampleMecanumDrive extends MecanumDrive{
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);  // error time out 0.5", 0.5" 5 degrees, 05 seconds
         // to increase accuracy, decrease angle and increase timeout
-     LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
+        LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
@@ -336,18 +337,18 @@ public class SampleMecanumDrive extends MecanumDrive{
     }
 
     @Override
-   // public double getRawExternalHeading() {
+    // public double getRawExternalHeading() {
     //    return imu.getAngularOrientation().firstAngle;
-  //  }
+    //  }
     public double getRawExternalHeading() {
         return 0;
     }
 
 
     @Override
-   public Double getExternalHeadingVelocity() {
-      return (double) imu.getAngularVelocity().zRotationRate;
-  }
+    public Double getExternalHeadingVelocity() {
+        return (double) imu.getAngularVelocity().zRotationRate;
+    }
 
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {

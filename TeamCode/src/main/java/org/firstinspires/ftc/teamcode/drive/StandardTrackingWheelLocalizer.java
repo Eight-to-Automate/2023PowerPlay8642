@@ -33,7 +33,7 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
     public static double WHEEL_RADIUS = 0.984; // in  1.973" dia measured
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public static double LATERAL_DISTANCE = 13.056; // in; distance between the left and right wheels // 13.1944 2/3 bias // wheel to wheel:  // center to center: 13.0304
+    public static double LATERAL_DISTANCE = 13.04; // in; distance between the left and right wheels // 13.1944 2/3 bias // wheel to wheel:  // center to center: 13.0304
     public static double FORWARD_OFFSET = -4.17; // in; offset of the lateral wheel // 2/3 bias -4.2237 // unbiased -4.1443
     /* Lines 37-38 in StandardTrackingWheelLocalizer.java */
     public static double X_MULTIPLIER = 0.9965; // 0.9965 // Multiplier in the X direction

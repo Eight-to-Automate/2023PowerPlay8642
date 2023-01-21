@@ -20,7 +20,7 @@
  */
 
 
-package org.firstinspires.ftc.teamcode.Autonomous.Meet3;
+package org.firstinspires.ftc.teamcode.Autonomous.LeagueChampionship;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -33,7 +33,9 @@ import org.firstinspires.ftc.teamcode.RobotPowerPlay;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.pipelines.AprilTagDetectionPipeline;
+import org.firstinspires.ftc.teamcode.pipelines.JunctionDetectC;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.opencv.core.Point;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -41,14 +43,15 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
-@Autonomous(name="RRMeet3RedLeft", group = "motion")
-public class RRMeet3RedLeft extends LinearOpMode{
+@Autonomous(name="testswitchable", group = "motion")
+public class testswitchable extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
     private ElapsedTime runtime = new ElapsedTime();
 
-    OpenCvCamera camera;
+    OpenCvCamera camera1; OpenCvCamera camera2;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
+    JunctionDetectC junctionPipeline;
 
     static final double FEET_PER_METER = 3.28084;
 
@@ -79,7 +82,7 @@ public class RRMeet3RedLeft extends LinearOpMode{
     Vector2d highJunction = new Vector2d(-23.5, -14.5);     //was -23.5, -14.5 meet 3
     Pose2d highJunctionH = new Pose2d(-3.75, -15.5, Math.toRadians(90));
     //Vector2d getHighJunctionClose = new Vector2d(4.5, -25.1875);
-    Vector2d stack = new Vector2d(-62.75, -10.5);  // was 62.75, 11.75
+    Vector2d stack = new Vector2d(-63, -10.5);  // was 62.75, 11.75
     Pose2d stackh = new Pose2d(-63, -12, Math.toRadians(180));
 
     Vector2d zone1 = new Vector2d(-59, -12);
@@ -95,33 +98,57 @@ public class RRMeet3RedLeft extends LinearOpMode{
         robot.initTfod();
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
+        int[] viewportContainerIds = OpenCvCameraFactory.getInstance()
+                .splitLayoutForMultipleViewports(
+                        cameraMonitorViewId, //The container we're splitting
+                        2, //The number of sub-containers to create
+                        OpenCvCameraFactory.ViewportSplitMethod.VERTICALLY); //Whether to split the container vertically or horizontally
+
+        camera2 = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), viewportContainerIds[1]);
+        camera1 = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), viewportContainerIds[0]);
+
+
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
+        junctionPipeline = new JunctionDetectC();
+        junctionPipeline.setState(false);
+        aprilTagDetectionPipeline.setState(true);
 
         robot.intake(true); // closes gripper
 
         robot.wait(400, this);
-        robot.absoluteasynchLift(-150,0.6,this); //raise lifter slightly -> prevent cone scraping against ground
-        robot.wait(300, this);
+       // robot.absoluteasynchLift(-150,0.6,this); //raise lifter slightly -> prevent cone scraping against ground
+     //   robot.wait(300, this);
 
+        camera2.setPipeline(junctionPipeline);
+        camera2.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                camera2.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
+                telemetry.addLine("After opening camera 2");
+                telemetry.update();
+            }
 
-        camera.setPipeline(aprilTagDetectionPipeline);
-        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+            @Override
+            public void onError(int errorCode) {
+            }
+        });
+
+        camera1.setPipeline(aprilTagDetectionPipeline);
+        camera1.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
             {
-                camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
+                camera1.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
+                telemetry.addLine("After opening camera 1");
+                telemetry.update();
+
             }
 
             @Override
-            public void onError(int errorCode)
-            {
-
+            public void onError(int errorCode) {
             }
         });
-
-
 
         telemetry.setMsTransmissionInterval(50);
 
@@ -129,7 +156,7 @@ public class RRMeet3RedLeft extends LinearOpMode{
 
         TrajectorySequence traj1 = drive.trajectorySequenceBuilder(startPos1)
                 .lineTo(forward2,
-                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH), // max velocity was 0.6 with feed forward
+                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL * 0.8)) // added Max accel * 0.8 for championship Drive speed was 0.85
                 .lineTo(highJunction,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -137,7 +164,7 @@ public class RRMeet3RedLeft extends LinearOpMode{
                .build();
 
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
-                .forward(6.5,         // was 5.7 - 0.45-.25 for meet 3
+                .forward(5,         // was 5.7 - 0.45-.25 for meet 3
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
                 .build();
@@ -180,17 +207,10 @@ public class RRMeet3RedLeft extends LinearOpMode{
                 .build();
 
         TrajectorySequence traj6 = drive.trajectorySequenceBuilder(traj5.end())
-                .forward(5.5,   // was 5.5 meet 3.
+                .forward(4.2,   // was 5.5 meet 3.
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
                 .build();
-
-
-
-        // TrajectorySequence sanityTest = drive.trajectorySequenceBuilder(new Pose2d(-36,-63.5, Math.toRadians(90)))
-        //         .lineTo(new Vector2d(-36,0))
-        //         .build();
-
 
         /*
          * The INIT-loop:
@@ -254,11 +274,15 @@ public class RRMeet3RedLeft extends LinearOpMode{
             telemetry.update();
             sleep(20);
         }
-
+/****************************************************  RUN
         /*
          * The START command just came in: now work off the latest snapshot acquired
          * during the init loop.
          */
+
+        junctionPipeline.setState(true);
+        camera1.pauseViewport();
+        aprilTagDetectionPipeline.setState(false);
 
         /* Update the telemetry */
         if(tagOfInterest != null)
@@ -325,41 +349,28 @@ public class RRMeet3RedLeft extends LinearOpMode{
                     .build();
         }
 
+        Point curr = junctionPipeline.getCentroid();
+        double start = getRuntime();
+        while(curr==null && getRuntime() < start + 5000) {
+            curr = junctionPipeline.getCentroid();
+            if (curr!=null){
+                telemetry.addData("CenterX = ", curr.x);
+                telemetry.addData("CenterY = ", curr.y);
+            }
+            else telemetry.addLine("Haven't updated centroid yet / it is empty");
+            telemetry.update();
+        }
 
+        /*
+        if (curr!=null){
+            telemetry.addData("CenterX = ", curr.x);
+            telemetry.addData("CenterY = ", curr.y);
+        }
+        else telemetry.addLine("Haven't updated centroid yet / it is empty");
+        telemetry.update();
+         */
 
-        drive.followTrajectorySequence(traj1);
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
-        robot.wait(1000, this);
-        drive.followTrajectorySequence(traj2);
-        robot.intake(false);
-        robot.wait(300, this);
-        drive.followTrajectorySequence(traj3);
-        robot.absoluteasynchLift(robot.stackPos, 0.8, this);
-        robot.wait(1000, this);
-        drive.followTrajectorySequence(traj4);
-        robot.intake(true);     // first cone
-        robot.wait(300, this);
-        drive.followTrajectorySequence(backSmall);
-        robot.intake(true);     // first cone  close again in case gripper was against the wall
-        robot.wait(100, this);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
-        robot.wait(400, this);
-        drive.followTrajectorySequence(traj5);
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
-        robot.wait(1000, this);
-        drive.followTrajectorySequence(traj6);
-        robot.intake(false);    // second cone
-        robot.wait(300, this);
-
-        drive.followTrajectorySequence(end);
-        Pose2d pose = drive.getPoseEstimate();
-
-
-
-        // drive.followTrajectorySequence(sanityTest);
-
-
-
+        robot.wait(5000, this);
 
 
     }

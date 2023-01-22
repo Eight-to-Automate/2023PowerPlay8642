@@ -161,16 +161,16 @@ public class RRMeet3RedRight extends LinearOpMode{
                 .build();
 
         TrajectorySequence backSmall = drive.trajectorySequenceBuilder(traj4.end())
-                .back(1.7,
+                .back(1,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.4, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.5))
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
                 //   .strafeLeft(3,
                 //         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.2, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 //          SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.1))
                 .build();
 
         TrajectorySequence traj5 = drive.trajectorySequenceBuilder(backSmall.end())
-                .back(24)
+                .back(25)
                 .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL) // max angle velocity was 0.7
                 .turn(Math.toRadians(90))
                 .back(3,
@@ -333,7 +333,7 @@ public class RRMeet3RedRight extends LinearOpMode{
         robot.intake(false);
         robot.wait(300, this);
         drive.followTrajectorySequence(traj3);
-        robot.absoluteasynchLift(robot.stackPos, 0.8, this);
+        robot.absoluteasynchLift(-390, 0.8, this);//was 398 for league
         robot.wait(1000, this);
         drive.followTrajectorySequence(traj4);
         robot.intake(true);     // first cone

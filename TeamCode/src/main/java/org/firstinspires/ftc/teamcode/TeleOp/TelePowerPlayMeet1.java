@@ -205,6 +205,11 @@ public class TelePowerPlayMeet1 extends OpMode {
             }
         }
 
+        if (gamepad1.right_trigger > 0.5 && movingLifter){
+            robot.lifter.setPower(0);
+            movingLifter = false;
+        }
+
         if (gamepad2.b) { // Home Position
             if (!movingLifter) {
                 //robot.storage.setPosition(0); // closes storage automatically - caused issues sometimes
@@ -247,8 +252,8 @@ public class TelePowerPlayMeet1 extends OpMode {
             }
         }
         else if (gamepad2.x) { // Middle Level
-            if (!movingLifter) {
-                if (lifterLocation != lifterStates.Middle) {
+            if (!movingLifter|| targetLifterLocation == lifterStates.Home) {
+                if (lifterLocation != lifterStates.Middle|| targetLifterLocation == lifterStates.Home) {
                     movingLifter = true;
                     robot.lifter.setTargetPosition(robot.lifterLevelTwo); // May be changed later  Now using 20:1 motor was 4500 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
@@ -262,8 +267,8 @@ public class TelePowerPlayMeet1 extends OpMode {
             }
         }
         else if (gamepad2.a) {// Lower level
-            if (!movingLifter) {
-                if (lifterLocation != lifterStates.Low) {
+            if (!movingLifter|| targetLifterLocation == lifterStates.Home) {
+                if (lifterLocation != lifterStates.Low|| targetLifterLocation == lifterStates.Home) {
                     movingLifter = true;
                     robot.lifter.setTargetPosition(robot.lifterLevelOne); // Now using 20:1 motor was 3000 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
@@ -377,6 +382,8 @@ public class TelePowerPlayMeet1 extends OpMode {
                 robot.lifter.setPower(lifterPower);//
             }
         }
+
+
 
 
         //******************************************************************************************

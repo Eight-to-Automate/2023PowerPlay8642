@@ -38,7 +38,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import java.util.ArrayList;
 @Disabled
 @Autonomous(name="Meet2LeftAuto", group = "motion")
-public class Meet2LeftAuto extends LinearOpMode{
+public class
+Meet2LeftAuto extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
     private ElapsedTime runtime = new ElapsedTime();

@@ -48,7 +48,7 @@ public class JunctionDetectC extends OpenCvPipeline{
         Imgproc.medianBlur(mask, mask, 1);
 
         Mat circles = new Mat();
-        Imgproc.HoughCircles(mask, circles, Imgproc.HOUGH_GRADIENT, 1.5, 300, 200, 70, 62, 88);// radius is typically around 75-80 but varies with angle.threshold of 200-220 worked better than 300
+        Imgproc.HoughCircles(mask, circles, Imgproc.HOUGH_GRADIENT, 1.5, 300, 200, 70, 62, 90);// radius is typically around 75-80 but varies with angle.threshold of 200-220 worked better than 300
         for (int i = 0; i < circles.cols(); i++ ) {
             double[] data = circles.get(0, i);
             Point center = new Point(Math.round(data[0]), Math.round(data[1]));

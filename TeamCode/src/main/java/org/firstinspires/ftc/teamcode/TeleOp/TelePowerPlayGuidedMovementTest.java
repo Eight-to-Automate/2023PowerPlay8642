@@ -92,6 +92,11 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
     double junctionDistanceX;
     double junctionDistanceY;
     double nudgeConstant;
+    double junctionDeadzone;
+    enum guidedMovement{
+        groundJunction, poleJunctionActive, poleJunctionInactive, active, inactive
+    }
+    guidedMovement currGuidedMovementMode = guidedMovement.active;
 
 
     @Override
@@ -289,77 +294,95 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
             //set nudge constant
             // how much the robot is nudged away from the junction robot just stops at the edge if set to 1
             nudgeConstant = 1;
+            //no longer being used
             /*
             // clip range from 1 to 10 to prevent robot from zooming away
             nudgeConstant = Range.clip(nudgeConstant, 1, 10);
             */
 
 
-            if ((posX < (slowAreaRadius + junctionX) && posX > (-slowAreaRadius + junctionX)) && (posY < (slowAreaRadius + junctionY) && posY > (-slowAreaRadius + junctionY))) {//if robot is within a 3x3 box around ground junction
-                telemetry.addData("Stop area activated!: ", true);
-                // Stop and reverse robot away from ground junction area if too close
-                if (posX >= junctionX) {//means is on right side of junction  //if robot is on the right side and above it (Quadrant 1 if centered around junction)
-                    //find vector perpendicular to current movement vector and pushes robot that direction
-                    // nudge robot to the right
-                    telemetry.addData("On right side of junction", true);
-                    if (posY >= junctionY) {//if robot is on right side and above it
-                        if (((movementHeading >= 180 && movementHeading <= 270)) || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) {// if robot is in Q 1
-                            y += ((stopAreaRadius / junctionDistanceY) - y) * nudgeConstant;// nudge robot up
-                            x += ((stopAreaRadius / junctionDistanceX) - x);
-                            telemetry.addData("nudged UP and RIGHT", true);
-                            if(Math.abs(x)<= 0.05 && Math.abs(x) >= 0.05){//if robot is being told to move slowly, prevent it from moving in that direction
-                                x = 0;
-                            }
-                            if(Math.abs(y)<= 0.05 && Math.abs(x) >= 0.05){//if robot is being told to move slowly, prevent it from moving in that direction
-                                y = 0;
-                            }
-                        }
-                    } else if (posY < junctionY) {// if robot is in quadrant 4
-                        if ((movementHeading >= 90 && movementHeading <= 180) || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) {// if robot is in Q
-                            y += -((stopAreaRadius / junctionDistanceY) - y) * nudgeConstant;//nudge robot down
-                            x += ((stopAreaRadius / junctionDistanceX) - x);
-                            if(Math.abs(x)<= 0.05 && Math.abs(x) >= 0.05){//if robot is being told to move slowly, prevent it from moving in that direction
-                                x = 0;
-                            }
-                            if(Math.abs(y)<= 0.05 && Math.abs(x) >= 0.05){//if robot is being told to move slowly, prevent it from moving in that direction
-                                y = 0;
-                            }
-                            telemetry.addData("nudged UP and DOWN", true);
-                        }
-                    }
+            //set deadzone value where robot will just sit still instead of moving out of circle
+            junctionDeadzone = 0.05;
 
 
-                } else if (posX < junctionX) {//means is on left side of junction
 
-                    telemetry.addData("On left side of junction", true);
-                    if (posY >= junctionY) {//if robot is on left side and above it
-                        if ((movementHeading >= 270 && movementHeading <= 360) || movementHeading == 0 || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) {// takes into account rollback to zero
-                            y += ((stopAreaRadius / junctionDistanceY) - y) * nudgeConstant;// nudge robot up
-                            x += -((stopAreaRadius / junctionDistanceX) - x); // nudge robot to the left
-                            telemetry.addData("nudged UP and LEFT", true);
-                            if(Math.abs(x)<= 0.05 && Math.abs(x) >= 0.05){//if robot is being told to move slowly, prevent it from moving in that direction
-                                x = 0;
+
+
+            //If guide button is pressed, disable guided movement
+            if(gamepad1.guide){
+                currGuidedMovementMode = guidedMovement.inactive;
+            }
+            telemetry.addData("Guided Movement: ", currGuidedMovementMode);
+
+
+            if(currGuidedMovementMode != guidedMovement.inactive) {
+                //if guided movement is inactive then
+                if ((posX < (slowAreaRadius + junctionX) && posX > (-slowAreaRadius + junctionX)) && (posY < (slowAreaRadius + junctionY) && posY > (-slowAreaRadius + junctionY))) {//if robot is within a 3x3 box around ground junction
+                    telemetry.addData("Stop area activated!: ", true);
+                    // Stop and reverse robot away from ground junction area if too close
+                    if (posX >= junctionX) {//means is on right side of junction
+                        // if robot is on the right side and above it (Quadrant 1 if centered around junction)
+                        //find vector magnitudes perpendicular to current movement vector and pushes robot that direction
+                        telemetry.addData("On right side of junction", true);
+                        if (posY >= junctionY) {//if robot is on right side and above it
+                            if (((movementHeading >= 180 && movementHeading <= 270)) || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) {// if robot is in Q 1
+                                y += ((stopAreaRadius / junctionDistanceY) * y);// nudge robot up
+                                x += ((stopAreaRadius / junctionDistanceX) * x);//nudge robot right
+                                telemetry.addData("nudged UP and RIGHT", true);
+                                if (Math.abs(x) <= junctionDeadzone && Math.abs(x) >= junctionDeadzone) {//if robot is being told to move slowly, prevent it from moving in that direction
+                                    x = 0;
+                                }
+                                if (Math.abs(y) <= junctionDeadzone && Math.abs(x) >= junctionDeadzone) {//if robot is being told to move slowly, prevent it from moving in that direction
+                                    y = 0;
+                                }
                             }
-                            if(Math.abs(y)<= 0.05 && Math.abs(x) >= 0.05){//if robot is being told to move slowly, prevent it from moving in that direction
-                                y = 0;
+                        } else if (posY < junctionY) {// if robot is in quadrant 4
+                            if ((movementHeading >= 90 && movementHeading <= 180) || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) {// if robot is in Q
+                                y += -((stopAreaRadius / junctionDistanceY) * y);//nudge robot down
+                                x += ((stopAreaRadius / junctionDistanceX) * x);
+                                if (Math.abs(x) <= junctionDeadzone && Math.abs(x) >= junctionDeadzone) {//if robot is being told to move slowly, prevent it from moving in that direction
+                                    x = 0;
+                                }
+                                if (Math.abs(y) <= junctionDeadzone && Math.abs(x) >= junctionDeadzone) {//if robot is being told to move slowly, prevent it from moving in that direction
+                                    y = 0;
+                                }
+                                telemetry.addData("nudged UP and DOWN", true);
                             }
                         }
-                    } else if (posY < junctionY) {// if robot is in quadrant 3
-                        if ((movementHeading >= 0 && movementHeading <= 180) || movementHeading == 360 || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) {
-                            y += -((stopAreaRadius / junctionDistanceY) - y) * nudgeConstant;//nudge robot down
-                            x += -((stopAreaRadius / junctionDistanceX) - x); // nudge robot to the left
-                            telemetry.addData("nudged DOWN and LEFT", true);
-                            if(Math.abs(x)<= 0.05 && Math.abs(x) >= 0.05){//if robot is being told to move slowly, prevent it from moving in that direction
-                                x = 0;
+
+
+                    } else if (posX < junctionX) {//means is on left side of junction
+
+                        telemetry.addData("On left side of junction", true);
+                        if (posY >= junctionY) {//if robot is on left side and above it
+                            if ((movementHeading >= 270 && movementHeading <= 360) || movementHeading == 0 || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) {// takes into account rollback to zero
+                                y += ((stopAreaRadius / junctionDistanceY) * y);// nudge robot up
+                                x += -((stopAreaRadius / junctionDistanceX) * x); // nudge robot to the left
+                                telemetry.addData("nudged UP and LEFT", true);
+                                if (Math.abs(x) <= junctionDeadzone && Math.abs(x) >= junctionDeadzone) {//if robot is being told to move slowly, prevent it from moving in that direction
+                                    x = 0;
+                                }
+                                if (Math.abs(y) <= junctionDeadzone && Math.abs(x) >= junctionDeadzone) {//if robot is being told to move slowly, prevent it from moving in that direction
+                                    y = 0;
+                                }
                             }
-                            if(Math.abs(y)<= 0.05 && Math.abs(x) >= 0.05){//if robot is being told to move slowly, prevent it from moving in that direction
-                                y = 0;
+                        } else if (posY < junctionY) {// if robot is in quadrant 3
+                            if ((movementHeading >= 0 && movementHeading <= 180) || movementHeading == 360 || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) {
+                                y += -((stopAreaRadius / junctionDistanceY) * y);//nudge robot down
+                                x += -((stopAreaRadius / junctionDistanceX) * x); // nudge robot to the left
+                                telemetry.addData("nudged DOWN and LEFT", true);
+                                if (Math.abs(x) <= junctionDeadzone && Math.abs(x) >= junctionDeadzone) {//if robot is being told to move slowly, prevent it from moving in that direction
+                                    x = 0;
+                                }
+                                if (Math.abs(y) <= junctionDeadzone && Math.abs(x) >= junctionDeadzone) {//if robot is being told to move slowly, prevent it from moving in that direction
+                                    y = 0;
+                                }
                             }
                         }
+
                     }
 
                 }
-
             }
 
 

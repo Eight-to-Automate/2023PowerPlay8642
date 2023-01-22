@@ -29,7 +29,7 @@
 
 package org.firstinspires.ftc.teamcode.testing;
 
-import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -38,16 +38,17 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.pipelines.JunctionDetectC;
-import org.firstinspires.ftc.teamcode.pipelines.VidPipeline;
+import org.firstinspires.ftc.teamcode.pipelines.JunctionTopPipeline3;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.opencv.core.Point;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 
-@Autonomous(name="AutoAimDemo3", group="Linear Opmode")
+@Autonomous(name="AutoAimDemo2", group="Linear Opmode")
 //@Disabled
-public class AutoAimDemo3 extends LinearOpMode {
+public class AutoAimDemo2 extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -55,9 +56,9 @@ public class AutoAimDemo3 extends LinearOpMode {
     JunctionDetectC pipeline;
     OpenCvCamera camera;
 
+
     @Override
     public void runOpMode() {
-
         robot.initAutoRR(hardwareMap, this);
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         // *************************************************************************************************
@@ -82,24 +83,17 @@ public class AutoAimDemo3 extends LinearOpMode {
             }
         });
 
-        FtcDashboard.getInstance().startCameraStream(camera, 15);
-
-
         waitForStart(); //******************************************************************************
-        telemetry.addData("Pipeline Time", camera.getPipelineTimeMs());
-        telemetry.addData("Overhead Time", camera.getOverheadTimeMs());
-        telemetry.addData("Largest circle's radius," , pipeline.largest_radius);
+
         //double startT = getRuntime();
 
         double[] cords = {-1, -1};
 
-        /*Point centroid;
+        Point centroid;
 
         centroid = pipeline.getCentroid();
         cords[0] = centroid.x;
         cords[1] = centroid.y;
-
-         */
 
         if (cords[0] == -1 && cords[1] == -1) {
             telemetry.addLine("target not found");
@@ -111,23 +105,8 @@ public class AutoAimDemo3 extends LinearOpMode {
         telemetry.addData("y pixel position", cords[1]);
         telemetry.addData("Move in x", movement[0]);
         telemetry.addData("move in y", movement[1]);
-        telemetry.addData("Pipeline Time", camera.getPipelineTimeMs());
-        telemetry.addData("Overhead Time", camera.getOverheadTimeMs());
-        telemetry.addData("Largest circle's radius," , pipeline.largest_radius);
-        double start = getRuntime();
-        Point curr;
-        while (getRuntime() < start + 5000){
-            curr = pipeline.getCentroid();
-            if (curr!=null){
-                telemetry.addData("CenterX = ", curr.x);
-                telemetry.addData("CenterY = ", curr.y);
-            }
-            else telemetry.addLine("Haven't updated centroid yet / it is empty");
-            telemetry.update();
-        }
+        telemetry.update();
 
-
-        /*
         TrajectorySequence realign;
 
         if (movement[1] > 0)
@@ -145,8 +124,6 @@ public class AutoAimDemo3 extends LinearOpMode {
 
         drive.setPoseEstimate(new Pose2d(0,0, Math.toRadians(0)));
         drive.followTrajectorySequence(realign);
-
-         */
 
         while (opModeIsActive()) {}
 

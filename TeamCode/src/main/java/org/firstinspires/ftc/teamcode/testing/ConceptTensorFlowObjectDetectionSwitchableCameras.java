@@ -35,6 +35,7 @@ package org.firstinspires.ftc.teamcode.testing;
 //package org.firstinspires.ftc.teamcode.testing;
 //package org.firstinspires.ftc.robotcontroller.external.samples;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import java.util.List;
@@ -58,7 +59,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
   //  @Autonomous(name = "Concept: TensorFlow Object Detection", group = "Concept")
     @TeleOp(name = "Concept: TensorFlow Object Detection Switchable Cameras", group = "testing")
     //public class ConceptTensorFlowObjectDetectionSwitchableCameras {
-//@Disabled
+@Disabled
     public class ConceptTensorFlowObjectDetectionSwitchableCameras extends LinearOpMode {
 
         /*

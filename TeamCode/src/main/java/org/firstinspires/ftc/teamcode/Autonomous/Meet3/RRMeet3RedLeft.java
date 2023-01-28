@@ -318,7 +318,7 @@ public class RRMeet3RedLeft extends LinearOpMode{
                     .back(3.8+0.25) //1-25-23  was 3.8-0.25  for league championship
                     .strafeLeft(12+23)
                     .addTemporalMarker(1, ()->{
-                        robot.absoluteasynchLift(-380, 0.8, this);
+                        robot.absoluteasynchLift(robot.stackPos, 0.8, this);
                     })
                     .build();
         } else if (route == 2) {
@@ -326,7 +326,7 @@ public class RRMeet3RedLeft extends LinearOpMode{
                     .back(3.8+0.25) //1-25-23  was 3.8-0.25  for league championship
                     .strafeLeft(12)
                     .addTemporalMarker(1, ()->{
-                        robot.absoluteasynchLift(-380, 0.8, this);
+                        robot.absoluteasynchLift(robot.stackPos, 0.8, this);
                     })
                     .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL)
                     .turn(Math.toRadians(90))
@@ -336,24 +336,23 @@ public class RRMeet3RedLeft extends LinearOpMode{
                     .back(3.8+0.25) //1-25-23  was 3.8-0.25  for league championship.back(3.8-0.25)
                     .strafeRight(13)
                     .addTemporalMarker(1, ()->{
-                        robot.absoluteasynchLift(-380, 0.8, this);
+                        robot.absoluteasynchLift(robot.stackPos, 0.8, this);
                     })
                     .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL)
                     .turn(Math.toRadians(90))
                     .build();
         }
 
-
-
         drive.followTrajectorySequence(traj1);
         robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
-        robot.wait(1000, this);
+        robot.wait(850, this);//was 1000 1-27-23
         drive.followTrajectorySequence(traj2);
+        robot.intake(false);
         robot.intake(false);
         robot.wait(300, this);
         drive.followTrajectorySequence(traj3);
         robot.absoluteasynchLift(-390, 0.8, this);//was 398 for league
-        robot.wait(1000, this);
+        robot.wait(700, this);//was 1000 1-27-23
         drive.followTrajectorySequence(traj4);
         robot.intake(true);     // first cone
         robot.wait(300, this);
@@ -364,7 +363,7 @@ public class RRMeet3RedLeft extends LinearOpMode{
         robot.wait(400, this);
         drive.followTrajectorySequence(traj5);
         robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
-        robot.wait(1000, this);
+        robot.wait(700, this);//was 1000 1-27-23
         drive.followTrajectorySequence(traj6);
         robot.intake(false);    // second cone
         robot.wait(300, this);

@@ -231,7 +231,6 @@ public class TelePowerPlayLocalizer extends OpMode {
                         checkTimeH = checkTimeL + 200;
                         targetLifterLocation = lifterStates.Home;
                 }
-
                  */
 
                 if (lifterLocation != lifterStates.Home) {
@@ -254,7 +253,11 @@ public class TelePowerPlayLocalizer extends OpMode {
                     movingLifter = true;
                     robot.lifter.setTargetPosition(robot.lifterLevelThree);   // Now using 20:1 motor was 6100 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    robot.lifter.setPower(-1.0);
+                    if (robot.lifter.getCurrentPosition() > robot.lifterLevelThree) { // Set the power to match with the goal direction
+                        robot.lifter.setPower(-1.0);
+                    } else { //lifter is going down
+                        robot.lifter.setPower(0.7);
+                    }
                     targetLifterLocation = lifterStates.High;
                 }
             }
@@ -267,8 +270,8 @@ public class TelePowerPlayLocalizer extends OpMode {
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     if (robot.lifter.getCurrentPosition() > robot.lifterLevelTwo) { // Set the power to match with the goal direction
                         robot.lifter.setPower(-1.0);
-                    } else {
-                        robot.lifter.setPower(1.0);
+                    } else { //lifter is going down
+                        robot.lifter.setPower(0.7);
                     }
                     targetLifterLocation = lifterStates.Middle;
                 }
@@ -281,9 +284,9 @@ public class TelePowerPlayLocalizer extends OpMode {
                     robot.lifter.setTargetPosition(robot.lifterLevelOne); // Now using 20:1 motor was 3000 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     if (robot.lifter.getCurrentPosition() > robot.lifterLevelOne) { // Set the power to match with the goal direction
-                        robot.lifter.setPower(1.0);
-                    } else {
                         robot.lifter.setPower(-1.0);
+                    } else {
+                        robot.lifter.setPower(0.7);
                     }
                     targetLifterLocation = lifterStates.Low;
                 }
@@ -297,7 +300,7 @@ public class TelePowerPlayLocalizer extends OpMode {
                     if (robot.lifter.getCurrentPosition() > robot.lowJunctionPos) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
-                        robot.lifter.setPower(-1.0);
+                        robot.lifter.setPower(-0.7);
                     }
                     targetLifterLocation = lifterStates.Junction;
                 }
@@ -311,7 +314,7 @@ public class TelePowerPlayLocalizer extends OpMode {
                     if (robot.lifter.getCurrentPosition() > robot.stackPos) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
-                        robot.lifter.setPower(-1.0);
+                        robot.lifter.setPower(-0.7);
                     }
                     targetLifterLocation = lifterStates.Stack;
                 }
@@ -325,7 +328,7 @@ public class TelePowerPlayLocalizer extends OpMode {
                     if (robot.lifter.getCurrentPosition() > robot.secondCone) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
-                        robot.lifter.setPower(-1.0);
+                        robot.lifter.setPower(-0.7);
                     }
                     targetLifterLocation = lifterStates.secondCone;
                 }
@@ -339,7 +342,7 @@ public class TelePowerPlayLocalizer extends OpMode {
                     if (robot.lifter.getCurrentPosition() > robot.thirdCone) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
-                        robot.lifter.setPower(-1.0);
+                        robot.lifter.setPower(-0.7);
                     }
                     targetLifterLocation = lifterStates.thirdCone;
                 }

@@ -354,7 +354,8 @@ public class RRMeet3RedLeft extends LinearOpMode{
         robot.absoluteasynchLift(-390, 0.8, this);//was 398 for league
         robot.wait(700, this);//was 1000 1-27-23
         drive.followTrajectorySequence(traj4);
-        robot.intake(true);     // first cone
+        robot.intake(true);
+        robot.intake(true);// first cone
         robot.wait(300, this);
         drive.followTrajectorySequence(backSmall);
         robot.intake(true);     // first cone  close again in case gripper was against the wall
@@ -365,7 +366,8 @@ public class RRMeet3RedLeft extends LinearOpMode{
         robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
         robot.wait(700, this);//was 1000 1-27-23
         drive.followTrajectorySequence(traj6);
-        robot.intake(false);    // second cone
+        robot.intake(false);
+        robot.intake(false); // second cone
         robot.wait(300, this);
 
         drive.followTrajectorySequence(end);

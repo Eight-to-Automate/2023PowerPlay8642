@@ -126,7 +126,6 @@ public class RobotPowerPlay {
 
         startDriveEncoders();
 
-
         frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
         frontRightMotor.setDirection(DcMotor.Direction.FORWARD);
         backLeftMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -140,7 +139,6 @@ public class RobotPowerPlay {
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         lifter.setTargetPositionTolerance(15);
-
 
         stopAllMotors();
         resetDriveEncoders();   // added on 2-13-22
@@ -159,27 +157,8 @@ public class RobotPowerPlay {
 
         setUpMotorsRR();
 
-        //startDriveEncoders();
-
-
-        //frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
-        //frontRightMotor.setDirection(DcMotor.Direction.FORWARD);
-        //backLeftMotor.setDirection(DcMotor.Direction.REVERSE);
-        //backRightMotor.setDirection(DcMotor.Direction.FORWARD);
-
-        //lifter.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        //frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         lifter.setTargetPositionTolerance(15);
 
-
-        //stopAllMotors();
-        //resetDriveEncoders();   // added on 2-13-22
-        //startDriveEncoders();
     }
 
     //Init Methods**********************************************************************************

@@ -72,8 +72,8 @@ public class Meet1RightAuto extends LinearOpMode{
     public void runOpMode()
     {
         robot.initAuto(hardwareMap, this);
-        robot.initVuforia();
-        robot.initTfod();
+      //  robot.initVuforia();
+       // robot.initTfod();
         robot.intake(true);
 
         double topLifterTicks = 100;
@@ -81,7 +81,7 @@ public class Meet1RightAuto extends LinearOpMode{
         double tileDistance = 60;
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
 
         camera.setPipeline(aprilTagDetectionPipeline);

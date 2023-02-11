@@ -55,7 +55,7 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 
 
 @Autonomous(name="AutoAimDemo", group="Linear Opmode")
-//@Disabled
+@Disabled
 public class AutoAimDemo extends LinearOpMode {
 
     // Declare OpMode members.

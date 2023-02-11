@@ -303,7 +303,7 @@ public class TelePowerPlayMeet1 extends OpMode {
                     if (robot.lifter.getCurrentPosition() > robot.stackPos) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
-                        robot.lifter.setPower(-1.0);
+                        robot.lifter.setPower(-0.8);
                     }
                     targetLifterLocation = lifterStates.Stack;
                 }
@@ -317,7 +317,7 @@ public class TelePowerPlayMeet1 extends OpMode {
                     if (robot.lifter.getCurrentPosition() > robot.secondCone) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
-                        robot.lifter.setPower(-1.0);
+                        robot.lifter.setPower(-0.8);
                     }
                     targetLifterLocation = lifterStates.secondCone;
                 }

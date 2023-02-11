@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -13,7 +14,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.TeleOp.TelePowerPlayMeet1;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-
+//@Disabled
 @TeleOp(name="[TEST]TelePowerPlayGuidedMovementTest", group="Iterative Opmode")
 
 public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
@@ -93,6 +94,7 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
     double junctionDistanceY;
     double nudgeConstant;
     double junctionDeadzone;
+    boolean movementHeadingValid = false;
     enum guidedMovement{
         groundJunction, poleJunctionActive, poleJunctionInactive, active, inactive
     }
@@ -182,7 +184,12 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
             heading = Math.toDegrees(poseEstimate.getHeading());  //global robot heading    180 degrees is forward/up(|)  0 degrees is right -> just like a normal coordinate plane
             joystickHeading = Math.toDegrees(Math.atan((gamepad1.left_stick_y)/(gamepad1.left_stick_x)));  //angle of joystick which is equal to direction of movement from robot's POV
             movementHeading = heading + joystickHeading; //global robot movement heading   180 degrees is forward/up(|)  0 degrees is right -> just like a normal coordinate plane
-
+            if(gamepad1.left_stick_x >= 0 || gamepad1.left_stick_x <= 0){//check if movementHeading will be NaN or not
+                movementHeadingValid = true;
+            }
+            else{
+                movementHeadingValid = false;
+            }
 
             //return heading values
             telemetry.addData("Joystick Heading Angle (Degrees): ",joystickHeading);
@@ -285,10 +292,10 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
 
 
             robotRadius = 7;//from approx center to corner of extrusion
-            slowAreaRadius = 5.0 + (robotRadius);//area around the junction to slow down the robot
+            slowAreaRadius = 10.0 + (robotRadius);//area around the junction to slow down the robot
             stopAreaRadius = 4.0 + (robotRadius);//area around the junction the robot cannot enter
-            junctionDistanceX = posX - junctionX;
-            junctionDistanceY = posY - junctionY;
+            junctionDistanceX = Math.abs(posX - junctionX);
+            junctionDistanceY = Math.abs(posY - junctionY);
 
 
             //set nudge constant
@@ -302,7 +309,7 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
 
 
             //set deadzone value where robot will just sit still instead of moving out of circle
-            junctionDeadzone = 0.05;
+            junctionDeadzone = 0.00;
 
 
 
@@ -325,9 +332,9 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
                         //find vector magnitudes perpendicular to current movement vector and pushes robot that direction
                         telemetry.addData("On right side of junction", true);
                         if (posY >= junctionY) {//if robot is on right side and above it
-                            if (((movementHeading >= 180 && movementHeading <= 270)) || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) {// if robot is in Q 1
-                                y += ((stopAreaRadius / junctionDistanceY) * y);// nudge robot up
-                                x += ((stopAreaRadius / junctionDistanceX) * x);//nudge robot right
+                            if ((((movementHeading >= 180 && movementHeading <= 270)) || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) && movementHeadingValid) {// if robot is in Q 1
+                                y += ((stopAreaRadius / junctionDistanceY) * (Math.sin(-movementHeading)));
+                                x += ((stopAreaRadius / junctionDistanceX) * Math.cos(-movementHeading));
                                 telemetry.addData("nudged UP and RIGHT", true);
                                 if (Math.abs(x) <= junctionDeadzone && Math.abs(x) >= junctionDeadzone) {//if robot is being told to move slowly, prevent it from moving in that direction
                                     x = 0;
@@ -337,9 +344,9 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
                                 }
                             }
                         } else if (posY < junctionY) {// if robot is in quadrant 4
-                            if ((movementHeading >= 90 && movementHeading <= 180) || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) {// if robot is in Q
-                                y += -((stopAreaRadius / junctionDistanceY) * y);//nudge robot down
-                                x += ((stopAreaRadius / junctionDistanceX) * x);
+                            if (((movementHeading >= 90 && movementHeading <= 180) || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) && movementHeadingValid) {// if robot is in Q
+                                y += -((stopAreaRadius / junctionDistanceY) * (Math.sin(-movementHeading)));
+                                x += ((stopAreaRadius / junctionDistanceX) * Math.cos(-movementHeading));
                                 if (Math.abs(x) <= junctionDeadzone && Math.abs(x) >= junctionDeadzone) {//if robot is being told to move slowly, prevent it from moving in that direction
                                     x = 0;
                                 }
@@ -355,9 +362,9 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
 
                         telemetry.addData("On left side of junction", true);
                         if (posY >= junctionY) {//if robot is on left side and above it
-                            if ((movementHeading >= 270 && movementHeading <= 360) || movementHeading == 0 || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) {// takes into account rollback to zero
-                                y += ((stopAreaRadius / junctionDistanceY) * y);// nudge robot up
-                                x += -((stopAreaRadius / junctionDistanceX) * x); // nudge robot to the left
+                            if (((movementHeading >= 270 && movementHeading <= 360) || movementHeading == 0 || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) && movementHeadingValid) {// takes into account rollback to zero
+                                y += ((stopAreaRadius / junctionDistanceY) * (Math.sin(-movementHeading)));
+                                x += -((stopAreaRadius / junctionDistanceX) * Math.cos(-movementHeading));
                                 telemetry.addData("nudged UP and LEFT", true);
                                 if (Math.abs(x) <= junctionDeadzone && Math.abs(x) >= junctionDeadzone) {//if robot is being told to move slowly, prevent it from moving in that direction
                                     x = 0;
@@ -367,10 +374,11 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
                                 }
                             }
                         } else if (posY < junctionY) {// if robot is in quadrant 3
-                            if ((movementHeading >= 0 && movementHeading <= 180) || movementHeading == 360 || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) {
-                                y += -((stopAreaRadius / junctionDistanceY) * y);//nudge robot down
-                                x += -((stopAreaRadius / junctionDistanceX) * x); // nudge robot to the left
+                            if (((movementHeading >= 0 && movementHeading <= 180) || movementHeading == 360 || junctionDistanceX < stopAreaRadius || junctionDistanceY < stopAreaRadius) && movementHeadingValid) {
+                                y += -((stopAreaRadius / junctionDistanceY) * (Math.sin(-movementHeading)));//nudge robot down
+                                x += -((stopAreaRadius / junctionDistanceX) * Math.cos(-movementHeading)); // nudge robot to the left
                                 telemetry.addData("nudged DOWN and LEFT", true);
+                                telemetry.addData("Joystick addition amount",(stopAreaRadius / junctionDistanceY));
                                 if (Math.abs(x) <= junctionDeadzone && Math.abs(x) >= junctionDeadzone) {//if robot is being told to move slowly, prevent it from moving in that direction
                                     x = 0;
                                 }
@@ -413,8 +421,8 @@ public class TelePowerPlayGuidedMovementTest extends LinearOpMode {
             backRightPower = y + x - rx;
 
 
-
-
+            telemetry.addData("Joystick left X ",x);
+            telemetry.addData("Joystick left Y ",y);
 
             // Make sure driving power is -1 to 1 and set max/min values
             frontLeftPower = Range.clip(frontLeftPower, -1, 1);

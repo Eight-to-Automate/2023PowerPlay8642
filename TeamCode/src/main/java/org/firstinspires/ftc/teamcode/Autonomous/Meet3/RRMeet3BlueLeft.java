@@ -25,6 +25,7 @@ package org.firstinspires.ftc.teamcode.Autonomous.Meet3;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -42,6 +43,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
+@Disabled
 @Autonomous(name="RRMeet3BlueLeft", group = "motion")
 public class RRMeet3BlueLeft extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
@@ -92,8 +94,8 @@ public class RRMeet3BlueLeft extends LinearOpMode{
     {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         robot.initAutoRR(hardwareMap, this);
-        robot.initVuforia();
-        robot.initTfod();
+       // robot.initVuforia();
+       // robot.initTfod();
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
@@ -330,7 +332,7 @@ public class RRMeet3BlueLeft extends LinearOpMode{
 
         drive.followTrajectorySequence(traj1);
         robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
-        robot.wait(1000, this);
+        robot.wait(800, this);
         drive.followTrajectorySequence(traj2);
         robot.intake(false);
         robot.wait(300, this);

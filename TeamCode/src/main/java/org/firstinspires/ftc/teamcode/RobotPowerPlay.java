@@ -107,8 +107,8 @@ public class RobotPowerPlay {
     //bfr League championship -2530
     public final int lifterLevelThree = -2490;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
     public final int lowJunctionPos = -400;  //Old: -400    11/1/2022 New: -250
-    public final int stackPos = -398; //-370  Was 405 at meet 3
-    public final int secondCone = -160;
+    public final int stackPos = -320; //-370  Was 405 at meet 3   //4 cone height
+    public final int secondCone = -170;
     public final int thirdCone = -260;
 
     // cone recognition variables
@@ -915,18 +915,13 @@ public class RobotPowerPlay {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = hwMap.get(WebcamName.class, "Webcam 1");
-       // webcam1 = hwMap.get(WebcamName.class, "Webcam 1");
-      //  webcam2 = hwMap.get(WebcamName.class, "Webcam 2");
-      //  parameters.cameraName = ClassFactory.getInstance().getCameraManager().nameForSwitchableCamera(webcam1, webcam2);
-        //parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        parameters.cameraName = hwMap.get(WebcamName.class, "Webcam 2");  // was webcam 1 1-25-23
+
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
-        // Set the active camera to Webcam 1.
-       // switchableCamera = (SwitchableCamera) vuforia.getCamera();
-        //switchableCamera.setActiveCamera(webcam1);
+
         // Loading trackables is not necessary for the TensorFlow Object Detection engine.
     }
 
@@ -1102,7 +1097,7 @@ public class RobotPowerPlay {
     public void activateConeCam() {
         pipeline = new PowerPlayPipeline(true, ColorVals.HUE_MIN, ColorVals.HUE_MAX, ColorVals.SATURATION_MIN, ColorVals.SATURATION_MAX, ColorVals.VALUE_MIN, ColorVals.VALUE_MAX);
 
-        camera = OpenCvCameraFactory.getInstance().createWebcam(hwMap.get(WebcamName.class, "Webcam 1"));
+        camera = OpenCvCameraFactory.getInstance().createWebcam(hwMap.get(WebcamName.class, "Webcam 2")); // was webcam 1 1-25-23
         camera.setPipeline(pipeline);
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override

@@ -82,8 +82,7 @@ public class AutoAimDemo3 extends LinearOpMode {
             }
         });
 
-        FtcDashboard.getInstance().startCameraStream(camera, 15);
-
+        //FtcDashboard.getInstance().startCameraStream(camera, 15);
 
         waitForStart(); //******************************************************************************
         telemetry.addData("Pipeline Time", camera.getPipelineTimeMs());

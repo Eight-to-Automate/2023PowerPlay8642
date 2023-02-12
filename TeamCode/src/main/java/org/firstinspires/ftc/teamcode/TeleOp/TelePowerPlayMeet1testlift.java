@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,12 +7,12 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.RobotFreightFrenzy;
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-@TeleOp(name="TeleMeet1", group="Iterative Opmode")
+@TeleOp(name="Teletestliftermotor", group="Iterative Opmode")
 
-public class TelePowerPlayMeet1 extends OpMode {
+public class TelePowerPlayMeet1testlift extends OpMode {
     RobotPowerPlay robot = new RobotPowerPlay();
 
     // Declare OpMode members
@@ -35,7 +33,7 @@ public class TelePowerPlayMeet1 extends OpMode {
     double backRightPower;
     double strafingConstant = 1.5;
     double lifterPower;
-    int smalllift=400;
+    int smalllift=500;//400; //400 with faster motor
     // enums
     enum States {
         Forwards, Backwards, Off, On
@@ -57,7 +55,7 @@ public class TelePowerPlayMeet1 extends OpMode {
     boolean movingintake = false;
     boolean intakePressed = false;
 
-    // lifter encoder positions
+     // lifter encoder positions
     // b is 0
     // a is -1150
     // x is -1700
@@ -81,6 +79,12 @@ public class TelePowerPlayMeet1 extends OpMode {
     boolean carouselMovingBlue = false;
     boolean carouselMovingRed = false;
 
+    //SHooting motor new PIDF values
+    public  double NEW_P = 15;
+    public double NEW_I = 3;
+    public  double NEW_D = 1.5;
+    public  double NEW_F = 14;  //was 12.6
+
     // Exponential drive values
     public double exponential(double value, int constant) {
         double cubed =  value*value*value;
@@ -97,7 +101,13 @@ public class TelePowerPlayMeet1 extends OpMode {
         robot.startDriveEncoders();
         //robot.startDriveEncoderless();
         // robot.lifter.setMode(DcMotorEx.ZeroPowerBehavior.BRAKE);    // needed for 20:1 motor
-        robot.lifter.setTargetPositionTolerance(15);
+        robot.lifter.setTargetPositionTolerance(15);//was 15 at kent
+        PIDFCoefficients pidNew = new PIDFCoefficients(NEW_P, NEW_I, NEW_D, NEW_F);
+        // PIDFCoefficients pidNew = new PIDFCoefficients(10.0, 3.0 0, 10);
+        robot.lifter.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, pidNew);
+
+
+        robot.lifter.setTargetPositionTolerance(15);//was 15 at kent
     }
 
     @Override
@@ -296,6 +306,7 @@ public class TelePowerPlayMeet1 extends OpMode {
                         robot.lifter.setPower(-1.0);
                     }
                     targetLifterLocation = lifterStates.Junction;
+                    liftTimestart=runtime.milliseconds();
                 }
             }
         } else if (gamepad2.left_bumper) {// stack level
@@ -310,6 +321,7 @@ public class TelePowerPlayMeet1 extends OpMode {
                         robot.lifter.setPower(-0.8);
                     }
                     targetLifterLocation = lifterStates.Stack;
+                    liftTimestart=runtime.milliseconds();
                 }
             }
         } else if (gamepad2.dpad_left) {// 2nd cone stack level
@@ -324,6 +336,7 @@ public class TelePowerPlayMeet1 extends OpMode {
                         robot.lifter.setPower(-0.8);
                     }
                     targetLifterLocation = lifterStates.secondCone;
+                    liftTimestart=runtime.milliseconds();
                 }
             }
         } else if (gamepad2.dpad_right) {// 3rd cone stack level
@@ -335,9 +348,10 @@ public class TelePowerPlayMeet1 extends OpMode {
                     if (robot.lifter.getCurrentPosition() > robot.thirdCone) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
-                        robot.lifter.setPower(-1.0);
+                        robot.lifter.setPower(-0.8);
                     }
                     targetLifterLocation = lifterStates.thirdCone;
+                    liftTimestart=runtime.milliseconds();
                 }
             }
         }
@@ -366,7 +380,7 @@ public class TelePowerPlayMeet1 extends OpMode {
                     targetLifterLocation = lifterStates.Manual; // ends the override using high button
                 }
                 else if (robot.lifter.getCurrentPosition() > -500){
-                    robot.lifter.setPower(0.2);
+                    robot.lifter.setPower(0.3);  // was 0.2 with faster motor
                 }
                 /*else {
                     if (!robot.lifter.isBusy()) {

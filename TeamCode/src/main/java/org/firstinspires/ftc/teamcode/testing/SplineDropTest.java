@@ -99,6 +99,11 @@ public class SplineDropTest extends LinearOpMode{
        // robot.initVuforia();
        // robot.initTfod();
 
+        robot.intake(true); // closes gripper
+
+        robot.wait(400, this);
+        robot.absoluteasynchLift(-150,0.6,this); //raise lifter slightly -> prevent cone scraping against ground
+        robot.wait(300, this);
 
         telemetry.setMsTransmissionInterval(50);
 

@@ -334,7 +334,7 @@ public class RRMeet3RedRight extends LinearOpMode{
         robot.intake(false);
         robot.wait(300, this);
         drive.followTrajectorySequence(traj3);
-        robot.absoluteasynchLift(-390, 0.8, this);//was 398 for league
+        robot.absoluteasynchLift(robot.stackPosAuto, 0.8, this);//was 398 for league
         robot.wait(700, this);//was 1000 1-27-23
         drive.followTrajectorySequence(traj4);
         robot.intake(true);

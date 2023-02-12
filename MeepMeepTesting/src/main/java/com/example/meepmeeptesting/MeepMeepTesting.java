@@ -11,20 +11,11 @@ public class MeepMeepTesting {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(800);
 
-        // positions for localization
-        Pose2d startPos1 = new Pose2d(-35.7,-62.7, Math.toRadians(90));
-        //Vector2d forward2 = new Vector2d(-35.7, -7.5);// was -35.75. -9.5
-        Pose2d forward2 = new Pose2d(-35.7, -7.5, Math.toRadians(90));
-        Vector2d highJunction = new Vector2d(-23.5, -14.5);     //was -23.5, -14.5 meet 3
-        Pose2d highJunctionH = new Pose2d(-3.75, -15.5, Math.toRadians(90));
-        //Vector2d getHighJunctionClose = new Vector2d(4.5, -25.1875);
-        Vector2d stack = new Vector2d(-62.75, -10.5);  // was 62.75, 11.75
-        Pose2d stackh = new Pose2d(-63, -12, Math.toRadians(180));
-
-        Pose2d cyclePose = new Pose2d(-35.75, -24, Math.toRadians(90));
-        //Pose2d cyclePose = new Pose2d(-35.75, -48, Math.toRadians(90));
-        Pose2d prescore = new Pose2d(-35.75, -16, Math.toRadians(90));
-        Pose2d highJunctionHeading = new Pose2d(-24, -6, Math.toRadians(90));
+        Pose2d drop1 = new Pose2d(-24,-5,Math.toRadians(90));
+        Pose2d cyclePose = new Pose2d(-35.75, -14, Math.toRadians(180));
+        Pose2d stackPos = new Pose2d(-63, -12, Math.toRadians(180));
+        Vector2d preturn = new Vector2d(-35.7, -12);
+        Pose2d backpose = new Pose2d(-35.7, -12);
 
 
         /*
@@ -71,10 +62,18 @@ public class MeepMeepTesting {
                 .setConstraints(0.8 * 50.18793796530113, 0.67 * 50.18793796530113, 3.3, 3.0, 13.9)
                 .setDimensions(16,16)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(startPos1)
-                                .splineToLinearHeading(forward2, Math.toRadians(90))
-                                .splineToLinearHeading(prescore, Math.toRadians(90))
-                                .splineToLinearHeading(highJunctionHeading, Math.toRadians(90))
+                        drive.trajectorySequenceBuilder(stackPos)
+//                                .setReversed(true)
+//                                .splineToSplineHeading(cyclePose, Math.toRadians(180))
+//                                .splineToSplineHeading(stackPos, Math.toRadians(180))
+
+//******************************************************************************************************
+
+//                               .splineToSplineHeading(new Pose2d(-43, -12, Math.toRadians(180)), Math.toRadians(180))
+//                              .splineToSplineHeading(new Pose2d(-35.7 + 7.5, -12 + 7.5, Math.toRadians(45)), Math.toRadians(60))
+
+                                .splineToSplineHeading(new Pose2d(-12, -12, Math.toRadians(180)), Math.toRadians(180))
+                                .splineToSplineHeading(new Pose2d(-19.8, -12, Math.toRadians(135)), Math.toRadians(180))
                                 .build()
                 );
 

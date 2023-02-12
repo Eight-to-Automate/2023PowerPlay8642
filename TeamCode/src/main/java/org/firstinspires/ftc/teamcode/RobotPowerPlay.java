@@ -96,8 +96,7 @@ public class RobotPowerPlay {
     public BNO055IMU imu;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
     public Orientation angles;
-
-
+   /*
     public int lifterMinimum = 0;
     //bfr meet3 -1000
     public final int lifterLevelOne = -950; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
@@ -110,6 +109,21 @@ public class RobotPowerPlay {
     public final int stackPos = -320; //-370  Was 405 at meet 3   //4 cone height
     public final int secondCone = -170;
     public final int thirdCone = -260;
+   public final int stackPosAuto =-390;  //Autonomous 4 cone height Kent state */
+
+    public int lifterMinimum = 0;
+    //bfr meet3 -1000
+    public final int lifterLevelOne = -1328;//-950; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
+    //bfr meet3 -1600
+    public final int lifterLevelTwo = -2100;//-1500; //Old: -1700  11/1/2022  New: -1550 11/11/2022 new:-1600
+    //bfr meet3 -2580
+    //bfr League championship -2530
+    public final int lifterLevelThree =-3100; //-2490;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
+    public final int lowJunctionPos = -780;//-560//-400;  //Old: -400    11/1/2022 New: -250
+    public final int stackPos =-447; //-320; //-370  Was 405 at meet 3   //4 cone height
+    public final int secondCone =-240;// -170;
+    public final int thirdCone = -364;//-260;
+    public final int stackPosAuto =-545; //-390;  //Autonomous 4 cone height Kent state
 
     // cone recognition variables
     OpenCvCamera camera;
@@ -222,6 +236,7 @@ public class RobotPowerPlay {
 
         stopAllMotors();
         startDriveEncoderless();
+        lifter.setTargetPositionTolerance(15);
     }
 
     public void setupMotorsGeneric() {
@@ -316,9 +331,9 @@ public class RobotPowerPlay {
     }
     public void intake(boolean close) {
         if (close) {
-            intake.setPosition(0.9);
+            intake.setPosition(0.9); //true = close = 0.9
         } else {
-            intake.setPosition(0.1);
+            intake.setPosition(0.1); //false = open = 0.1
         }
     }
     // Rotate Robot (degress,power,op,telOn) - uses position checks

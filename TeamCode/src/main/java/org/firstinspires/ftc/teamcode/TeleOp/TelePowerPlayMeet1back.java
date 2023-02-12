@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,12 +8,11 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.RobotFreightFrenzy;
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
+@Disabled
+@TeleOp(name="TeleMeet1back", group="Iterative Opmode")
 
-@TeleOp(name="TeleMeet1", group="Iterative Opmode")
-
-public class TelePowerPlayMeet1 extends OpMode {
+public class TelePowerPlayMeet1back extends OpMode {
     RobotPowerPlay robot = new RobotPowerPlay();
 
     // Declare OpMode members

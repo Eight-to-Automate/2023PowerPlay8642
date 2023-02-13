@@ -26,8 +26,6 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
@@ -35,12 +33,11 @@ import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.pipelines.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 
-@Autonomous(name="SplineDropTest3", group = "motion")
-public class SplineDropTest3 extends LinearOpMode{
+@Autonomous(name="SplineDropTest4", group = "motion")
+public class SplineDropTest4 extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -106,12 +103,16 @@ public class SplineDropTest3 extends LinearOpMode{
                     robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
                 })
                 .splineToLinearHeading(conePush, Math.toRadians(90), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))//first forward movement
                 .setReversed(true)
+
+                .splineToLinearHeading(new Pose2d(-24,-7.5-2,Math.toRadians(90)), Math.toRadians(90),  SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))  //Originally 90 spline from first forwards movement to high goal score pos
                 .splineToLinearHeading(drop1, Math.toRadians(90),  SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))  //-7.8
                 .setReversed(false)
                 .build();
+
 
         TrajectorySequence toStack1 = drive.trajectorySequenceBuilder(score1.end())
                 .setReversed(true)
@@ -155,8 +156,10 @@ public class SplineDropTest3 extends LinearOpMode{
                     robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
                 })
                 .setReversed(false)
-                .lineToLinearHeading(new Pose2d(-12, -12, Math.toRadians(180)))
-                .lineToLinearHeading(new Pose2d(-20, -7.5, Math.toRadians(135)))
+//                .lineToLinearHeading(new Pose2d(-12, -12, Math.toRadians(180)))
+//                .splineToLinearHeading(new Pose2d(-20, -7.5), Math.toRadians(135))
+                .splineToSplineHeading(new Pose2d(-12, -12, Math.toRadians(180)), Math.toRadians(180))
+                .splineToSplineHeading(new Pose2d(-19.8, -12, Math.toRadians(110)), Math.toRadians(180))
                 .build();
 
         TrajectorySequence toStack2 = drive.trajectorySequenceBuilder(score2.end())
@@ -164,9 +167,13 @@ public class SplineDropTest3 extends LinearOpMode{
                 .addTemporalMarker(1.5, () -> {
                     robot.absoluteasynchLift(robot.stackPos, 1, this);
                 })
-                .lineToLinearHeading(new Pose2d(-12, -12, Math.toRadians(180)))
+                .splineToLinearHeading(new Pose2d(-12, -12), Math.toRadians(180))
                 .lineToLinearHeading(stackPos)
                 .build();
+
+
+        //_____________________________________________________________________________
+
 
         TrajectorySequence backSmall2 = drive.trajectorySequenceBuilder(toStack2.end())
                 .back(1.5,
@@ -181,9 +188,8 @@ public class SplineDropTest3 extends LinearOpMode{
                 .addTemporalMarker(2.5, () -> {
                     robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
                 })
-                .setReversed(false)
                 .lineToLinearHeading(new Pose2d(-12, -12, Math.toRadians(180)))
-                .lineToLinearHeading(new Pose2d(-20, -7.5, Math.toRadians(135)))
+                .splineToLinearHeading(new Pose2d(-20, -7.5), Math.toRadians(135))
                 .build();
 
         TrajectorySequence toStack3 = drive.trajectorySequenceBuilder(score2.end())
@@ -191,7 +197,7 @@ public class SplineDropTest3 extends LinearOpMode{
                 .addTemporalMarker(1.5, () -> {
                     robot.absoluteasynchLift(robot.stackPos, 1, this);
                 })
-                .lineToLinearHeading(new Pose2d(-12, -12, Math.toRadians(180)))
+                .splineToLinearHeading(new Pose2d(-12, -12), Math.toRadians(180))
                 .lineToLinearHeading(stackPos)
                 .build();
 
@@ -209,23 +215,14 @@ public class SplineDropTest3 extends LinearOpMode{
          * The START command just came in: now work off the latest snapshot acquired
          * during the init loop.
          */
-        //robot.intake(true);
+
+
         drive.followTrajectorySequence(score1);
         robot.intake(false); robot.intake(false);  //drop the first cone
+
         drive.followTrajectorySequence(toStack1);
         robot.intake(true);
         drive.followTrajectorySequence(backSmall1);
-        robot.absoluteasynchLift(robot.lifterLevelOne, 1, this);
-        drive.followTrajectorySequence(score2);
-        robot.intake(false); robot.intake(false);
-        drive.followTrajectorySequence(toStack2);
-        robot.intake(true);
-        drive.followTrajectorySequence(backSmall2);
-        robot.absoluteasynchLift(robot.lifterLevelOne, 1, this);
-        drive.followTrajectorySequence(score3);
-        robot.intake(false); robot.intake(false);
-        drive.followTrajectorySequence(toStack3);
-
 
     }
 

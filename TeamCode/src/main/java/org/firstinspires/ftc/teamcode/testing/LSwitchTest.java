@@ -16,6 +16,7 @@ public class LSwitchTest extends LinearOpMode {
     public void runOpMode() {
         waitForStart();
         robot.initAuto(hardwareMap, this);
+        robot.intake(false);
         robot.lifterCalibration(this);
     }
 }

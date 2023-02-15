@@ -105,7 +105,6 @@ public class WorkingLeft extends LinearOpMode{
         robot.absoluteasynchLift(-150,0.6,this); //raise lifter slightly -> prevent cone scraping against ground
         robot.wait(300, this);
 
-
         camera.setPipeline(aprilTagDetectionPipeline);
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {

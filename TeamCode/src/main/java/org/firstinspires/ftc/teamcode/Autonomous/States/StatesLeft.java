@@ -157,7 +157,7 @@ public class StatesLeft extends LinearOpMode{
 
         TrajectorySequence score2 = drive.trajectorySequenceBuilder(backSmall1.end())
                 .waitSeconds(0.5)
-                .addTemporalMarker(1, () -> {
+                .addTemporalMarker(2, () -> {
                     robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
                 })
                 .setReversed(true)
@@ -194,7 +194,7 @@ public class StatesLeft extends LinearOpMode{
 
         TrajectorySequence score3 = drive.trajectorySequenceBuilder(backSmall2.end())
                 .waitSeconds(0.5)
-                .addTemporalMarker(1, () -> {
+                .addTemporalMarker(2, () -> {
                     robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
                 })
                 .setReversed(true)
@@ -296,10 +296,14 @@ public class StatesLeft extends LinearOpMode{
             telemetry.update();
             //trajectory
             park = drive.trajectorySequenceBuilder(score3.end())
+                    .addTemporalMarker(0.75, () -> {
+                        robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                    })
                     .setReversed(false)
-                    .lineTo(new Vector2d(-30, -12))
+                    .lineTo(new Vector2d(-30, -14))
                     //.splineToLinearHeading(new Pose2d(-35.75, -12, Math.toRadians(90)), Math.toRadians(180))
-                    .splineToLinearHeading(new Pose2d(-36, -12, Math.toRadians(90)), Math.toRadians(180))
+                    .splineToLinearHeading(new Pose2d(-36, -14, Math.toRadians(90)), Math.toRadians(180))
+                    .strafeLeft(24)
                     .build();
 
 
@@ -310,10 +314,13 @@ public class StatesLeft extends LinearOpMode{
             telemetry.update();
             //trajectory
             park = drive.trajectorySequenceBuilder(score3.end())
+                    .addTemporalMarker(0.75, () -> {
+                        robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                    })
                     .setReversed(false)
-                    .lineTo(new Vector2d(-30, -12))
+                    .lineTo(new Vector2d(-30, -14))
                     //.splineToLinearHeading(new Pose2d(-35.75, -12, Math.toRadians(90)), Math.toRadians(180))
-                    .splineToLinearHeading(new Pose2d(-36, -12, Math.toRadians(90)), Math.toRadians(180))
+                    .splineToLinearHeading(new Pose2d(-36, -14, Math.toRadians(90)), Math.toRadians(180))
                     .build();
         }
         else {
@@ -322,10 +329,13 @@ public class StatesLeft extends LinearOpMode{
             telemetry.update();
             //trajectory
             park = drive.trajectorySequenceBuilder(score3.end())
+                    .addTemporalMarker(0.75, () -> {
+                        robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                    })
                     .setReversed(false)
-                    .lineTo(new Vector2d(-30, -12))
+                    .lineTo(new Vector2d(-30, -14))
                     //.splineToLinearHeading(new Pose2d(-35.75, -12, Math.toRadians(90)), Math.toRadians(180))
-                    .splineToLinearHeading(new Pose2d(-36, -12, Math.toRadians(90)), Math.toRadians(180))
+                    .splineToLinearHeading(new Pose2d(-36, -14, Math.toRadians(90)), Math.toRadians(180))
                     .strafeRight(24)
                     .build();
         }

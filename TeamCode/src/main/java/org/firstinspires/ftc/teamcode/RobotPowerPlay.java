@@ -118,7 +118,9 @@ public class RobotPowerPlay {
     public final int lifterLevelTwo = -2100;//-1500; //Old: -1700  11/1/2022  New: -1550 11/11/2022 new:-1600
     //bfr meet3 -2580
     //bfr League championship -2530
-    public final int lifterLevelThree =-3100; //-2490;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
+
+    // was -3100 bfr
+    public final int lifterLevelThree =-3250; //-2490;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
     public final int lowJunctionPos = -780;//-560//-400;  //Old: -400    11/1/2022 New: -250
     public final int stackPos =-447; //-320; //-370  Was 405 at meet 3   //4 cone height
     public final int secondCone =-240;// -170;

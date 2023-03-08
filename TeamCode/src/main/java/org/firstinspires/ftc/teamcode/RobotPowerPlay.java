@@ -317,6 +317,10 @@ public class RobotPowerPlay {
             intake.setPosition(0.1); //false = open = 0.1
         }
     }
+
+    public void openIntake() { intake.setPosition(0.31);}
+    public void closeIntake() { intake.setPosition(0.95);}
+
     // Rotate Robot (degress,power,op,telOn) - uses position checks
     public void Rotate(int degrees, double power, LinearOpMode linearOpMode, boolean TelemetryOn) {
 

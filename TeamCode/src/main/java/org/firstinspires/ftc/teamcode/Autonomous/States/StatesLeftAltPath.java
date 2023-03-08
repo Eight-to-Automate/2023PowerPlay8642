@@ -19,16 +19,14 @@
  * SOFTWARE.
  */
 
-//states left but I fixed the trajectories to be more smooth
-// works except for third cone
 
 package org.firstinspires.ftc.teamcode.Autonomous.States;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -43,10 +41,11 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-
-@Autonomous(name="StatesLeftOptimized", group = "motion")
-public class StatesLeftOptimized extends LinearOpMode{
+@Disabled
+// This is the work in progress autonomous for the cycle path where the robot goes back past the high goal
+//and turns slightly
+@Autonomous(name="StatesLeftAltPath", group = "motion")
+public class StatesLeftAltPath extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -83,32 +82,14 @@ public class StatesLeftOptimized extends LinearOpMode{
     Pose2d cyclePose = new Pose2d(-35.75, -14, Math.toRadians(180));
     Pose2d stackPos = new Pose2d(-63, -12, Math.toRadians(180));
 
-//     Lifter motor new PIDF values
-//    public  double NEW_P = 15;
-//    public double NEW_I = 3;
-//    public  double NEW_D = 1.5;
-//    public  double NEW_F = 14;  //was 12.6
-
-
-    public  double NEW_P = 13;
-    public double NEW_I = 1.5;
-    public  double NEW_D = 1.5;
-    public  double NEW_F = 14;  //was 12.6
-
 
     @Override
     public void runOpMode()
     {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         robot.initAutoRR(hardwareMap, this);
-        // robot.initVuforia();
-        // robot.initTfod();
-
-        PIDFCoefficients pidNew = new PIDFCoefficients(NEW_P, NEW_I, NEW_D, NEW_F);
-        // PIDFCoefficients pidNew = new PIDFCoefficients(10.0, 3.0 0, 10);
-        robot.lifter.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, pidNew);
-
-        robot.lifter.setTargetPositionTolerance(15);//was 15 at kent
+       // robot.initVuforia();
+       // robot.initTfod();
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
@@ -117,8 +98,8 @@ public class StatesLeftOptimized extends LinearOpMode{
         robot.intake(true); // closes gripper = true = 0.9
 
         robot.wait(400, this);
-        robot.absoluteasynchLift(-225,0.6,this); //raise lifter slightly -> prevent cone scraping against ground
-        robot.wait(700, this);
+        robot.absoluteasynchLift(-150,0.6,this); //raise lifter slightly -> prevent cone scraping against ground
+        robot.wait(300, this);
 
 
         camera.setPipeline(aprilTagDetectionPipeline);
@@ -137,6 +118,7 @@ public class StatesLeftOptimized extends LinearOpMode{
             }
         });
 
+        //telemetry.setMsTransmissionInterval(50);
 
         drive.setPoseEstimate(startPos1);
 
@@ -148,25 +130,22 @@ public class StatesLeftOptimized extends LinearOpMode{
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))//first forward movement
                 .setReversed(true)
 
-                .splineToLinearHeading(new Pose2d(-26, -6, Math.toRadians(70)), Math.toRadians(70),  SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .splineToLinearHeading(new Pose2d(-24,-7.5-2,Math.toRadians(90)), Math.toRadians(90),  SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))  //Originally 90 spline from first forwards movement to high goal score pos
-                //.splineToLinearHeading(drop1, Math.toRadians(90),  SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                //SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))  //-7.8
+                .splineToLinearHeading(drop1, Math.toRadians(90),  SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))  //-7.8
                 .setReversed(false)
                 .build();
 
 
         TrajectorySequence toStack1 = drive.trajectorySequenceBuilder(score1.end())
                 .setReversed(true)
-                .addTemporalMarker(1.5, () -> {
+                .addTemporalMarker(1, () -> {
                     robot.absoluteasynchLift(robot.stackPosAuto, 1, this);
                 })
-                .back(2.5,SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.4, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
-                //.setReversed(true)
-                .splineToSplineHeading(new Pose2d(-35, -12, Math.toRadians(180)), Math.toRadians(180),SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .splineToSplineHeading(cyclePose, Math.toRadians(180),SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
-                .splineToSplineHeading(new Pose2d(-63, -12, Math.toRadians(180)), Math.toRadians(180),   SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .splineToSplineHeading(stackPos, Math.toRadians(180),   SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
                 .build();
 
@@ -180,32 +159,23 @@ public class StatesLeftOptimized extends LinearOpMode{
                 .build();
 
         TrajectorySequence score2 = drive.trajectorySequenceBuilder(backSmall1.end())
-                .waitSeconds(0.3)
+                .waitSeconds(0.5)
                 .addTemporalMarker(2, () -> {
                     robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
                 })
                 .setReversed(true)
-                .lineTo(new Vector2d(-40, -12 ), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
-                .splineToSplineHeading(new Pose2d(-30, -12, Math.toRadians(70)), Math.toRadians(0), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
-                .splineToLinearHeading(new Pose2d(-26, -6, Math.toRadians(70)), Math.toRadians(70), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
-                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(-13, -12, Math.toRadians(180)), Math.toRadians(180))
+                .splineToSplineHeading(new Pose2d(-17, -10, Math.toRadians(115)), Math.toRadians(115))
                 .build();
 
         TrajectorySequence toStack2 = drive.trajectorySequenceBuilder(score2.end())
-                .setReversed(true)
-                .addTemporalMarker(1.5, () -> {
+                .addTemporalMarker(1, () -> {
                     robot.absoluteasynchLift(robot.stackPos, 1, this);
                 })
-                .back(2.5,SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.4, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.4))
-                //.setReversed(true)
-                .splineToSplineHeading(new Pose2d(-35, -12, Math.toRadians(180)), Math.toRadians(180),SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
-                .splineToSplineHeading(new Pose2d(-63, -12, Math.toRadians(180)), Math.toRadians(180),   SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
+                .waitSeconds(0.1)
+                .setReversed(true)
+                .splineToSplineHeading(new Pose2d(-13, -12, Math.toRadians(180)), Math.toRadians(0))
+                .splineToLinearHeading(stackPos, Math.toRadians(180))
                 .build();
 
         TrajectorySequence backSmall2 = drive.trajectorySequenceBuilder(toStack2.end())
@@ -218,17 +188,13 @@ public class StatesLeftOptimized extends LinearOpMode{
                 .build();
 
         TrajectorySequence score3 = drive.trajectorySequenceBuilder(backSmall2.end())
-                .waitSeconds(0.3)
+                .waitSeconds(0.5)
                 .addTemporalMarker(2, () -> {
                     robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
                 })
                 .setReversed(true)
-                .lineTo(new Vector2d(-40, -12 ), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
-                .splineToSplineHeading(new Pose2d(-30, -12, Math.toRadians(70)), Math.toRadians(0), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
-                .splineToLinearHeading(new Pose2d(-26, -6, Math.toRadians(70)), Math.toRadians(70), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
+                .splineToSplineHeading(new Pose2d(-13, -12, Math.toRadians(180)), Math.toRadians(180))
+                .splineToSplineHeading(new Pose2d(-17, -10, Math.toRadians(115)), Math.toRadians(115))
                 .build();
 
         TrajectorySequence park;
@@ -321,7 +287,7 @@ public class StatesLeftOptimized extends LinearOpMode{
             telemetry.update();
             //trajectory
             park = drive.trajectorySequenceBuilder(score3.end())
-                    .addTemporalMarker(1.5, () -> {
+                    .addTemporalMarker(0.75, () -> {
                         robot.absoluteasynchLift(robot.thirdCone, 1, this);
                     })
                     .setReversed(false)
@@ -339,7 +305,7 @@ public class StatesLeftOptimized extends LinearOpMode{
             telemetry.update();
             //trajectory
             park = drive.trajectorySequenceBuilder(score3.end())
-                    .addTemporalMarker(1.5, () -> {
+                    .addTemporalMarker(0.75, () -> {
                         robot.absoluteasynchLift(robot.thirdCone, 1, this);
                     })
                     .setReversed(false)
@@ -354,7 +320,7 @@ public class StatesLeftOptimized extends LinearOpMode{
             telemetry.update();
             //trajectory
             park = drive.trajectorySequenceBuilder(score3.end())
-                    .addTemporalMarker(1.5, () -> {
+                    .addTemporalMarker(0.75, () -> {
                         robot.absoluteasynchLift(robot.thirdCone, 1, this);
                     })
                     .setReversed(false)
@@ -365,9 +331,6 @@ public class StatesLeftOptimized extends LinearOpMode{
                     .build();
         }
 
-
-        //camera.stopStreaming();
-        //robot.wait(3000, this);
 
         drive.followTrajectorySequence(score1);
         robot.intake(false); robot.intake(false);  //drop the first cone
@@ -382,13 +345,13 @@ public class StatesLeftOptimized extends LinearOpMode{
 
         drive.followTrajectorySequence(toStack2);
         robot.intake(true);
-
-        drive.followTrajectorySequence(backSmall2);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
-        drive.followTrajectorySequence(score3);
-        robot.intake(false); robot.intake(false);  //drop the second cone
-
-        drive.followTrajectorySequence(park);
+//
+//        drive.followTrajectorySequence(backSmall2);
+//        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+//        drive.followTrajectorySequence(score3);
+//        robot.intake(false); robot.intake(false);  //drop the second cone
+//
+//        drive.followTrajectorySequence(park);
 
         // drive.followTrajectorySequence(sanityTest);
 

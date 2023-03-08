@@ -12,11 +12,21 @@ import org.firstinspires.ftc.teamcode.RobotPowerPlay;
 public class LSwitchTest extends LinearOpMode {
     RobotPowerPlay robot = new RobotPowerPlay();
     private ElapsedTime runtime = new ElapsedTime();
+
+    // new gripper function,, robot class has old gripper (robot.intake)
+    public void intake(boolean close) {
+        if (close) {
+            robot.intake.setPosition(0.95); //true = close = 0.9 (old)
+        } else {
+            robot.intake.setPosition(0.315); //false = open = 0.1 (old)
+        }
+    }
+
     @Override
     public void runOpMode() {
         waitForStart();
         robot.initAuto(hardwareMap, this);
-        robot.intake(false);
+        intake(false);
         robot.lifterCalibration(this);
     }
 }

@@ -1187,10 +1187,10 @@ public class RobotPowerPlay {
         while (!lifterSwitchTriggered()) {
         }
         lifter.setPower(0);
-        asynchLiftNoL(-700, 0.3);
-        lifter.setPower(0.1);
-        while (!lifterSwitchTriggered()) {
-        }
+        //asynchLiftNoL(-700, 0.3);
+        //lifter.setPower(0.3);
+        //while (!lifterSwitchTriggered()) {
+        //}
         lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         linearOpMode.sleep(4000);
         lifter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

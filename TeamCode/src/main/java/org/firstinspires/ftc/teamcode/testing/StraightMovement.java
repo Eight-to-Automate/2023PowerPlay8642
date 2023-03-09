@@ -19,6 +19,8 @@
  * SOFTWARE.
  */
 
+//states left but I fixed the trajectories to be more smooth
+// works except for third cone
 
 package org.firstinspires.ftc.teamcode.testing;
 
@@ -27,8 +29,11 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
@@ -36,48 +41,47 @@ import org.firstinspires.ftc.teamcode.pipelines.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+
+import java.util.ArrayList;
+
+//changed all the speeds
 @Disabled
-@Autonomous(name="cycletest", group = "motion")
-public class cycletest extends LinearOpMode{
+@Autonomous(name="Straight Movement", group = "motion")
+public class StraightMovement extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
     private ElapsedTime runtime = new ElapsedTime();
 
-    OpenCvCamera camera;
-    AprilTagDetectionPipeline aprilTagDetectionPipeline;
-
     static final double FEET_PER_METER = 3.28084;
 
-    // Lens intrinsics
-    // UNITS ARE PIXELS
-    // NOTE: this calibration is for the C920 webcam at 800x448.
-    // You will need to do your own calibration for other configurations!
-    double fx = 578.272;
-    double fy = 578.272;
-    double cx = 402.145;
-    double cy = 221.506;
 
-    // UNITS ARE METERS
-    double tagsize = 0.166;
 
-    // Tag ID 1,2,3 from the 36h11 family
-    int LEFT = 6;
-    int MIDDLE = 4;
-    int RIGHT = 2;
-    int route = 0;
+    // positions for localization
+    Pose2d startPos1 = new Pose2d(35.7,-62.7, Math.toRadians(90));
+    Pose2d conePush = new Pose2d(35.7,-7.5, Math.toRadians(90));
 
-    AprilTagDetection tagOfInterest = null;
+    Pose2d pushToDrop1 = new Pose2d(35.7,-9.5,Math.toRadians(90)); // 03/04/23 was -24
+    Pose2d drop1 = new Pose2d(25,-6.5,Math.toRadians(90));//  was -6, 03/04/23 was -24
 
-    Pose2d drop1 = new Pose2d(-24,-6.5,Math.toRadians(90));
-    Pose2d cyclePose = new Pose2d(-35.75, -23, Math.toRadians(90));
-    Pose2d stackPos = new Pose2d(-63, -12, Math.toRadians(180));
-    Vector2d preturn = new Vector2d(-35.7, -12);
-    Pose2d backpose = new Pose2d(-35.7, -12);
+    Pose2d stackPos = new Pose2d(62.5, -12, Math.toRadians(0));
 
-    Pose2d startPos1 = new Pose2d(-35.7,-62.7, Math.toRadians(90));//Splinedroptest4
-    Pose2d conePush = new Pose2d(-35.7,-7.5, Math.toRadians(90));
-    Pose2d highJunctionHeading = new Pose2d(-24, -6, Math.toRadians(90));
-    Pose2d highJunctionHeading2 = new Pose2d(-28, -4, Math.toRadians(95));
+    Pose2d scorePos = new Pose2d(26,-6, Math.toRadians(180-70));
+    Pose2d scoreBack = new Pose2d(26 + 4 * Math.cos(Math.toRadians(180 - 70)), -6 - 4 * Math.sin(Math.toRadians(180 - 70)), Math.toRadians(180 - 70));
+
+    Pose2d prePark = new Pose2d(28.55, -13, Math.toRadians(180 - 70));
+    Pose2d zone1 = new Pose2d(58, -13, Math.toRadians(90));
+    Pose2d zone2 = new Pose2d(35.7, -13, Math.toRadians(90));
+    Pose2d zone3 = new Pose2d(12, -13, Math.toRadians(90));
+
+
+    public  double NEW_P = 13;
+    public double NEW_I = 1.5;
+    public  double NEW_D = 1.5;
+    public  double NEW_F = 14;  //was 12.6
+
+
 
     @Override
     public void runOpMode()
@@ -87,54 +91,23 @@ public class cycletest extends LinearOpMode{
         // robot.initVuforia();
         // robot.initTfod();
 
-    //    robot.intake(true); // closes gripper
+        PIDFCoefficients pidNew = new PIDFCoefficients(NEW_P, NEW_I, NEW_D, NEW_F);
+        // PIDFCoefficients pidNew = new PIDFCoefficients(10.0, 3.0 0, 10);
+        robot.lifter.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, pidNew);
 
-   //     robot.wait(400, this);
-     //   robot.absoluteasynchLift(-220,1,this); //raise lifter slightly -> prevent cone scraping against ground
-     //   robot.wait(300, this);
+        robot.lifter.setTargetPositionTolerance(15);//was 15 at kent
 
-       // telemetry.setMsTransmissionInterval(50);
+        drive.setPoseEstimate(startPos1);
 
-        //drive.setPoseEstimate(cyclePose);
-        drive.setPoseEstimate(stackPos);
-
-       // telemetry.setMsTransmissionInterval(50);
-
-        TrajectorySequence maxSus = drive.trajectorySequenceBuilder(stackPos)
-                .addTemporalMarker(1, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
-                })
-                .setReversed(true)
-                .lineTo(new Vector2d(-40, -12 ))
-                .splineToSplineHeading(new Pose2d(-30, -12, Math.toRadians(70)), Math.toRadians(0))
-                .splineToLinearHeading(new Pose2d(-26, -6, Math.toRadians(70)), Math.toRadians(70))
-                .setReversed(false)
-                .lineTo(new Vector2d(-30, -12))
-                .splineToSplineHeading(new Pose2d(-39, -12, Math.toRadians(180)), Math.toRadians(180))
-                .splineToLinearHeading(stackPos, Math.toRadians(180))
-//                .splineToSplineHeading(cyclePose, Math.toRadians(270))
-//                .splineToLinearHeading(highJunctionHeading, Math.toRadians(0))
+        TrajectorySequence score1 = drive.trajectorySequenceBuilder(startPos1)
+                .lineToLinearHeading(conePush,SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.2, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
                 .build();
 
+       waitForStart();
 
-        //_____________________________________________________________________________
+       drive.followTrajectorySequence(score1);
 
-
-        /*
-         * The INIT-loop:
-         * This REPLACES waitForStart!
-         */
-        while (!isStarted() && !isStopRequested())
-        {
-           sleep(20);
-        }
-
-        /*
-         * The START command just came in: now work off the latest snapshot acquired
-         * during the init loop.
-   */
-
-        drive.followTrajectorySequence(maxSus);
 
     }
 

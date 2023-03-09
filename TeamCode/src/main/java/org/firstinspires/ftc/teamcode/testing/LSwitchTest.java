@@ -16,9 +16,9 @@ public class LSwitchTest extends LinearOpMode {
     // new gripper function,, robot class has old gripper (robot.intake)
     public void intake(boolean close) {
         if (close) {
-            robot.intake.setPosition(0.95); //true = close = 0.9 (old)
+            robot.intake.setPosition(1); //true = close = 0.9 (old)
         } else {
-            robot.intake.setPosition(0.315); //false = open = 0.1 (old)
+            robot.intake.setPosition(0.42); //false = open = 0.1 (old)
         }
     }
 
@@ -28,5 +28,8 @@ public class LSwitchTest extends LinearOpMode {
         robot.initAuto(hardwareMap, this);
         intake(false);
         robot.lifterCalibration(this);
+        telemetry.addData("lifter ticks", robot.lifter.getCurrentPosition());
+        telemetry.update();
+        robot.wait(5000, this);
     }
 }

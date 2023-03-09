@@ -48,7 +48,7 @@ import java.util.ArrayList;
 //DOES NOT WORK
 
 //changed all the speeds
-@Autonomous(name="States4ConeLeft", group = "motion")
+@Autonomous(name="States4ConeRight", group = "motion")
 public class States4ConeRight extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
@@ -107,7 +107,7 @@ public class States4ConeRight extends LinearOpMode{
         if (close) {
             robot.intake.setPosition(1); //true = close = 0.9 (old)
         } else {
-            robot.intake.setPosition(0.315); //false = open = 0.1 (old)
+            robot.intake.setPosition(0.42); //false = open = 0.1 (old)
         }
     }
 

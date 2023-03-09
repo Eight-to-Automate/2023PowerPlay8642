@@ -96,7 +96,7 @@ public class TeleStates extends OpMode {
         if (close) {
             robot.intake.setPosition(1); //true = close = 0.9 (old)
         } else {
-            robot.intake.setPosition(0.315); //false = open = 0.1 (old)
+            robot.intake.setPosition(0.42); //false = open = 0.1 (old) // 0.315
         }
     }
 

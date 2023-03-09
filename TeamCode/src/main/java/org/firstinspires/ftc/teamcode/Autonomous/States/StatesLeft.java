@@ -25,6 +25,7 @@ package org.firstinspires.ftc.teamcode.Autonomous.States;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -75,16 +76,25 @@ public class StatesLeft extends LinearOpMode{
     // positions for localization
     Pose2d startPos1 = new Pose2d(-35.7,-62.7, Math.toRadians(90));
     Pose2d conePush = new Pose2d(-35.7,-7.5, Math.toRadians(90));
-    Pose2d drop1 = new Pose2d(-24,-6.5,Math.toRadians(90));//  was -6
+    Pose2d drop1 = new Pose2d(-25,-6.5,Math.toRadians(90));//  was -6
     Pose2d laterDropsFirstHalf = new Pose2d(-30, -12, Math.toRadians(70));
     Pose2d pushToDrop1 = new Pose2d(-24,-7.5-2,Math.toRadians(90));
     Pose2d cyclePose = new Pose2d(-35.75, -14, Math.toRadians(180));
-    Pose2d stackPos = new Pose2d(-63, -12, Math.toRadians(180));
+    Pose2d stackPos = new Pose2d(-62.5, -12, Math.toRadians(180));
     Vector2d laterScoresFirstLineTo = new Vector2d(-40, -12 );
 //    Pose2d laterDropsSecondHalf = new Pose2d(-26, -6, Math.toRadians(70));
 Pose2d laterDropsSecondHalf = new Pose2d(-26.5, -7.3, Math.toRadians(70));  //for testing 2/19/23
     Vector2d stack2LineTo1 = new Vector2d(-30, -12);
     Pose2d stack2FirstSpline = new Pose2d(-39, -12, Math.toRadians(180));
+
+    // new gripper function,, robot class has old gripper (robot.intake)
+    public void intake(boolean close) {
+        if (close) {
+            robot.intake.setPosition(1); //true = close = 0.9 (old)
+        } else {
+            robot.intake.setPosition(0.42); //false = open = 0.1 (old) // 0.315
+        }
+    }
 
 
     @Override
@@ -99,7 +109,7 @@ Pose2d laterDropsSecondHalf = new Pose2d(-26.5, -7.3, Math.toRadians(70));  //fo
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
 
-        robot.intake(true); // closes gripper = true = 0.9
+        intake(true); // closes gripper = true = 0.9
 
         robot.wait(400, this);
         robot.absoluteasynchLift(-150,0.6,this); //raise lifter slightly -> prevent cone scraping against ground
@@ -349,23 +359,23 @@ Pose2d laterDropsSecondHalf = new Pose2d(-26.5, -7.3, Math.toRadians(70));  //fo
 
 
         drive.followTrajectorySequence(score1);
-        robot.intake(false); robot.intake(false);  //drop the first cone
+        intake(false); intake(false);  //drop the first cone
 
         drive.followTrajectorySequence(toStack1);
-        robot.intake(true);
+        intake(true);
 
         drive.followTrajectorySequence(backSmall1);
         robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
         drive.followTrajectorySequence(score2);
-        robot.intake(false); robot.intake(false);  //drop the second cone
+        intake(false); intake(false);  //drop the second cone
 
         drive.followTrajectorySequence(toStack2);
-        robot.intake(true);
+        intake(true);
 
         drive.followTrajectorySequence(backSmall2);
         robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
         drive.followTrajectorySequence(score3);
-        robot.intake(false); robot.intake(false);  //drop the second cone
+        intake(false); intake(false);  //drop the second cone
 
         drive.followTrajectorySequence(park);
 

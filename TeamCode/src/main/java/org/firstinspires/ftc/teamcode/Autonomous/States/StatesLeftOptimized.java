@@ -27,6 +27,7 @@ package org.firstinspires.ftc.teamcode.Autonomous.States;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -45,6 +46,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import java.util.ArrayList;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
+// USE STATESLEFT DO NOT USE THIS PROGRAM
+@Disabled
 @Autonomous(name="StatesLeftOptimized", group = "motion")
 public class StatesLeftOptimized extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
@@ -95,6 +98,15 @@ public class StatesLeftOptimized extends LinearOpMode{
     public  double NEW_D = 1.5;
     public  double NEW_F = 14;  //was 12.6
 
+    // new gripper function,, robot class has old gripper (robot.intake)
+    public void intake(boolean close) {
+        if (close) {
+            robot.intake.setPosition(1); //true = close = 0.9 (old)
+        } else {
+            robot.intake.setPosition(0.42); //false = open = 0.1 (old)
+        }
+    }
+
 
     @Override
     public void runOpMode()
@@ -114,7 +126,7 @@ public class StatesLeftOptimized extends LinearOpMode{
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
 
-        robot.intake(true); // closes gripper = true = 0.9
+        intake(true); // closes gripper = true = 0.9
 
         robot.wait(400, this);
         robot.absoluteasynchLift(-225,0.6,this); //raise lifter slightly -> prevent cone scraping against ground
@@ -370,23 +382,23 @@ public class StatesLeftOptimized extends LinearOpMode{
         //robot.wait(3000, this);
 
         drive.followTrajectorySequence(score1);
-        robot.intake(false); robot.intake(false);  //drop the first cone
+        intake(false); intake(false);  //drop the first cone
 
         drive.followTrajectorySequence(toStack1);
-        robot.intake(true);
+        intake(true);
 
         drive.followTrajectorySequence(backSmall1);
         robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
         drive.followTrajectorySequence(score2);
-        robot.intake(false); robot.intake(false);  //drop the second cone
+        intake(false); intake(false);  //drop the second cone
 
         drive.followTrajectorySequence(toStack2);
-        robot.intake(true);
+        intake(true);
 
         drive.followTrajectorySequence(backSmall2);
         robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
         drive.followTrajectorySequence(score3);
-        robot.intake(false); robot.intake(false);  //drop the second cone
+        intake(false); intake(false);  //drop the second cone
 
         drive.followTrajectorySequence(park);
 

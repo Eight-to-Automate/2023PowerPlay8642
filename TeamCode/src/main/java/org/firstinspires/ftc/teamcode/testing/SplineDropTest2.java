@@ -163,7 +163,7 @@ public class SplineDropTest2 extends LinearOpMode{
 */
         TrajectorySequence spline1 = drive.trajectorySequenceBuilder(startPos1)
                 .addTemporalMarker(2.5, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 //.strafeRight(24)
                 .splineToLinearHeading(strafeRight1, Math.toRadians(90))

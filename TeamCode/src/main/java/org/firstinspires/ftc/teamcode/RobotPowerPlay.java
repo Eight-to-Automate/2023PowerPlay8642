@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.vuforia.ar.pl.SystemTools;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -25,16 +24,13 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 // cone recognition imports
-import org.firstinspires.ftc.teamcode.pipelines.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.pipelines.ColorVals;
 import org.firstinspires.ftc.teamcode.pipelines.PowerPlayPipeline;
 import org.firstinspires.ftc.teamcode.util.Encoder;
-import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class RobotPowerPlay {
@@ -87,6 +83,8 @@ public class RobotPowerPlay {
     public DigitalChannel upLED;
     public DigitalChannel downLED;
 
+    public static int gripperType = 3; // 1 is assymetric gripper, 2 is brushless servo, 3 is rev smart servo
+
     public enum lightsStates {
         Off, Red, Green, Amber, White
     }
@@ -99,33 +97,38 @@ public class RobotPowerPlay {
    /*
     public int lifterMinimum = 0;
     //bfr meet3 -1000
-    public final int lifterLevelOne = -950; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
+    public final int lifterA = -950; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
     //bfr meet3 -1600
-    public final int lifterLevelTwo = -1500; //Old: -1700  11/1/2022  New: -1550 11/11/2022 new:-1600
+    public final int lifterX = -1500; //Old: -1700  11/1/2022  New: -1550 11/11/2022 new:-1600
     //bfr meet3 -2580
     //bfr League championship -2530
-    public final int lifterLevelThree = -2490;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
-    public final int lowJunctionPos = -400;  //Old: -400    11/1/2022 New: -250
-    public final int stackPos = -320; //-370  Was 405 at meet 3   //4 cone height
-    public final int secondCone = -170;
-    public final int thirdCone = -260;
-   public final int stackPosAuto =-390;  //Autonomous 4 cone height Kent state */
+    public final int lifterY = -2490;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
+    public final int drivingHeight = -400;  //Old: -400    11/1/2022 New: -250
+    public final int fourStack = -320; //-370  Was 405 at meet 3   //4 cone height
+    public final int twoStack = -170;
+    public final int threeStack = -260;
+   public final int fiveStack =-390;  //Autonomous 4 cone height Kent state */
 
     public int lifterMinimum = 0;
     //bfr meet3 -1000
-    public final int lifterLevelOne = -1328;//-950; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
+    public final int lifterA = -1328;//-950; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
     //bfr meet3 -1600
-    public final int lifterLevelTwo = -2100;//-1500; //Old: -1700  11/1/2022  New: -1550 11/11/2022 new:-1600
+    public final int lifterX = -2100;//-2100 //-1500; //Old: -1700  11/1/2022  New: -1550 11/11/2022 new:-1600 //A
     //bfr meet3 -2580
     //bfr League championship -2530
 
     // was -3100 bfr
-    public final int lifterLevelThree =-3250; //-2490;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
-    public final int lowJunctionPos = -780;//-560//-400;  //Old: -400    11/1/2022 New: -250
-    public final int stackPos =-447; //-320; //-370  Was 405 at meet 3   //4 cone height
-    public final int secondCone =-240;// -170;
-    public final int thirdCone = -364;//-260;
-    public final int stackPosAuto =-545; //-390;  //Autonomous 4 cone height Kent state
+    public final int lifterY =-3350;//-3250 //-2490;//Old: -2600  11/1/2022 New: -2450  11/11/2022 new : -2500
+    public final int drivingHeight = -780;//-560//-400;  //Old: -400    11/1/2022 New: -250
+
+    public final int fourStack = -455; //-490; // -447  //-320; //-370  Was 405 at meet 3   //4 cone height try -420
+    public final int twoStack =-290;//-370 //-240// -170;
+    public final int threeStack = -375;//-390;//-447 //- 364 //-260;
+    public final int fiveStack = -545; //-560;//-545 //-390;  //Autonomous 4 cone height Kent state
+
+    //***********************************************************************************************
+
+
 
     // cone recognition variables
     OpenCvCamera camera;
@@ -318,8 +321,52 @@ public class RobotPowerPlay {
         }
     }
 
-    public void openIntake() { intake.setPosition(0.31);}
-    public void closeIntake() { intake.setPosition(0.95);}
+    public void intake2(boolean close) { // NEW GRIPPER
+        if (close) {
+            intake.setPosition(1); //true = close = 0.9 (old)
+        } else {
+            intake.setPosition(0.42); //false = open = 0.1 (old) // 0.315
+        }
+    }
+
+    public void intake3(boolean close) { // NEW GRIPPER
+        if (close) {
+            intake.setPosition(0); //true = close = 0.9 (old)
+        } else {
+            intake.setPosition(1); //false = open = 0.1 (old) // 0.315
+        }
+    }
+
+    public void closeIntake() {
+        if (gripperType == 1) {
+            intake.setPosition(0.9);
+        } else if (gripperType == 2) {
+            intake.setPosition(1);
+        } else if (gripperType == 3) {
+            intake.setPosition(0);
+        }
+    }
+
+    public void openIntake() {
+        if (gripperType == 1) {
+            intake.setPosition(0.1);
+        } else if (gripperType == 2) {
+            intake.setPosition(0.42);
+        } else if (gripperType == 3) {
+            intake.setPosition(1);
+        }
+    }
+
+    public int getGripperType() {
+        return gripperType;
+    }
+
+    public static void setGripperType(int type) {
+        gripperType = type;
+    }
+
+    //public void openIntake() { intake.setPosition(0.31);}
+    //public void closeIntake() { intake.setPosition(0.95);}
 
     // Rotate Robot (degress,power,op,telOn) - uses position checks
     public void Rotate(int degrees, double power, LinearOpMode linearOpMode, boolean TelemetryOn) {
@@ -822,9 +869,9 @@ public class RobotPowerPlay {
 
         double lifterPos = lifter.getCurrentPosition();
 
-        if(lifterPos>(lifterMinimum) || lifterPos<(lifterLevelThree)){
+        if(lifterPos>(lifterMinimum) || lifterPos<(lifterY)){
             lifterLEDColor = RobotPowerPlay.lightsStates.Red;
-        } else if (lifterPos < lifterMinimum && lifterPos > lowJunctionPos - 20) {
+        } else if (lifterPos < lifterMinimum && lifterPos > drivingHeight - 20) {
             lifterLEDColor = lightsStates.Amber;
         } else {
             lifterLEDColor = lightsStates.Green;

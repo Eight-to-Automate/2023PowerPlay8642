@@ -31,7 +31,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
-import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.pipelines.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
@@ -128,7 +127,7 @@ public class RRMeet3LeftAuto extends LinearOpMode{
                 .forward(17)
 
                 .addDisplacementMarker(17, () -> {
-                    robot.asynchLift(robot.lifterLevelOne, 1, this);
+                    robot.asynchLift(robot.lifterA, 1, this);
                 })
                 .strafeRight(47)
                 .forward(5)

@@ -101,7 +101,7 @@ public class SplineDropTest4 extends LinearOpMode{
 
         TrajectorySequence score1 = drive.trajectorySequenceBuilder(startPos1)
                .addTemporalMarker(2.2, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .splineToLinearHeading(conePush, Math.toRadians(90), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))//first forward movement
@@ -118,7 +118,7 @@ public class SplineDropTest4 extends LinearOpMode{
         TrajectorySequence toStack1 = drive.trajectorySequenceBuilder(score1.end())
                 .setReversed(true)
                 .addTemporalMarker(1, () -> {
-                    robot.absoluteasynchLift(robot.stackPosAuto, 1, this);
+                    robot.absoluteasynchLift(robot.fiveStack, 1, this);
                 })
                 .splineToSplineHeading(cyclePose, Math.toRadians(180),SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
@@ -138,7 +138,7 @@ public class SplineDropTest4 extends LinearOpMode{
         /*
         TrajectorySequence score2 = drive.trajectorySequenceBuilder(toStack1.end())
                 .addTemporalMarker(1, () -> {
-                    robot.absoluteasynchLift(robot.stackPosAuto, 0.8, this);
+                    robot.absoluteasynchLift(robot.fiveStack, 0.8, this);
                 })
                 .waitSeconds(.1)
                 .back(1,
@@ -154,7 +154,7 @@ public class SplineDropTest4 extends LinearOpMode{
 
         TrajectorySequence score2 = drive.trajectorySequenceBuilder(backSmall1.end())
                 .addTemporalMarker(2.5, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .setReversed(false)
 //                .lineToLinearHeading(new Pose2d(-12, -12, Math.toRadians(180)))
@@ -166,7 +166,7 @@ public class SplineDropTest4 extends LinearOpMode{
         TrajectorySequence toStack2 = drive.trajectorySequenceBuilder(score2.end())
                 //.setReversed(true)
                 .addTemporalMarker(1.5, () -> {
-                    robot.absoluteasynchLift(robot.stackPos, 1, this);
+                    robot.absoluteasynchLift(robot.fourStack, 1, this);
                 })
                 .splineToLinearHeading(new Pose2d(-12, -12), Math.toRadians(180))
                 .lineToLinearHeading(stackPos)
@@ -187,7 +187,7 @@ public class SplineDropTest4 extends LinearOpMode{
 
         TrajectorySequence score3 = drive.trajectorySequenceBuilder(toStack2.end())
                 .addTemporalMarker(2.5, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .lineToLinearHeading(new Pose2d(-12, -12, Math.toRadians(180)))
                 .splineToLinearHeading(new Pose2d(-20, -7.5), Math.toRadians(135))
@@ -196,7 +196,7 @@ public class SplineDropTest4 extends LinearOpMode{
         TrajectorySequence toStack3 = drive.trajectorySequenceBuilder(score2.end())
                 //.setReversed(true)
                 .addTemporalMarker(1.5, () -> {
-                    robot.absoluteasynchLift(robot.stackPos, 1, this);
+                    robot.absoluteasynchLift(robot.fourStack, 1, this);
                 })
                 .splineToLinearHeading(new Pose2d(-12, -12), Math.toRadians(180))
                 .lineToLinearHeading(stackPos)

@@ -30,7 +30,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
-import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.pipelines.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
@@ -102,7 +101,7 @@ public class cycletest extends LinearOpMode{
 
         TrajectorySequence maxSus = drive.trajectorySequenceBuilder(stackPos)
                 .addTemporalMarker(1, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .setReversed(true)
                 .lineTo(new Vector2d(-40, -12 ))

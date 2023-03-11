@@ -29,7 +29,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
@@ -37,10 +36,7 @@ import org.firstinspires.ftc.teamcode.pipelines.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
 
-import java.util.ArrayList;
 @Disabled
 @Autonomous(name="SplineDropTest", group = "motion")
 public class SplineDropTest extends LinearOpMode{
@@ -171,7 +167,7 @@ public class SplineDropTest extends LinearOpMode{
 */
         TrajectorySequence spline1 = drive.trajectorySequenceBuilder(startPos1)
                 .addTemporalMarker(1, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .splineToLinearHeading(cyclePose, Math.toRadians(90))
                 .splineToLinearHeading(highJunctionHeading, Math.toRadians(90),

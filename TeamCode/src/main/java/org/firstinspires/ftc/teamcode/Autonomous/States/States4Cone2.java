@@ -119,6 +119,7 @@ public class States4Cone2 extends LinearOpMode{
         robot.initAutoRR(hardwareMap, this);
         // robot.initVuforia();
         // robot.initTfod();
+        RobotPowerPlay.setGripperType(3);
 
         PIDFCoefficients pidNew = new PIDFCoefficients(NEW_P, NEW_I, NEW_D, NEW_F);
         // PIDFCoefficients pidNew = new PIDFCoefficients(10.0, 3.0 0, 10);
@@ -130,7 +131,7 @@ public class States4Cone2 extends LinearOpMode{
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
 
-        robot.intake(true); // closes gripper = true = 0.9
+        robot.closeIntake();//robot.intake(true); // closes gripper = true = 0.9
 
         robot.wait(400, this);
         robot.absoluteasynchLift(-225,0.6,this); //raise lifter slightly -> prevent cone scraping against ground
@@ -159,7 +160,7 @@ public class States4Cone2 extends LinearOpMode{
         TrajectorySequence score1 = drive.trajectorySequenceBuilder(startPos1)
 
                 .addTemporalMarker(2.2, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .splineToLinearHeading(conePush, Math.toRadians(90), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))//first forward movement
@@ -176,7 +177,7 @@ public class States4Cone2 extends LinearOpMode{
         TrajectorySequence toStack1 = drive.trajectorySequenceBuilder(score1.end())
                 .setReversed(true)
                 .addTemporalMarker(1, () -> {
-                    robot.absoluteasynchLift(robot.stackPosAuto, 1, this);
+                    robot.absoluteasynchLift(robot.fiveStack, 1, this);
                 })
                 .back(1.5,SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
@@ -190,7 +191,7 @@ public class States4Cone2 extends LinearOpMode{
 
         TrajectorySequence score2 = drive.trajectorySequenceBuilder(toStack1.end())
                 .addTemporalMarker(0.1, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .setReversed(true)
                 .lineTo(new Vector2d(-40, -12 ), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -205,7 +206,7 @@ public class States4Cone2 extends LinearOpMode{
 //        TrajectorySequence toStack2 = drive.trajectorySequenceBuilder(score2.end())
 //                .setReversed(true)
 //                .addTemporalMarker(1, () -> {
-//                    robot.absoluteasynchLift(robot.stackPos, 1, this);
+//                    robot.absoluteasynchLift(robot.fourStack, 1, this);
 //                })
 //                //was 1.5 then 2
 //                .back(3,SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -220,7 +221,7 @@ public class States4Cone2 extends LinearOpMode{
         TrajectorySequence toStack2 = drive.trajectorySequenceBuilder(score2.end())
                 .setReversed(true)
                 .addTemporalMarker(1, () -> {
-                    robot.absoluteasynchLift(robot.stackPos, 1, this);
+                    robot.absoluteasynchLift(robot.fourStack, 1, this);
                 })
                 //was 1.5 then 2
                 .setReversed(true)
@@ -234,7 +235,7 @@ public class States4Cone2 extends LinearOpMode{
 
         TrajectorySequence score3 = drive.trajectorySequenceBuilder(toStack2.end())
                 .addTemporalMarker(0.1, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .setReversed(true)
                 .lineTo(new Vector2d(-40, -12 ), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -249,7 +250,7 @@ public class States4Cone2 extends LinearOpMode{
         TrajectorySequence toStack3 = drive.trajectorySequenceBuilder(score3.end())
                 .setReversed(true)
                 .addTemporalMarker(1, () -> {
-                    robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                    robot.absoluteasynchLift(robot.threeStack, 1, this);
                 })
                 .setReversed(true)
                 .lineToLinearHeading(scoreBack)
@@ -261,7 +262,7 @@ public class States4Cone2 extends LinearOpMode{
 
         TrajectorySequence score4 = drive.trajectorySequenceBuilder(toStack3.end())
                 .addTemporalMarker(0.1, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .setReversed(true)
                 .lineTo(new Vector2d(-40, -12 ), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.5, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -364,7 +365,7 @@ public class States4Cone2 extends LinearOpMode{
             //trajectory
             park = drive.trajectorySequenceBuilder(score4.end())
                     .addTemporalMarker(0.75, () -> {
-                        robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                        robot.absoluteasynchLift(robot.threeStack, 1, this);
                     })
 //                    .setReversed(false)
 //                    .back(3)
@@ -384,7 +385,7 @@ public class States4Cone2 extends LinearOpMode{
             //trajectory
             park = drive.trajectorySequenceBuilder(score4.end())
                     .addTemporalMarker(0.75, () -> {
-                        robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                        robot.absoluteasynchLift(robot.threeStack, 1, this);
                     })
 //                    .setReversed(false)
 //                    .back(6)
@@ -402,7 +403,7 @@ public class States4Cone2 extends LinearOpMode{
             //trajectory
             park = drive.trajectorySequenceBuilder(score4.end())
                     .addTemporalMarker(0.75, () -> {
-                        robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                        robot.absoluteasynchLift(robot.threeStack, 1, this);
                     })
 //                    .setReversed(false)
 //                    .back(2.7)
@@ -417,36 +418,36 @@ public class States4Cone2 extends LinearOpMode{
 
 
         drive.followTrajectorySequence(score1);
-        intake(false); intake(false);  //drop the first cone
+        robot.openIntake(); robot.openIntake();//intake(false); intake(false);  //drop the first cone
 
         drive.followTrajectorySequence(toStack1);
-        intake(true); intake(true);
+        robot.closeIntake(); robot.closeIntake();//intake(true); intake(true);
         robot.wait(200, this);
 
 
         //drive.followTrajectorySequence(backSmall1);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+        robot.absoluteasynchLift(robot.fourStack - 1000, 0.9, this);
         drive.followTrajectorySequence(score2);
-        intake(false); intake(false);  //drop the second cone
+        robot.openIntake(); robot.openIntake();//intake(false); intake(false);  //drop the second cone
 
         drive.followTrajectorySequence(toStack2);
-        intake(true); intake(true);
+        robot.closeIntake(); robot.closeIntake();//intake(true); intake(true);
         robot.wait(200, this);
 
 
         //drive.followTrajectorySequence(backSmall2);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+        robot.absoluteasynchLift(robot.fourStack - 1000, 0.9, this);
         drive.followTrajectorySequence(score3);
-        intake(false); intake(false);  //drop the second cone
+        robot.openIntake(); robot.openIntake();//intake(false); intake(false);  //drop the second cone
 
         drive.followTrajectorySequence(toStack3);
-        intake(true); intake(true);
+        robot.closeIntake(); robot.closeIntake();//intake(true); intake(true);
         robot.wait(200, this);
 
         //drive.followTrajectorySequence(backSmall3);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+        robot.absoluteasynchLift(robot.fourStack - 1000, 0.9, this);
         drive.followTrajectorySequence(score4);
-        intake(false); intake(false);  //drop the second cone
+        robot.openIntake(); robot.openIntake();//intake(false); intake(false);  //drop the second cone
 
         drive.followTrajectorySequence(park);
     }

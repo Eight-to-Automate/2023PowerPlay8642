@@ -24,11 +24,13 @@ public class LSwitchTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        RobotPowerPlay.setGripperType(3);
         waitForStart();
         robot.initAuto(hardwareMap, this);
-        intake(false);
+        robot.openIntake();//intake(false);
         robot.lifterCalibration(this);
         telemetry.addData("lifter ticks", robot.lifter.getCurrentPosition());
+        telemetry.addData("limit switches activated?", robot.lifterSwitchTriggered());
         telemetry.update();
         robot.wait(5000, this);
     }

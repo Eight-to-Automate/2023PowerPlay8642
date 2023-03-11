@@ -23,7 +23,6 @@
 package org.firstinspires.ftc.teamcode.Autonomous.LeagueChampionship;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -312,10 +311,10 @@ public class demo3cone extends LinearOpMode{
         drive.followTrajectorySequence(backSmall);
         robot.intake(true);     // first cone  close again in case gripper was against the wall
         robot.wait(100, this);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+        robot.absoluteasynchLift(robot.fourStack - 1000, 0.9, this);
         robot.wait(400, this);
         drive.followTrajectorySequence(traj5);
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.absoluteasynchLift(robot.lifterY, 1, this);
         robot.wait(1000, this);
         drive.followTrajectorySequence(traj6);
         robot.intake(false);    // second cone

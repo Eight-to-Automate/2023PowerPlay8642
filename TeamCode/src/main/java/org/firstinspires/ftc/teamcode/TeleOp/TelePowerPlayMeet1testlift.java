@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,6 +11,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
+@Disabled
 @TeleOp(name="Teletestliftermotor", group="Iterative Opmode")
 
 public class TelePowerPlayMeet1testlift extends OpMode {
@@ -255,7 +257,7 @@ public class TelePowerPlayMeet1testlift extends OpMode {
             if (!movingLifter || targetLifterLocation == lifterStates.Home) {
                 if (lifterLocation != lifterStates.High || targetLifterLocation == lifterStates.Home) { // Don't go to a currently set state
                     movingLifter = true;
-                    robot.lifter.setTargetPosition(robot.lifterLevelThree);   // Now using 20:1 motor was 6100 with 40:1 motor.
+                    robot.lifter.setTargetPosition(robot.lifterY);   // Now using 20:1 motor was 6100 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     liftTimestart=runtime.milliseconds();
                     robot.lifter.setPower(-1.0);
@@ -267,9 +269,9 @@ public class TelePowerPlayMeet1testlift extends OpMode {
             if (!movingLifter|| targetLifterLocation == lifterStates.Home) {
                 if (lifterLocation != lifterStates.Middle|| targetLifterLocation == lifterStates.Home) {
                     movingLifter = true;
-                    robot.lifter.setTargetPosition(robot.lifterLevelTwo); // May be changed later  Now using 20:1 motor was 4500 with 40:1 motor.
+                    robot.lifter.setTargetPosition(robot.lifterX); // May be changed later  Now using 20:1 motor was 4500 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    if (robot.lifter.getCurrentPosition() > robot.lifterLevelTwo) { // Set the power to match with the goal direction
+                    if (robot.lifter.getCurrentPosition() > robot.lifterX) { // Set the power to match with the goal direction
                         robot.lifter.setPower(-1.0);
                     } else {
                         robot.lifter.setPower(1.0);
@@ -283,9 +285,9 @@ public class TelePowerPlayMeet1testlift extends OpMode {
             if (!movingLifter|| targetLifterLocation == lifterStates.Home) {
                 if (lifterLocation != lifterStates.Low|| targetLifterLocation == lifterStates.Home) {
                     movingLifter = true;
-                    robot.lifter.setTargetPosition(robot.lifterLevelOne); // Now using 20:1 motor was 3000 with 40:1 motor.
+                    robot.lifter.setTargetPosition(robot.lifterA); // Now using 20:1 motor was 3000 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    if (robot.lifter.getCurrentPosition() > robot.lifterLevelOne) { // Set the power to match with the goal direction
+                    if (robot.lifter.getCurrentPosition() > robot.lifterA) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
                         robot.lifter.setPower(-1.0);
@@ -298,9 +300,9 @@ public class TelePowerPlayMeet1testlift extends OpMode {
             if (!movingLifter) {
                 if (lifterLocation != lifterStates.Junction) {
                     movingLifter = true;
-                    robot.lifter.setTargetPosition(robot.lowJunctionPos); // Now using 20:1 motor was 3000 with 40:1 motor.
+                    robot.lifter.setTargetPosition(robot.drivingHeight); // Now using 20:1 motor was 3000 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    if (robot.lifter.getCurrentPosition() > robot.lowJunctionPos) { // Set the power to match with the goal direction
+                    if (robot.lifter.getCurrentPosition() > robot.drivingHeight) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
                         robot.lifter.setPower(-1.0);
@@ -313,9 +315,9 @@ public class TelePowerPlayMeet1testlift extends OpMode {
             if (!movingLifter) {
                 if (lifterLocation != lifterStates.Stack) {
                     movingLifter = true;
-                    robot.lifter.setTargetPosition(robot.stackPos); // Now using 20:1 motor was 3000 with 40:1 motor.
+                    robot.lifter.setTargetPosition(robot.fourStack); // Now using 20:1 motor was 3000 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    if (robot.lifter.getCurrentPosition() > robot.stackPos) { // Set the power to match with the goal direction
+                    if (robot.lifter.getCurrentPosition() > robot.fourStack) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
                         robot.lifter.setPower(-0.8);
@@ -328,9 +330,9 @@ public class TelePowerPlayMeet1testlift extends OpMode {
             if (!movingLifter) {
                 if (lifterLocation != lifterStates.secondCone) {
                     movingLifter = true;
-                    robot.lifter.setTargetPosition(robot.secondCone); // Now using 20:1 motor was 3000 with 40:1 motor.
+                    robot.lifter.setTargetPosition(robot.twoStack); // Now using 20:1 motor was 3000 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    if (robot.lifter.getCurrentPosition() > robot.secondCone) { // Set the power to match with the goal direction
+                    if (robot.lifter.getCurrentPosition() > robot.twoStack) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
                         robot.lifter.setPower(-0.8);
@@ -343,9 +345,9 @@ public class TelePowerPlayMeet1testlift extends OpMode {
             if (!movingLifter) {
                 if (lifterLocation != lifterStates.thirdCone) {
                     movingLifter = true;
-                    robot.lifter.setTargetPosition(robot.thirdCone); // Now using 20:1 motor was 3000 with 40:1 motor.
+                    robot.lifter.setTargetPosition(robot.threeStack); // Now using 20:1 motor was 3000 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    if (robot.lifter.getCurrentPosition() > robot.thirdCone) { // Set the power to match with the goal direction
+                    if (robot.lifter.getCurrentPosition() > robot.threeStack) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
                         robot.lifter.setPower(-0.8);
@@ -425,8 +427,8 @@ public class TelePowerPlayMeet1testlift extends OpMode {
                 movingLifter = true;
                 robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                 robot.lifter.setPower(-1);
-                if(robot.lifter.getCurrentPosition()<((robot.lifterLevelThree)+smalllift)){
-                    robot.lifter.setTargetPosition(robot.lifterLevelThree);
+                if(robot.lifter.getCurrentPosition()<((robot.lifterY)+smalllift)){
+                    robot.lifter.setTargetPosition(robot.lifterY);
                 }else{
                     robot.lifter.setTargetPosition((robot.lifter.getCurrentPosition()-smalllift));
                 }

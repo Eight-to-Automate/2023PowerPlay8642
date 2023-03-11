@@ -327,22 +327,22 @@ TrajectorySequence end;
 
 
         drive.followTrajectorySequence(traj1);
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.absoluteasynchLift(robot.lifterY, 1, this);
         robot.wait(1000, this);
         drive.followTrajectorySequence(traj2);
         robot.intake(false);
         robot.wait(300, this);
         drive.followTrajectorySequence(traj3);
-        robot.absoluteasynchLift(robot.stackPos, 0.8, this);
+        robot.absoluteasynchLift(robot.fourStack, 0.8, this);
         robot.wait(1000, this);
         drive.followTrajectorySequence(traj4);
         robot.intake(true);     // first cone
         robot.wait(300, this);
         drive.followTrajectorySequence(backSmall);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 0.8, this);
+        robot.absoluteasynchLift(robot.fourStack - 1000, 0.8, this);
         robot.wait(400, this);
         drive.followTrajectorySequence(traj5);
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.absoluteasynchLift(robot.lifterY, 1, this);
         robot.wait(1000, this);
         drive.followTrajectorySequence(traj6);
         robot.intake(false);    // second cone

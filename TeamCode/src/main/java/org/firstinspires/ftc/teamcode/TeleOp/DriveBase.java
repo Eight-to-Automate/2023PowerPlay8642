@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
 
-
+@Disabled
 @TeleOp(name="servoTest", group="Iterative Opmode")
 
 public class DriveBase extends OpMode {

@@ -382,13 +382,13 @@ public class Left3cone extends LinearOpMode{
         }
 
         drive.followTrajectorySequence(traj1);
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.absoluteasynchLift(robot.lifterY, 1, this);
         robot.wait(1000, this);
         drive.followTrajectorySequence(traj2);
         robot.intake(false);
         robot.wait(300, this);
         drive.followTrajectorySequence(traj3);
-        robot.absoluteasynchLift(robot.stackPos, 0.8, this);
+        robot.absoluteasynchLift(robot.fourStack, 0.8, this);
         robot.wait(300, this);
         drive.followTrajectorySequence(traj4);
         robot.intake(true);     // first cone
@@ -396,10 +396,10 @@ public class Left3cone extends LinearOpMode{
         drive.followTrajectorySequence(backSmall);
         robot.intake(true);     // first cone  close again in case gripper was against the wall
         robot.wait(100, this);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+        robot.absoluteasynchLift(robot.fourStack - 1000, 0.9, this);
         robot.wait(400, this);
         drive.followTrajectorySequence(traj5);
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.absoluteasynchLift(robot.lifterY, 1, this);
         robot.wait(500, this);
         drive.followTrajectorySequence(traj6);
         robot.intake(false);    // drop second cone
@@ -413,10 +413,10 @@ public class Left3cone extends LinearOpMode{
         drive.followTrajectorySequence(backSmall2);
         robot.intake(true);     // close again in case gripper was against the wall
         robot.wait(100, this);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+        robot.absoluteasynchLift(robot.fourStack - 1000, 0.9, this);
         robot.wait(400, this);
         drive.followTrajectorySequence(traj9);
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.absoluteasynchLift(robot.lifterY, 1, this);
         robot.wait(500, this);
         drive.followTrajectorySequence(traj10);
         robot.intake(false);    // drop second cone

@@ -127,7 +127,7 @@ public class RRMeet3LeftAuto_back extends LinearOpMode{
                 .forward(17)
 
                 .addDisplacementMarker(17, () -> {
-                    robot.asynchLift(robot.lifterLevelOne, 1, this);
+                    robot.asynchLift(robot.lifterA, 1, this);
                 })
                 .strafeRight(47)
                 .forward(5)

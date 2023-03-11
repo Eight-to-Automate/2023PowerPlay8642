@@ -80,9 +80,9 @@ public class RobotFreightFrenzy {
 
     //Define other variables
         /*    public final int lifterMinimum = -20;     // these values are for REV 20:1 spur motor
-            public final int lifterLevelOne = 1500;
-            public final int lifterLevelTwo = 2330;
-            public final int lifterLevelThree = 3050;*/
+            public final int lifterA = 1500;
+            public final int lifterX = 2330;
+            public final int lifterY = 3050;*/
     public final int lifterMinimum = -10;       //These values are for Gobilda 13:1 motor
     public final int lifterLevelOne = 1050;
     public final int lifterLevelTwo = 1570;

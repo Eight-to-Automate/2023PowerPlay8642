@@ -31,7 +31,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
-import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.pipelines.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
@@ -125,7 +124,7 @@ public class Meet3LeftAuto extends LinearOpMode{
                 .back(5)
 
                 .addDisplacementMarker(100, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelOne, 1, this);
+                    robot.absoluteasynchLift(robot.lifterA, 1, this);
                 })
                 .strafeRight(73)
                 .strafeLeft(28)

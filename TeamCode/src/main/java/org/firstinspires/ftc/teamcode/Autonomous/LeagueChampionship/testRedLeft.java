@@ -164,7 +164,7 @@ public class testRedLeft extends LinearOpMode{
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.85, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .addDisplacementMarker(() -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .lineTo(highJunction,
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -366,7 +366,7 @@ public class testRedLeft extends LinearOpMode{
                 .build();
         drive.followTrajectorySequence(traj3);
 
-        robot.absoluteasynchLift(robot.stackPos, 0.8, this);
+        robot.absoluteasynchLift(robot.fourStack, 0.8, this);
         //robot.wait(900, this);
         TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
                 .strafeLeft(12)
@@ -384,11 +384,11 @@ public class testRedLeft extends LinearOpMode{
         robot.intake(true);     // first cone
         robot.wait(300, this);
         drive.followTrajectorySequence(backSmall);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 1, this);
+        robot.absoluteasynchLift(robot.fourStack - 1000, 1, this);
         TrajectorySequence realign2 = realign;
         robot.wait(300, this);
         drive.followTrajectorySequence(traj5);
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.absoluteasynchLift(robot.lifterY, 1, this);
         robot.wait(1000, this);
         drive.followTrajectorySequence(realign2);
         robot.intake(false);    // second cone

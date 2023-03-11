@@ -124,7 +124,7 @@ public class StatesLeftAltPath extends LinearOpMode{
 
         TrajectorySequence score1 = drive.trajectorySequenceBuilder(startPos1)
                 .addTemporalMarker(2.2, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .splineToLinearHeading(conePush, Math.toRadians(90), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))//first forward movement
@@ -141,7 +141,7 @@ public class StatesLeftAltPath extends LinearOpMode{
         TrajectorySequence toStack1 = drive.trajectorySequenceBuilder(score1.end())
                 .setReversed(true)
                 .addTemporalMarker(1, () -> {
-                    robot.absoluteasynchLift(robot.stackPosAuto, 1, this);
+                    robot.absoluteasynchLift(robot.fiveStack, 1, this);
                 })
                 .splineToSplineHeading(cyclePose, Math.toRadians(180),SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
@@ -161,7 +161,7 @@ public class StatesLeftAltPath extends LinearOpMode{
         TrajectorySequence score2 = drive.trajectorySequenceBuilder(backSmall1.end())
                 .waitSeconds(0.5)
                 .addTemporalMarker(2, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .setReversed(true)
                 .splineToSplineHeading(new Pose2d(-13, -12, Math.toRadians(180)), Math.toRadians(180))
@@ -170,7 +170,7 @@ public class StatesLeftAltPath extends LinearOpMode{
 
         TrajectorySequence toStack2 = drive.trajectorySequenceBuilder(score2.end())
                 .addTemporalMarker(1, () -> {
-                    robot.absoluteasynchLift(robot.stackPos, 1, this);
+                    robot.absoluteasynchLift(robot.fourStack, 1, this);
                 })
                 .waitSeconds(0.1)
                 .setReversed(true)
@@ -190,7 +190,7 @@ public class StatesLeftAltPath extends LinearOpMode{
         TrajectorySequence score3 = drive.trajectorySequenceBuilder(backSmall2.end())
                 .waitSeconds(0.5)
                 .addTemporalMarker(2, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .setReversed(true)
                 .splineToSplineHeading(new Pose2d(-13, -12, Math.toRadians(180)), Math.toRadians(180))
@@ -288,7 +288,7 @@ public class StatesLeftAltPath extends LinearOpMode{
             //trajectory
             park = drive.trajectorySequenceBuilder(score3.end())
                     .addTemporalMarker(0.75, () -> {
-                        robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                        robot.absoluteasynchLift(robot.threeStack, 1, this);
                     })
                     .setReversed(false)
                     .lineTo(new Vector2d(-30, -14))
@@ -306,7 +306,7 @@ public class StatesLeftAltPath extends LinearOpMode{
             //trajectory
             park = drive.trajectorySequenceBuilder(score3.end())
                     .addTemporalMarker(0.75, () -> {
-                        robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                        robot.absoluteasynchLift(robot.threeStack, 1, this);
                     })
                     .setReversed(false)
                     .lineTo(new Vector2d(-30, -14))
@@ -321,7 +321,7 @@ public class StatesLeftAltPath extends LinearOpMode{
             //trajectory
             park = drive.trajectorySequenceBuilder(score3.end())
                     .addTemporalMarker(0.75, () -> {
-                        robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                        robot.absoluteasynchLift(robot.threeStack, 1, this);
                     })
                     .setReversed(false)
                     .lineTo(new Vector2d(-30, -14))
@@ -339,7 +339,7 @@ public class StatesLeftAltPath extends LinearOpMode{
         robot.intake(true);
 
         drive.followTrajectorySequence(backSmall1);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+        robot.absoluteasynchLift(robot.fourStack - 1000, 0.9, this);
         drive.followTrajectorySequence(score2);
         robot.intake(false); robot.intake(false);  //drop the second cone
 
@@ -347,7 +347,7 @@ public class StatesLeftAltPath extends LinearOpMode{
         robot.intake(true);
 //
 //        drive.followTrajectorySequence(backSmall2);
-//        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+//        robot.absoluteasynchLift(robot.fourStack - 1000, 0.9, this);
 //        drive.followTrajectorySequence(score3);
 //        robot.intake(false); robot.intake(false);  //drop the second cone
 //

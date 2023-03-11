@@ -15,22 +15,26 @@ public class MeepMeepTesting {
         // positions for localization
         Pose2d startPos1 = new Pose2d(-35.7,-62.7, Math.toRadians(90));
         Pose2d conePush = new Pose2d(-35.7,-7.5, Math.toRadians(90));
-        Pose2d drop1 = new Pose2d(-25,-6.5,Math.toRadians(90));//  was -6
-        Pose2d cyclePose = new Pose2d(-35.75, -14, Math.toRadians(180));
-        Pose2d stackPos = new Pose2d(-62.5, -12, Math.toRadians(180));
 
-        Pose2d pushToDrop1 = new Pose2d(-25,-9.5,Math.toRadians(90));
+        Pose2d pushToDrop1 = new Pose2d(-26,-7.5-2,Math.toRadians(90));
+        Pose2d drop1 = new Pose2d(25,-5.5,Math.toRadians(90));
 
-        Pose2d scorePos = new Pose2d(-26,-6, Math.toRadians(70));
+        Pose2d stackPos = new Pose2d(62.5, -12, Math.toRadians(0));
+
+        Pose2d scorePos = new Pose2d(-26,-6.5, Math.toRadians(70));
         Pose2d scoreBack = new Pose2d(-26 - 4 * Math.cos(Math.toRadians(70)), -6 - 4 * Math.sin(Math.toRadians(70)), Math.toRadians(70));
 
+        Pose2d prePark = new Pose2d(-28.55, -13, Math.toRadians(70));
+        Pose2d zone1 = new Pose2d(-58, -14, Math.toRadians(90));
+        Pose2d zone2 = new Pose2d(-35.7, -14, Math.toRadians(90));
+        Pose2d zone3 = new Pose2d(-12, -14, Math.toRadians(90));
         // our auto
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(0.8 * 50.18793796530113, 0.67 * 50.18793796530113, 3.3, 3.0, 13.9)
                 .setDimensions(16,16)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(startPos1)
+                        drive.trajectorySequenceBuilder(drop1)
 //                                .back(6)
 //                                .setReversed(true)
 //                                .splineToLinearHeading(new Pose2d(-35, -12, Math.toRadians(90)), Math.toRadians(180)) //zone 2
@@ -58,11 +62,12 @@ public class MeepMeepTesting {
                                 //.splineToSplineHeading(new Pose2d(-35, -12, Math.toRadians(180)), Math.toRadians(180))
                                 //.splineToSplineHeading(stackPos, Math.toRadians(180))
 
-                                .splineToLinearHeading(conePush, Math.toRadians(90))
-                                //.setReversed(true)
+                                .back(1.5)
+                                .setReversed(true)
+                                .splineToSplineHeading(new Pose2d(35, -12, Math.toRadians(0)), Math.toRadians(0))
+                                .splineToSplineHeading(stackPos, Math.toRadians(0))
 
-                                .splineToLinearHeading(pushToDrop1, Math.toRadians(90))
-                                .splineToLinearHeading(drop1, Math.toRadians(90))
+
 
                                 .build()
                    );

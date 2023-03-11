@@ -378,7 +378,7 @@ public class KentLeftEasy extends LinearOpMode{
         drive.followTrajectorySequence(firstForwardAndBack);
 
         // lift the first time
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.absoluteasynchLift(robot.lifterY, 1, this);
         drive.followTrajectorySequence(drop1);
 
         // drop cone (w/ redundancy as a fail-safe)
@@ -396,7 +396,7 @@ public class KentLeftEasy extends LinearOpMode{
         robot.absoluteasynchLift(-1320, 0.9, this);
         drive.followTrajectorySequence(handle2);
 
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.absoluteasynchLift(robot.lifterY, 1, this);
         drive.followTrajectorySequence(drop2);
         robot.intake(false);
         robot.intake(false);
@@ -409,10 +409,10 @@ public class KentLeftEasy extends LinearOpMode{
         robot.intake(true);
         robot.intake(true);
         drive.followTrajectorySequence(backSmall2);
-        robot.absoluteasynchLift(robot.lifterLevelOne, 0.9, this);
+        robot.absoluteasynchLift(robot.lifterA, 0.9, this);
         drive.followTrajectorySequence(handle3);
 
-       // robot.absoluteasynchLift(robot.lifterLevelOne, 1, this);
+       // robot.absoluteasynchLift(robot.lifterA, 1, this);
         drive.followTrajectorySequence(drop3);
         robot.intake(false);
         robot.intake(false);

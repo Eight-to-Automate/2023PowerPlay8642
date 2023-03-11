@@ -205,7 +205,7 @@ public class Left3cone2 extends LinearOpMode{
 
         TrajectorySequence drop2 = drive.trajectorySequenceBuilder(backSmall.end())
                 .addTemporalMarker(2, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .lineToLinearHeading(new Pose2d(back, Math.toRadians(180)),
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -219,7 +219,7 @@ public class Left3cone2 extends LinearOpMode{
         TrajectorySequence toStack2 = drive.trajectorySequenceBuilder(drop2.end())
                 .lineToLinearHeading(new Pose2d(back, Math.toRadians(180)))
                 .addTemporalMarker(0.6, () -> {
-                    robot.absoluteasynchLift(robot.lowJunctionPos + 20, 0.8, this);
+                    robot.absoluteasynchLift(robot.drivingHeight + 20, 0.8, this);
                 })
                 /*
                 .lineToLinearHeading(new Pose2d(stack, Math.toRadians(180)),
@@ -244,7 +244,7 @@ public class Left3cone2 extends LinearOpMode{
 
         TrajectorySequence drop3 = drive.trajectorySequenceBuilder(backSmall.end())
                 .addTemporalMarker(2, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .lineToLinearHeading(new Pose2d(back, Math.toRadians(180)),
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -397,7 +397,7 @@ public class Left3cone2 extends LinearOpMode{
                     .back(6)
                     .turn(Math.toRadians(51))
                     .addTemporalMarker(1, ()->{
-                        robot.absoluteasynchLift(robot.thirdCone, 0.8, this);
+                        robot.absoluteasynchLift(robot.threeStack, 0.8, this);
                     })
                     .forward(46)
                     .build();
@@ -407,7 +407,7 @@ public class Left3cone2 extends LinearOpMode{
                     .back(6)
                     .turn(Math.toRadians(51))
                     .addTemporalMarker(1, ()->{
-                        robot.absoluteasynchLift(robot.thirdCone, 0.8, this);
+                        robot.absoluteasynchLift(robot.threeStack, 0.8, this);
                     })
                     .forward(24)
                     .build();
@@ -417,7 +417,7 @@ public class Left3cone2 extends LinearOpMode{
                     .back(6)
                     .turn(Math.toRadians(51))
                     .addTemporalMarker(1, ()->{
-                        robot.absoluteasynchLift(robot.thirdCone, 0.8, this);
+                        robot.absoluteasynchLift(robot.threeStack, 0.8, this);
                     })
                     .build();
         }
@@ -426,13 +426,13 @@ public class Left3cone2 extends LinearOpMode{
 
         /*
         drive.followTrajectorySequence(traj1);
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.absoluteasynchLift(robot.lifterY, 1, this);
         //robot.wait(1000, this);
         drive.followTrajectorySequence(traj2);
         robot.intake(false);
         //robot.wait(300, this);
         drive.followTrajectorySequence(traj3);
-        robot.absoluteasynchLift(robot.stackPos, 0.8, this);
+        robot.absoluteasynchLift(robot.fourStack, 0.8, this);
         robot.wait(300, this);
         drive.followTrajectorySequence(traj4);
         robot.intake(true);     // first cone
@@ -441,13 +441,13 @@ public class Left3cone2 extends LinearOpMode{
         */
 
         drive.followTrajectorySequence(traj1);
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.absoluteasynchLift(robot.lifterY, 1, this);
         //robot.wait(1000, this);
         drive.followTrajectorySequence(traj2);
         robot.intake(false);
         //robot.wait(300, this);
         drive.followTrajectorySequence(traj3);
-        robot.absoluteasynchLift(robot.stackPos, 0.8, this);
+        robot.absoluteasynchLift(robot.fourStack, 0.8, this);
         //robot.wait(500, this);  // was 1000
         drive.followTrajectorySequence(traj4);
         robot.intake(true);     // first cone
@@ -457,10 +457,10 @@ public class Left3cone2 extends LinearOpMode{
 
         robot.intake(true);     // first cone  close again in case gripper was against the wall
         robot.wait(100, this);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+        robot.absoluteasynchLift(robot.fourStack - 1000, 0.9, this);
         robot.wait(300, this);
         drive.followTrajectorySequence(drop2);
-        //robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        //robot.absoluteasynchLift(robot.lifterY, 1, this);
         //robot.wait(500, this);
         //drive.followTrajectorySequence(traj6);
         robot.intake(false);    // drop second cone
@@ -474,7 +474,7 @@ public class Left3cone2 extends LinearOpMode{
         drive.followTrajectorySequence(backSmall2);
         robot.intake(true);     // first cone  close again in case gripper was against the wall
         robot.wait(100, this);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+        robot.absoluteasynchLift(robot.fourStack - 1000, 0.9, this);
         robot.wait(400, this);
         drive.followTrajectorySequence(drop3);
         robot.intake(false);    // drop third cone

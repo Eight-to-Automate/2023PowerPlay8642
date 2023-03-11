@@ -22,6 +22,7 @@
 
 package org.firstinspires.ftc.teamcode.Autonomous.Meet1;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -35,6 +36,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
+@Disabled
 @Autonomous(name="Meet1LeftAuto", group = "motion")
 public class Meet1LeftAuto extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();

@@ -302,7 +302,7 @@ public class RRMeet3RedRight extends LinearOpMode{
                     .back(3.8+0.3)
                     .strafeLeft(13)
                     .addTemporalMarker(1, ()->{
-                        robot.absoluteasynchLift(robot.stackPos, 0.8, this);
+                        robot.absoluteasynchLift(robot.fourStack, 0.8, this);
                     })
                     .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL)
                     .turn(Math.toRadians(-92))
@@ -312,7 +312,7 @@ public class RRMeet3RedRight extends LinearOpMode{
                     .back(3.8+0.3)
                     .strafeRight(12)
                     .addTemporalMarker(1, ()->{
-                        robot.absoluteasynchLift(robot.stackPos, 0.8, this);
+                        robot.absoluteasynchLift(robot.fourStack, 0.8, this);
                     })
                     .setTurnConstraint(DriveConstants.MAX_ANG_VEL * 1, DriveConstants.MAX_ANG_ACCEL)
                     .turn(Math.toRadians(-90))
@@ -322,20 +322,20 @@ public class RRMeet3RedRight extends LinearOpMode{
                     .back(3.8+0.3)
                     .strafeRight(12+23)
                     .addTemporalMarker(1, ()->{
-                        robot.absoluteasynchLift(robot.stackPos, 0.8, this);
+                        robot.absoluteasynchLift(robot.fourStack, 0.8, this);
                     })
                     .build();
         }
 
         drive.followTrajectorySequence(traj1);
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.absoluteasynchLift(robot.lifterY, 1, this);
         robot.wait(850, this);//was 1000 1-27-23
         drive.followTrajectorySequence(traj2);
         robot.intake(false);
         robot.intake(false);
         robot.wait(300, this);
         drive.followTrajectorySequence(traj3);
-        robot.absoluteasynchLift(robot.stackPosAuto, 0.8, this);//was 398 for league
+        robot.absoluteasynchLift(robot.fiveStack, 0.8, this);//was 398 for league
         robot.wait(700, this);//was 1000 1-27-23
         drive.followTrajectorySequence(traj4);
         robot.intake(true);
@@ -344,10 +344,10 @@ public class RRMeet3RedRight extends LinearOpMode{
         drive.followTrajectorySequence(backSmall);
         robot.intake(true);     // first cone  close again in case gripper was against the wall
         robot.wait(100, this);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+        robot.absoluteasynchLift(robot.fourStack - 1000, 0.9, this);
         robot.wait(400, this);
         drive.followTrajectorySequence(traj5);
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.absoluteasynchLift(robot.lifterY, 1, this);
         robot.wait(700, this);//was 1000 1-27-23
         drive.followTrajectorySequence(traj6);
         robot.intake(false);

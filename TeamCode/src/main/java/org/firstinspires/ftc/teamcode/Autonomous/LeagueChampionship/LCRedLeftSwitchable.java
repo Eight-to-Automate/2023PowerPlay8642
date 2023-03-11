@@ -283,7 +283,7 @@ public class LCRedLeftSwitchable extends LinearOpMode{
         }
 
         drive.followTrajectorySequence(traj1);
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.absoluteasynchLift(robot.lifterY, 1, this);
         robot.wait(3000, this);
 
         //get centroid and perform calculations for camera
@@ -365,7 +365,7 @@ public class LCRedLeftSwitchable extends LinearOpMode{
        // drive.followTrajectorySequence(traj2);
 
         drive.followTrajectorySequence(traj3);
-        robot.absoluteasynchLift(robot.stackPos, 0.8, this);
+        robot.absoluteasynchLift(robot.fourStack, 0.8, this);
         robot.wait(1000, this);
 
         drive.followTrajectorySequence(traj4);
@@ -373,11 +373,11 @@ public class LCRedLeftSwitchable extends LinearOpMode{
         robot.wait(300, this);
 
         drive.followTrajectorySequence(backSmall);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 1, this);
+        robot.absoluteasynchLift(robot.fourStack - 1000, 1, this);
         robot.wait(300, this);
 
         drive.followTrajectorySequence(traj5);
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.absoluteasynchLift(robot.lifterY, 1, this);
         robot.wait(1000, this);
 
         TrajectorySequence realign2;

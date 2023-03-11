@@ -40,7 +40,7 @@ public class TeleStates extends OpMode {
     }
 
     enum lifterStates {
-        Home, Low, Middle, High, Manual, Junction, Stack, Between, secondCone, thirdCone
+        Home, Low, Middle, High, Manual, Junction, fourStack, Between, twoStack, threeStack
     }
 
     // Setup booleans for state machines
@@ -79,25 +79,16 @@ public class TeleStates extends OpMode {
     boolean carouselMovingBlue = false;
     boolean carouselMovingRed = false;
 
-    //Shooting motor new PIDF values
-    public  double NEW_P = 13; //15
-    public double NEW_I = 3; //3
-    public  double NEW_D = 1.5; //1.5
-    public  double NEW_F = 14;  //was 12.6
+    //lifting motor new PIDF values
+    public  double NEW_P = 10;//13; //15
+    public double NEW_I = 3;//3; //3
+    public  double NEW_D =0.2;// 1.5; //1.5
+    public  double NEW_F =12.56;// 14;  //was 12.6
 
     // Exponential drive values
     public double exponential(double value, int constant) {
         double cubed =  value*value*value;
         return cubed * constant;
-    }
-
-    // new gripper function,, robot class has old gripper (robot.intake)
-    public void intake(boolean close) {
-        if (close) {
-            robot.intake.setPosition(1); //true = close = 0.9 (old)
-        } else {
-            robot.intake.setPosition(0.42); //false = open = 0.1 (old) // 0.315
-        }
     }
 
 
@@ -106,6 +97,7 @@ public class TeleStates extends OpMode {
         robot.initTele(hardwareMap, this);
         telemetry.addData("Status", "Initialized");
         robot.resetDriveEncoders();
+        RobotPowerPlay.setGripperType(3);
         // run using encoders makes it slower but drive very straight
         robot.startDriveEncoders();
         //robot.startDriveEncoderless();
@@ -264,7 +256,7 @@ public class TeleStates extends OpMode {
             if (!movingLifter || targetLifterLocation == lifterStates.Home) {
                 if (lifterLocation != lifterStates.High || targetLifterLocation == lifterStates.Home) { // Don't go to a currently set state
                     movingLifter = true;
-                    robot.lifter.setTargetPosition(robot.lifterLevelThree);   // Now using 20:1 motor was 6100 with 40:1 motor.
+                    robot.lifter.setTargetPosition(robot.lifterY);   // Now using 20:1 motor was 6100 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     liftTimestart=runtime.milliseconds();
                     robot.lifter.setPower(-1.0);
@@ -276,9 +268,9 @@ public class TeleStates extends OpMode {
             if (!movingLifter|| targetLifterLocation == lifterStates.Home) {
                 if (lifterLocation != lifterStates.Middle|| targetLifterLocation == lifterStates.Home) {
                     movingLifter = true;
-                    robot.lifter.setTargetPosition(robot.lifterLevelTwo); // May be changed later  Now using 20:1 motor was 4500 with 40:1 motor.
+                    robot.lifter.setTargetPosition(robot.lifterX); // May be changed later  Now using 20:1 motor was 4500 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    if (robot.lifter.getCurrentPosition() > robot.lifterLevelTwo) { // Set the power to match with the goal direction
+                    if (robot.lifter.getCurrentPosition() > robot.lifterX) { // Set the power to match with the goal direction
                         robot.lifter.setPower(-1.0);
                     } else {
                         robot.lifter.setPower(1.0);
@@ -292,9 +284,9 @@ public class TeleStates extends OpMode {
             if (!movingLifter|| targetLifterLocation == lifterStates.Home) {
                 if (lifterLocation != lifterStates.Low|| targetLifterLocation == lifterStates.Home) {
                     movingLifter = true;
-                    robot.lifter.setTargetPosition(robot.lifterLevelOne); // Now using 20:1 motor was 3000 with 40:1 motor.
+                    robot.lifter.setTargetPosition(robot.lifterA); // Now using 20:1 motor was 3000 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    if (robot.lifter.getCurrentPosition() > robot.lifterLevelOne) { // Set the power to match with the goal direction
+                    if (robot.lifter.getCurrentPosition() > robot.lifterA) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
                         robot.lifter.setPower(-1);
@@ -303,16 +295,16 @@ public class TeleStates extends OpMode {
                     liftTimestart=runtime.milliseconds();
                 }
             }
-        } else if (gamepad2.right_bumper) {// low junction level
+        } else if (gamepad2.right_bumper) {// driving height level
             if (!movingLifter) {
                 if (lifterLocation != lifterStates.Junction) {
                     movingLifter = true;
-                    robot.lifter.setTargetPosition(robot.lowJunctionPos); // Now using 20:1 motor was 3000 with 40:1 motor.
+                    robot.lifter.setTargetPosition(robot.fiveStack); // Now using 20:1 motor was 3000 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    if (robot.lifter.getCurrentPosition() > robot.lowJunctionPos) { // Set the power to match with the goal direction
+                    if (robot.lifter.getCurrentPosition() > robot.fiveStack) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
-                        robot.lifter.setPower(-1.0);
+                        robot.lifter.setPower(-0.8);
                     }
                     targetLifterLocation = lifterStates.Junction;
                     liftTimestart=runtime.milliseconds();
@@ -320,46 +312,46 @@ public class TeleStates extends OpMode {
             }
         } else if (gamepad2.left_bumper) {// stack level
             if (!movingLifter) {
-                if (lifterLocation != lifterStates.Stack) {
+                if (lifterLocation != lifterStates.fourStack) {
                     movingLifter = true;
-                    robot.lifter.setTargetPosition(robot.stackPos); // Now using 20:1 motor was 3000 with 40:1 motor.
+                    robot.lifter.setTargetPosition(robot.fourStack); // Now using 20:1 motor was 3000 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    if (robot.lifter.getCurrentPosition() > robot.stackPos) { // Set the power to match with the goal direction
+                    if (robot.lifter.getCurrentPosition() > robot.fourStack) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
                         robot.lifter.setPower(-0.8);
                     }
-                    targetLifterLocation = lifterStates.Stack;
+                    targetLifterLocation = lifterStates.fourStack;
                     liftTimestart=runtime.milliseconds();
                 }
             }
         } else if (gamepad2.dpad_left) {// 2nd cone stack level
             if (!movingLifter) {
-                if (lifterLocation != lifterStates.secondCone) {
+                if (lifterLocation != lifterStates.twoStack) {
                     movingLifter = true;
-                    robot.lifter.setTargetPosition(robot.secondCone); // Now using 20:1 motor was 3000 with 40:1 motor.
+                    robot.lifter.setTargetPosition(robot.twoStack); // Now using 20:1 motor was 3000 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    if (robot.lifter.getCurrentPosition() > robot.secondCone) { // Set the power to match with the goal direction
+                    if (robot.lifter.getCurrentPosition() > robot.twoStack) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
                         robot.lifter.setPower(-0.8);
                     }
-                    targetLifterLocation = lifterStates.secondCone;
+                    targetLifterLocation = lifterStates.twoStack;
                     liftTimestart=runtime.milliseconds();
                 }
             }
         } else if (gamepad2.dpad_right) {// 3rd cone stack level
             if (!movingLifter) {
-                if (lifterLocation != lifterStates.thirdCone) {
+                if (lifterLocation != lifterStates.threeStack) {
                     movingLifter = true;
-                    robot.lifter.setTargetPosition(robot.thirdCone); // Now using 20:1 motor was 3000 with 40:1 motor.
+                    robot.lifter.setTargetPosition(robot.threeStack); // Now using 20:1 motor was 3000 with 40:1 motor.
                     robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    if (robot.lifter.getCurrentPosition() > robot.thirdCone) { // Set the power to match with the goal direction
+                    if (robot.lifter.getCurrentPosition() > robot.threeStack) { // Set the power to match with the goal direction
                         robot.lifter.setPower(1.0);
                     } else {
                         robot.lifter.setPower(-0.8);
                     }
-                    targetLifterLocation = lifterStates.thirdCone;
+                    targetLifterLocation = lifterStates.threeStack;
                     liftTimestart=runtime.milliseconds();
                 }
             }
@@ -436,8 +428,8 @@ public class TeleStates extends OpMode {
                 movingLifter = true;
                 robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                 robot.lifter.setPower(-1);
-                if(robot.lifter.getCurrentPosition()<((robot.lifterLevelThree)+smalllift)){
-                    robot.lifter.setTargetPosition(robot.lifterLevelThree);
+                if(robot.lifter.getCurrentPosition()<((robot.lifterY)+smalllift)){
+                    robot.lifter.setTargetPosition(robot.lifterY);
                 }else{
                     robot.lifter.setTargetPosition((robot.lifter.getCurrentPosition()-smalllift));
                 }
@@ -462,12 +454,12 @@ public class TeleStates extends OpMode {
                 initialin = getRuntime();
             }
         }
-
+        // THIS IS WHERE GRIPPER VALUES NEED TO BE CHANGED
         if (intakePressed && movingintake) {
             if (!intakeUp) {
-                intake(false); // 0
+                robot.openIntake();//robot.intake2(false); // 0
             } else if (intakeUp) {
-                intake(true); // 1
+                robot.closeIntake();//robot.intake2(true); // 1
             }
         }
         if (movingintake) {

@@ -287,7 +287,7 @@ public class KentStateLeft extends LinearOpMode{
         drive.followTrajectorySequence(firstForwardAndBack);
 
         // lift the first time
-        robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+        robot.absoluteasynchLift(robot.lifterY, 1, this);
         drive.followTrajectorySequence(drop1);
 
         // drop cone

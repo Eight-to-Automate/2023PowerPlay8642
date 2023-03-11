@@ -25,8 +25,9 @@ package org.firstinspires.ftc.teamcode.Autonomous.States;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -42,7 +43,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
-@Autonomous(name="StatesLeft", group = "motion")
+@Autonomous(name="StatesLeft3Cone", group = "motion")
 public class StatesLeft extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
@@ -76,25 +77,23 @@ public class StatesLeft extends LinearOpMode{
     // positions for localization
     Pose2d startPos1 = new Pose2d(-35.7,-62.7, Math.toRadians(90));
     Pose2d conePush = new Pose2d(-35.7,-7.5, Math.toRadians(90));
-    Pose2d drop1 = new Pose2d(-25,-6.5,Math.toRadians(90));//  was -6
+//    Pose2d drop1 = new Pose2d(-25,-6.5,Math.toRadians(90));//  was -6
+    Pose2d drop1 = new Pose2d(-25,-5.5,Math.toRadians(90));
     Pose2d laterDropsFirstHalf = new Pose2d(-30, -12, Math.toRadians(70));
-    Pose2d pushToDrop1 = new Pose2d(-24,-7.5-2,Math.toRadians(90));
+    Pose2d pushToDrop1 = new Pose2d(-26,-7.5-2,Math.toRadians(90));
     Pose2d cyclePose = new Pose2d(-35.75, -14, Math.toRadians(180));
     Pose2d stackPos = new Pose2d(-62.5, -12, Math.toRadians(180));
     Vector2d laterScoresFirstLineTo = new Vector2d(-40, -12 );
 //    Pose2d laterDropsSecondHalf = new Pose2d(-26, -6, Math.toRadians(70));
-Pose2d laterDropsSecondHalf = new Pose2d(-26.5, -7.3, Math.toRadians(70));  //for testing 2/19/23
+    Pose2d laterDropsSecondHalf = new Pose2d(-26, -6.5, Math.toRadians(70));  //March 9
+
     Vector2d stack2LineTo1 = new Vector2d(-30, -12);
     Pose2d stack2FirstSpline = new Pose2d(-39, -12, Math.toRadians(180));
-
-    // new gripper function,, robot class has old gripper (robot.intake)
-    public void intake(boolean close) {
-        if (close) {
-            robot.intake.setPosition(1); //true = close = 0.9 (old)
-        } else {
-            robot.intake.setPosition(0.42); //false = open = 0.1 (old) // 0.315
-        }
-    }
+    //lifting motor new PIDF values
+    public  double NEW_P = 10;//13; //15
+    public double NEW_I = 3;//3; //3
+    public  double NEW_D =0.2;// 1.5; //1.5
+    public  double NEW_F =12.56;// 14;  //was 12.6
 
 
     @Override
@@ -105,11 +104,18 @@ Pose2d laterDropsSecondHalf = new Pose2d(-26.5, -7.3, Math.toRadians(70));  //fo
        // robot.initVuforia();
        // robot.initTfod();
 
+        RobotPowerPlay.setGripperType(3);
+
+        PIDFCoefficients pidNew = new PIDFCoefficients(NEW_P, NEW_I, NEW_D, NEW_F);
+
+        robot.lifter.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, pidNew);
+
+
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
 
-        intake(true); // closes gripper = true = 0.9
+        robot.closeIntake();//robot.intake2(true); // closes gripper = true = 0.9
 
         robot.wait(400, this);
         robot.absoluteasynchLift(-150,0.6,this); //raise lifter slightly -> prevent cone scraping against ground
@@ -138,7 +144,7 @@ Pose2d laterDropsSecondHalf = new Pose2d(-26.5, -7.3, Math.toRadians(70));  //fo
 
         TrajectorySequence score1 = drive.trajectorySequenceBuilder(startPos1)
                 .addTemporalMarker(2.2, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .splineToLinearHeading(conePush, Math.toRadians(90), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))//first forward movement
@@ -155,7 +161,7 @@ Pose2d laterDropsSecondHalf = new Pose2d(-26.5, -7.3, Math.toRadians(70));  //fo
         TrajectorySequence toStack1 = drive.trajectorySequenceBuilder(score1.end())
                 .setReversed(true)
                 .addTemporalMarker(1, () -> {
-                    robot.absoluteasynchLift(robot.stackPosAuto, 1, this);
+                    robot.absoluteasynchLift(robot.fiveStack, 1, this);
                 })
                 .splineToSplineHeading(cyclePose, Math.toRadians(180),SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
@@ -175,7 +181,7 @@ Pose2d laterDropsSecondHalf = new Pose2d(-26.5, -7.3, Math.toRadians(70));  //fo
         TrajectorySequence score2 = drive.trajectorySequenceBuilder(backSmall1.end())
                 .waitSeconds(0.5)
                 .addTemporalMarker(2, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .setReversed(true)
                 .lineTo(laterScoresFirstLineTo, SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -188,7 +194,7 @@ Pose2d laterDropsSecondHalf = new Pose2d(-26.5, -7.3, Math.toRadians(70));  //fo
 
         TrajectorySequence toStack2 = drive.trajectorySequenceBuilder(score2.end())
                 .addTemporalMarker(1, () -> {
-                    robot.absoluteasynchLift(robot.stackPos, 1, this);
+                    robot.absoluteasynchLift(robot.fourStack, 1, this);
                 })
                 .waitSeconds(0.1)
                 .setReversed(false)
@@ -212,7 +218,7 @@ Pose2d laterDropsSecondHalf = new Pose2d(-26.5, -7.3, Math.toRadians(70));  //fo
         TrajectorySequence score3 = drive.trajectorySequenceBuilder(backSmall2.end())
                 .waitSeconds(0.5)
                 .addTemporalMarker(2, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .setReversed(true)
                 .lineTo(laterScoresFirstLineTo, SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -314,13 +320,13 @@ Pose2d laterDropsSecondHalf = new Pose2d(-26.5, -7.3, Math.toRadians(70));  //fo
             //trajectory
             park = drive.trajectorySequenceBuilder(score3.end())
                     .addTemporalMarker(0.75, () -> {
-                        robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                        robot.absoluteasynchLift(robot.threeStack, 1, this);
                     })
                     .setReversed(false)
                     .lineTo(new Vector2d(-30, -14))
                     //.splineToLinearHeading(new Pose2d(-35.75, -12, Math.toRadians(90)), Math.toRadians(180))
                     .splineToLinearHeading(new Pose2d(-36, -14, Math.toRadians(90)), Math.toRadians(180))
-                    .strafeLeft(24)
+                    .strafeLeft(23)
                     .build();
 
 
@@ -332,7 +338,7 @@ Pose2d laterDropsSecondHalf = new Pose2d(-26.5, -7.3, Math.toRadians(70));  //fo
             //trajectory
             park = drive.trajectorySequenceBuilder(score3.end())
                     .addTemporalMarker(0.75, () -> {
-                        robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                        robot.absoluteasynchLift(robot.threeStack, 1, this);
                     })
                     .setReversed(false)
                     .lineTo(new Vector2d(-30, -14))
@@ -347,7 +353,7 @@ Pose2d laterDropsSecondHalf = new Pose2d(-26.5, -7.3, Math.toRadians(70));  //fo
             //trajectory
             park = drive.trajectorySequenceBuilder(score3.end())
                     .addTemporalMarker(0.75, () -> {
-                        robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                        robot.absoluteasynchLift(robot.threeStack, 1, this);
                     })
                     .setReversed(false)
                     .lineTo(new Vector2d(-30, -14))
@@ -359,23 +365,23 @@ Pose2d laterDropsSecondHalf = new Pose2d(-26.5, -7.3, Math.toRadians(70));  //fo
 
 
         drive.followTrajectorySequence(score1);
-        intake(false); intake(false);  //drop the first cone
+        robot.openIntake(); robot.openIntake();//robot.intake2(false); robot.intake2(false);  //drop the first cone
 
         drive.followTrajectorySequence(toStack1);
-        intake(true);
+        robot.closeIntake(); robot.closeIntake();//robot.intake2(true);
 
         drive.followTrajectorySequence(backSmall1);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+        robot.absoluteasynchLift(robot.fourStack - 1000, 0.9, this);
         drive.followTrajectorySequence(score2);
-        intake(false); intake(false);  //drop the second cone
+        robot.openIntake(); robot.openIntake();//robot.intake2(false); robot.intake2(false);  //drop the second cone
 
         drive.followTrajectorySequence(toStack2);
-        intake(true);
+        robot.closeIntake(); robot.closeIntake();//robot.intake2(true);
 
         drive.followTrajectorySequence(backSmall2);
-        robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+        robot.absoluteasynchLift(robot.fourStack - 1000, 0.9, this);
         drive.followTrajectorySequence(score3);
-        intake(false); intake(false);  //drop the second cone
+        robot.openIntake(); robot.openIntake();//robot.intake2(false); robot.intake2(false);  //drop the second cone
 
         drive.followTrajectorySequence(park);
 

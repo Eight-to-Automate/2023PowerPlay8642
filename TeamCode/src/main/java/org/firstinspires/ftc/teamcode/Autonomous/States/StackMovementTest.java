@@ -135,7 +135,7 @@ public class StackMovementTest extends LinearOpMode{
 
 
         robot.wait(400, this);
-        robot.absoluteasynchLift(robot.stackPos,0.6,this); //raise lifter slightly -> prevent cone scraping against ground
+        robot.absoluteasynchLift(robot.fourStack,0.6,this); //raise lifter slightly -> prevent cone scraping against ground
         robot.wait(700, this);
 
 
@@ -162,7 +162,7 @@ public class StackMovementTest extends LinearOpMode{
         TrajectorySequence score1 = drive.trajectorySequenceBuilder(startPos1)
 
                 .addTemporalMarker(2.2, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .splineToLinearHeading(conePush, Math.toRadians(90))//, SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         //SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))//first forward movement
@@ -176,7 +176,7 @@ public class StackMovementTest extends LinearOpMode{
 
 
 //                .addTemporalMarker(2, () -> {
-//                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+//                    robot.absoluteasynchLift(robot.lifterY, 1, this);
 //                })
 //                .splineToLinearHeading(conePush, Math.toRadians(90), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
 //                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))//first forward movement
@@ -195,7 +195,7 @@ public class StackMovementTest extends LinearOpMode{
         TrajectorySequence toStack1 = drive.trajectorySequenceBuilder(score1.end())
                 .setReversed(true)
                 .addTemporalMarker(0.75, () -> {
-                    robot.absoluteasynchLift(robot.stackPosAuto, 1, this);
+                    robot.absoluteasynchLift(robot.fiveStack, 1, this);
                 })
                 .back(1.5,SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
@@ -222,7 +222,7 @@ public class StackMovementTest extends LinearOpMode{
         TrajectorySequence score2 = drive.trajectorySequenceBuilder(toStack1.end())
                 //.waitSeconds(0.4)
                 .addTemporalMarker(0.1, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelOne, 1, this);
+                    robot.absoluteasynchLift(robot.lifterA, 1, this);
                 })
                 .setReversed(true)
                 .lineTo(new Vector2d(-40, -12 ), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -235,7 +235,7 @@ public class StackMovementTest extends LinearOpMode{
         TrajectorySequence toStack2 = drive.trajectorySequenceBuilder(score2.end())
                 .setReversed(true)
                 .addTemporalMarker(0.1, () -> {
-                    robot.absoluteasynchLift(robot.stackPos, 1, this);
+                    robot.absoluteasynchLift(robot.fourStack, 1, this);
                 })
                 .back(1.5,SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
@@ -261,7 +261,7 @@ public class StackMovementTest extends LinearOpMode{
         TrajectorySequence score3 = drive.trajectorySequenceBuilder(toStack2.end())
                 .waitSeconds(0.4)
                 .addTemporalMarker(0.4, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .setReversed(true)
                 .lineTo(new Vector2d(-40, -12 ), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -276,7 +276,7 @@ public class StackMovementTest extends LinearOpMode{
         TrajectorySequence toStack3 = drive.trajectorySequenceBuilder(score3.end())
                 .setReversed(true)
                 .addTemporalMarker(1, () -> {
-                    robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                    robot.absoluteasynchLift(robot.threeStack, 1, this);
                 })
                 .back(1.5,SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
@@ -302,7 +302,7 @@ public class StackMovementTest extends LinearOpMode{
         TrajectorySequence score4 = drive.trajectorySequenceBuilder(toStack3.end())
                 .waitSeconds(0.4)
                 .addTemporalMarker(0.4, () -> {
-                    robot.absoluteasynchLift(robot.lifterLevelThree, 1, this);
+                    robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .setReversed(true)
                 .lineTo(new Vector2d(-40, -12 ), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.5, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -406,7 +406,7 @@ public class StackMovementTest extends LinearOpMode{
             //trajectory
             park = drive.trajectorySequenceBuilder(score4.end())
                     .addTemporalMarker(0.75, () -> {
-                        robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                        robot.absoluteasynchLift(robot.threeStack, 1, this);
                     })
                     .setReversed(false)
                     .lineTo(new Vector2d(-30, -14))
@@ -424,7 +424,7 @@ public class StackMovementTest extends LinearOpMode{
             //trajectory
             park = drive.trajectorySequenceBuilder(score4.end())
                     .addTemporalMarker(0.75, () -> {
-                        robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                        robot.absoluteasynchLift(robot.threeStack, 1, this);
                     })
                     .setReversed(false)
                     .lineTo(new Vector2d(-30, -14))
@@ -439,7 +439,7 @@ public class StackMovementTest extends LinearOpMode{
             //trajectory
             park = drive.trajectorySequenceBuilder(score4.end())
                     .addTemporalMarker(0.75, () -> {
-                        robot.absoluteasynchLift(robot.thirdCone, 1, this);
+                        robot.absoluteasynchLift(robot.threeStack, 1, this);
                     })
                     .setReversed(false)
                     .lineTo(new Vector2d(-30, -14))
@@ -461,7 +461,7 @@ public class StackMovementTest extends LinearOpMode{
         robot.wait(150, this);
 
         //drive.followTrajectorySequence(backSmall1);
-        //robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+        //robot.absoluteasynchLift(robot.fourStack - 1000, 0.9, this);
         drive.followTrajectorySequence(score2);
         intake(false); intake(false);  //drop the second cone
 
@@ -469,7 +469,7 @@ public class StackMovementTest extends LinearOpMode{
         //intake(true); intake(true);
 
         //drive.followTrajectorySequence(backSmall2);
-        //robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+        //robot.absoluteasynchLift(robot.fourStack - 1000, 0.9, this);
         //drive.followTrajectorySequence(score3);
         //intake(false); intake(false);  //drop the second cone
 
@@ -477,7 +477,7 @@ public class StackMovementTest extends LinearOpMode{
         //intake(true); intake(true);
 
         //drive.followTrajectorySequence(backSmall3);
-        //robot.absoluteasynchLift(robot.stackPos - 1000, 0.9, this);
+        //robot.absoluteasynchLift(robot.fourStack - 1000, 0.9, this);
         //drive.followTrajectorySequence(score4);
         //intake(false); intake(false);  //drop the second cone
 

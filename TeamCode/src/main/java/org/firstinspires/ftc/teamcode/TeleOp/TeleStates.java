@@ -295,7 +295,7 @@ public class TeleStates extends OpMode {
                     liftTimestart=runtime.milliseconds();
                 }
             }
-        } else if (gamepad2.right_bumper) {// driving height level
+        } else if (gamepad2.right_bumper) {// driving height five stack
             if (!movingLifter) {
                 if (lifterLocation != lifterStates.Junction) {
                     movingLifter = true;

@@ -13,11 +13,23 @@ public class MeepMeepTesting {
 
 
         // positions for localization
-        Pose2d startPos1 = new Pose2d(-35.7,-62.7, Math.toRadians(90));
-        Pose2d conePush = new Pose2d(-35.7,-7.5, Math.toRadians(90));
+        Pose2d CMstartPos1 = new Pose2d(35.7,-37.3, Math.toRadians(90));
+        Pose2d CMconePush = new Pose2d(35.7,-7.5, Math.toRadians(90));
+        Pose2d CMLeftTurnTransform = new Pose2d(24,-12.5, Math.toRadians(180));
+        Pose2d CMTransformPosition = new Pose2d(-12, -12.5, Math.toRadians(180));
+        Pose2d TRANSFORMER = new Pose2d(-38.5, 0, Math.toRadians(180));
+        Pose2d CMdrop1 = new Pose2d(23,-5.5,Math.toRadians(90));//  was -6
+        Pose2d CMlaterDropsFirstHalf = new Pose2d(30, -12, Math.toRadians(110));
+        Pose2d CMpushToDrop1 = new Pose2d(24,-7.5-2,Math.toRadians(90));
+        Pose2d CMcyclePose = new Pose2d(35.75, -14, Math.toRadians(0));
+        Pose2d CMstackPos = new Pose2d(62.5, -12, Math.toRadians(0));
+        Vector2d CMlaterScoresFirstLineTo = new Vector2d(40, -12 );
+        //    Pose2d laterDropsSecondHalf = new Pose2d(-26, -6, Math.toRadians(70));
+        Pose2d CMlaterDropsSecondHalf = new Pose2d(26, -6.5, Math.toRadians(110));  //for testing 2/19/23
+        Vector2d CMstack2LineTo1 = new Vector2d(30, -12);
+        Pose2d CMstack2FirstSpline = new Pose2d(39, -12, Math.toRadians(0));
 
-        Pose2d pushToDrop1 = new Pose2d(-26,-7.5-2,Math.toRadians(90));
-        Pose2d drop1 = new Pose2d(25,-5.5,Math.toRadians(90));
+        /////////////////////////////////////////////////////////////////////
 
         Pose2d stackPos = new Pose2d(62.5, -12, Math.toRadians(0));
 
@@ -28,45 +40,20 @@ public class MeepMeepTesting {
         Pose2d zone1 = new Pose2d(-58, -14, Math.toRadians(90));
         Pose2d zone2 = new Pose2d(-35.7, -14, Math.toRadians(90));
         Pose2d zone3 = new Pose2d(-12, -14, Math.toRadians(90));
+
+        Pose2d drop2 = new Pose2d(-1, -18.5, Math.toRadians(-90));
+        Pose2d stall = new Pose2d(-13,-7,Math.toRadians(-90));
         // our auto
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(0.8 * 50.18793796530113, 0.67 * 50.18793796530113, 3.3, 3.0, 13.9)
                 .setDimensions(16,16)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(drop1)
-//                                .back(6)
-//                                .setReversed(true)
-//                                .splineToLinearHeading(new Pose2d(-35, -12, Math.toRadians(90)), Math.toRadians(180)) //zone 2
-
-
-
-                                    //.back(3)
-                                //.setReversed(true)
-                                //.splineToLinearHeading(new Pose2d(-57, -13, Math.toRadians(90)), Math.toRadians(210)) //zone 1
-
-
-//                                .back(3)
-//                                .setReversed(true)
-//                                .splineToLinearHeading(new Pose2d(-12, -12, Math.toRadians(90)), Math.toRadians(90)) //zone 3
-
-//                                .splineToLinearHeading(conePush, Math.toRadians(90))//first forward movement, used to have 0.8 constraints
-//                                //.setReversed(true)
-//
-//                                .splineToLinearHeading(drop1, Math.toRadians(90))  //-7.8
-//                                .setReversed(false)
-
-
-                                //.back(4)
-                                //.lineToLinearHeading(scoreBack)
-                                //.splineToSplineHeading(new Pose2d(-35, -12, Math.toRadians(180)), Math.toRadians(180))
-                                //.splineToSplineHeading(stackPos, Math.toRadians(180))
-
-                                .back(1.5)
+                        drive.trajectorySequenceBuilder(stall)
                                 .setReversed(true)
-                                .splineToSplineHeading(new Pose2d(35, -12, Math.toRadians(0)), Math.toRadians(0))
-                                .splineToSplineHeading(stackPos, Math.toRadians(0))
-
+                                //-6,-8
+                                .lineTo(new Vector2d(-6,-12))
+                                .splineToLinearHeading(drop2, Math.toRadians(-90))
 
 
                                 .build()

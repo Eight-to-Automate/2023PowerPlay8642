@@ -75,13 +75,13 @@ public class CriMidRight extends LinearOpMode{
     AprilTagDetection tagOfInterest = null;
 
     // positions for localization
-    Pose2d startPos1 = new Pose2d(-35.7,-62.7, Math.toRadians(90));
+    Pose2d startPos1 = new Pose2d(-35.7,-62.7 - 24, Math.toRadians(90));
     Pose2d conePush = new Pose2d(-35.7,-7.5, Math.toRadians(90));
     //    Pose2d drop1 = new Pose2d(-25,-6.5,Math.toRadians(90));//  was -6
     Pose2d drop1 = new Pose2d(-23,-5.5,Math.toRadians(90));
 
 //    Pose2d drop2 = new Pose2d(-4.9, -20.11, Math.toRadians(-45));
-    Pose2d drop2 = new Pose2d(1-2, -18.5, Math.toRadians(180 - -90));
+    Pose2d drop2 = new Pose2d(1-2, -19.5, Math.toRadians(180 - -90));
     Pose2d stall = new Pose2d(13,-7,Math.toRadians(180 - -90));
 
     Pose2d LeftTurnTransform = new Pose2d(-24,-12.5, Math.toRadians(180 - 180));
@@ -155,7 +155,7 @@ public class CriMidRight extends LinearOpMode{
         drive.setPoseEstimate(startPos1);
 
         TrajectorySequence score1 = drive.trajectorySequenceBuilder(startPos1)
-                .addTemporalMarker(2.2, () -> {
+                .addTemporalMarker(3, () -> {
                     robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
                 .splineToLinearHeading(conePush, Math.toRadians(180 - 90), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -173,7 +173,7 @@ public class CriMidRight extends LinearOpMode{
                 .addTemporalMarker(1.5, () -> {
                     robot.absoluteasynchLift(15, 1, this);
                 })
-                .back(7.5)
+                .back(6.5)
 //                .splineToLinearHeading(CMLeftTurnTransform, Math.toRadians(180),  SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
 //                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
 //                .splineToLinearHeading(CMTransformPosition, Math.toRadians(180),  SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -207,7 +207,7 @@ public class CriMidRight extends LinearOpMode{
 
         TrajectorySequence score2 = drive.trajectorySequenceBuilder(toStall.end())
                 .setReversed(true)//old false
-                .waitSeconds(8)
+                .waitSeconds(9.5)
 //                .addTemporalMarker(2, () -> {
 //                    robot.absoluteasynchLift(robot.lifterY, 1, this);
 //                })

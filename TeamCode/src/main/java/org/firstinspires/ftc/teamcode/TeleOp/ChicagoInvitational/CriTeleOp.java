@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode.Autonomous.ChicagoInvitational;
+package org.firstinspires.ftc.teamcode.TeleOp.ChicagoInvitational;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,8 +10,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
-import org.firstinspires.ftc.teamcode.TeleOp.premoveBackup;
-
+import java.time.Clock;
+import java.time.Duration;
 @TeleOp(name="CriTeleOp", group="Iterative Opmode")
 
 public class CriTeleOp extends OpMode {
@@ -56,7 +57,7 @@ public class CriTeleOp extends OpMode {
     boolean movingintake = false;
     boolean intakePressed = false;
 
-     // lifter encoder positions
+    // lifter encoder positions
     // b is 0
     // a is -1150
     // x is -1700
@@ -79,6 +80,7 @@ public class CriTeleOp extends OpMode {
     boolean bumperPressed = false;
     boolean carouselMovingBlue = false;
     boolean carouselMovingRed = false;
+    long gripTimer = -1;
 
     //lifting motor new PIDF values
     public  double NEW_P = 10;//13; //15
@@ -92,6 +94,14 @@ public class CriTeleOp extends OpMode {
         return cubed * constant;
     }
 
+    enum StackButton{
+        Active, Inactive
+    }
+    CriTeleOp.StackButton currStackButtonState = StackButton.Inactive;
+    enum DriveMode{
+        Manual, Auto
+    }
+    CriTeleOp.DriveMode currDriveMode = DriveMode.Manual;
 
     @Override
     public void init() {
@@ -120,14 +130,32 @@ public class CriTeleOp extends OpMode {
     @Override
     public void loop() {
 
+//if gamepad1 A is pressed then change state to active
+
+        if(gamepad1.y) {
+            currStackButtonState = StackButton.Active;
+        }
+
+        if(!(robot.frontLeftMotor.isBusy() && robot.frontRightMotor.isBusy() && robot.backLeftMotor.isBusy() && robot.backRightMotor.isBusy())){
+            currDriveMode = DriveMode.Manual;
+        }
+
+        if ((gamepad1.right_stick_x !=0 || gamepad1.right_stick_y != 0|| gamepad1.left_stick_x != 0 || gamepad1.left_stick_y != 0)){
+            currDriveMode = DriveMode.Manual;
+            //order.clear();
+            robot.frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+
+
         // controller variables
         double y = gamepad1.left_stick_y;
         double x = -gamepad1.left_stick_x; //* strafingConstant; // coefficient counteracts imperfect strafing
         double rx = -gamepad1.right_stick_x;
         double ry2 = gamepad2.left_stick_y;
 
-        //**********************************************************************************************************************
-        // FlashFreeze
 
         // Toggle for FlashFreeze
         if (gamepad1.left_bumper && !leftBumperDown) {
@@ -223,7 +251,7 @@ public class CriTeleOp extends OpMode {
             movingLifter = false;
         }
 
-        if (gamepad2.b) { // Home Position
+        if (gamepad2.b && !gamepad2.start) { // Home Position
             if (!movingLifter) {
                 //robot.storage.setPosition(0); // closes storage automatically - caused issues sometimes
                 /*
@@ -437,9 +465,47 @@ public class CriTeleOp extends OpMode {
                 targetLifterLocation = lifterStates.Between;
             }
         }
-        if(gamepad1.a){
 
+        if((currStackButtonState == StackButton.Active) && currDriveMode != DriveMode.Auto){
+
+            currDriveMode = DriveMode.Auto;
+            if (!movingLifter|| targetLifterLocation == lifterStates.Home) {
+                if (lifterLocation != lifterStates.Low|| targetLifterLocation == lifterStates.Home) {
+                    telemetry.addData("Auto Stack Pickup Mode: ", currDriveMode);
+                    telemetry.update();
+
+                    robot.closeIntake(); robot.closeIntake();
+                    intakeUp = !intakeUp;
+
+                    TelewaitMilisec(800);
+
+                    telemetry.addData("Elapsed time: ", System.currentTimeMillis() - gripTimer);
+                    telemetry.update();
+
+                    teleGoDistanceS(-3.5, 0.3, false);
+                    movingLifter = true;
+
+                        robot.lifter.setTargetPosition(robot.lifterA); // Now using 20:1 motor was 3000 with 40:1 motor.
+                        robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                        if (robot.lifter.getCurrentPosition() > robot.lifterA) { // Set the power to match with the goal direction
+                            robot.lifter.setPower(1.0);
+                        } else {
+                            robot.lifter.setPower(-1.0);
+                        }
+                        targetLifterLocation = lifterStates.Low;
+                        liftTimestart=runtime.milliseconds();
+
+                        //NEGATIVE IS BACKWARDS now
+
+
+
+
+                }
+            }
+            currStackButtonState = StackButton.Inactive;
         }
+
+
 
 
         //}if(gamepad2.left_bumper){
@@ -503,8 +569,30 @@ public class CriTeleOp extends OpMode {
 
     }
 
-    public void teleGoDistance(int centimeters, double power, boolean handoff) {
+    public void Telewait(long seconds) {
+        long startTime = System.currentTimeMillis();
+        long targetTime = startTime + (seconds * 1000);
+        while (System.currentTimeMillis() < targetTime) {
+            // Do nothing and wait
+            System.out.println(System.currentTimeMillis());
+        }
+    }
+
+
+    public void TelewaitMilisec(long miliseconds) {
+        long startTime = System.currentTimeMillis();
+        gripTimer = startTime;
+        long targetTime = startTime + miliseconds;
+        while (System.currentTimeMillis() < targetTime) {
+            // Do nothing and wait
+            System.out.println(System.currentTimeMillis());
+        }
+    }
+
+    public void teleGoDistanceS(double centimeters, double power, boolean handoff) {
         //****************************************************************************
+
+        centimeters *= -1;  //makes negative backwards now
 
         //double conversion_factor = 31.3;  old conversion factor using 3x3x3 cartridges on the drive motor
         double conversion_factor = 17.59;  // new conversion factor using 4x5 gear cartridges
@@ -560,9 +648,12 @@ public class CriTeleOp extends OpMode {
         while (robot.frontLeftMotor.isBusy() && robot.frontRightMotor.isBusy() && robot.backLeftMotor.isBusy() && robot.backRightMotor.isBusy()) {
 
 
-            //Stop motors if on Joystick mode
+            //Stop motors if Joystick moves
 
-            
+            if ((gamepad1.right_stick_x !=0 || gamepad1.right_stick_y != 0|| gamepad1.left_stick_x != 0 || gamepad1.left_stick_y != 0)){
+                robot.stopDriveMotors();
+                currDriveMode = DriveMode.Manual;
+                //order.clear();
                 robot.frontLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 robot.frontRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 robot.backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -570,15 +661,68 @@ public class CriTeleOp extends OpMode {
                 break;
             }
 
-                robot.frontLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                robot.frontRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                robot.backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                robot.backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                break;
+
+//            //check for button inputs while the robot is driving
+//            if (gamepad1.dpad_left && currStateL == premoveBackup.Left.Active) {
+//                order.add(premoveBackup.Move.Left);
+//                currStateL = premoveBackup.Left.Inactive;
+//            }
+//            if (gamepad1.dpad_right && currStateR == premoveBackup.Right.Active){
+//                order.add(premoveBackup.Move.Right);
+//                currStateR = premoveBackup.Right.Inactive;
+//            }
+//            if (gamepad1.dpad_up && currStateF == premoveBackup.Front.Active) {
+//                order.add(premoveBackup.Move.Front);
+//                currStateF = premoveBackup.Front.Inactive;
+//            }
+//            if (gamepad1.dpad_down && currStateB == premoveBackup.Back.Active) {
+//                order.add(premoveBackup.Move.Back);
+//                currStateB = premoveBackup.Back.Inactive;
+
 
         }
 
-        if (!handoff) robot.stopDriveMotors();
+
+
+
+           /* if (gamepad1.right_bumper && currStateTR == TRight.Active){
+                order.add(Move.TRight);
+            }
+            if (gamepad1.left_bumper && currStateTL == TLeft.Active){
+                order.add(Move.TLeft);
+            }*/
+
+//            if (!gamepad1.dpad_left && currStateL == premoveBackup.Left.Inactive) {
+//                currStateL = premoveBackup.Left.Active;
+//            }
+//            if (!gamepad1.dpad_right && currStateR == premoveBackup.Right.Inactive){
+//                currStateR = premoveBackup.Right.Active;
+//            }
+//            if (!gamepad1.dpad_up && currStateF == premoveBackup.Front.Inactive) {
+//                currStateF = premoveBackup.Front.Active;
+//            }
+//            if (!gamepad1.dpad_down && currStateB == premoveBackup.Back.Inactive) {
+//                currStateB = premoveBackup.Back.Active;
+//            }
+           /* if (!gamepad1.left_bumper && currStateTL == TLeft.Inactive) {
+                currStateTL = TLeft.Active;
+            }
+            if (!gamepad1.left_bumper && currStateTR == TRight.Inactive) {
+                currStateTR = TRight.Active;
+            }*/
+        if ((gamepad1.left_stick_x != 0 || gamepad1.left_stick_y !=0 || gamepad1.right_stick_x !=0 || gamepad1.right_stick_y !=0)){
+            //currstateDrive = premoveBackup.DriveMode.Joystick;
+            currDriveMode = DriveMode.Manual;
+            robot.frontLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.frontRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            //break;
+        }
+
+        //}
+
+        if (!handoff) robot.stopDriveMotors(); currDriveMode = DriveMode.Manual;
         // startDriveEncoders();
 
     }

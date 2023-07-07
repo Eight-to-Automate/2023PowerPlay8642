@@ -43,8 +43,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
-@Autonomous(name="CriMidLeftHeistOptimised", group = "motion")
-public class CriMidLeftHeistOptimised extends LinearOpMode{
+@Autonomous(name="CriMidRightHeist2", group = "motion")
+public class CriMidRightHeist2 extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -75,26 +75,26 @@ public class CriMidLeftHeistOptimised extends LinearOpMode{
     AprilTagDetection tagOfInterest = null;
 
     // positions for localization
-    Pose2d startPos1 = new Pose2d(35.7,-62.7 - 24, Math.toRadians(90));
-    Pose2d conePush = new Pose2d(35.7,-7.5, Math.toRadians(90));
-    Pose2d drop1 = new Pose2d(23,-5.5,Math.toRadians(90));//  was -6
+    Pose2d startPos1 = new Pose2d(-35.7,-62.7 - 24, Math.toRadians(180-90));
+    Pose2d conePush = new Pose2d(-35.7,-7.5, Math.toRadians(180-90));
+    Pose2d drop1 = new Pose2d(-24.5,-5.5,Math.toRadians(180-90));//  was -6
 
     //    Pose2d drop2 = new Pose2d(-4.9, -20.11, Math.toRadians(-45));
-    Pose2d drop2 = new Pose2d(-1, -18.5, Math.toRadians(-90));
-    Pose2d stall = new Pose2d(-13,-7,Math.toRadians(-90));
+    Pose2d drop2 = new Pose2d(-1, 18.5, Math.toRadians(-90));
+    Pose2d stall = new Pose2d(-13,7,Math.toRadians(-90));
 
     Pose2d LeftTurnTransform = new Pose2d(24,-12.5, Math.toRadians(180));
     Pose2d TransformPosition = new Pose2d(-12, -12.5, Math.toRadians(180));
 //    Vector2d TRANSFORMER = new Vector2d(-38.5, 0);
 
     Pose2d TRANSFORMER = new Pose2d(-38.5, 0, Math.toRadians(180));
-    Vector2d TRANSFORMERVECTOR = new Vector2d(-38.5, 0);
-    Pose2d zone1 = new Pose2d(-12,-13, Math.toRadians(-90));
-    Pose2d zone2 = new Pose2d(12,-13, Math.toRadians(-90));
-    Pose2d zone3 = new Pose2d(36,-13, Math.toRadians(-90));
+    Vector2d TRANSFORMERVECTOR = new Vector2d(39.5, -1.5-1.8);
+    Pose2d zone1 = new Pose2d(12,-13, Math.toRadians(-90-1));
+    Pose2d zone2 = new Pose2d(-12,-13, Math.toRadians(-90-1));
+    Pose2d zone3 = new Pose2d(-36,-13, Math.toRadians(-90-1));
 
     Pose2d laterDropsFirstHalf = new Pose2d(30, -12, Math.toRadians(110));
-    Pose2d pushToDrop1 = new Pose2d(24,-7.5-2,Math.toRadians(90));
+    Pose2d pushToDrop1 = new Pose2d(-24,-7.5-2,Math.toRadians(180-90));
 
     Pose2d cyclePose = new Pose2d(-35.75 + 24, -14, Math.toRadians(0));
     Pose2d transformerPos = new Pose2d(-62.5 + 12, 12, Math.toRadians(0));
@@ -160,16 +160,16 @@ public class CriMidLeftHeistOptimised extends LinearOpMode{
         drive.setPoseEstimate(startPos1);
 
         TrajectorySequence score1 = drive.trajectorySequenceBuilder(startPos1)
-                .addTemporalMarker(3, () -> {
+                .addTemporalMarker(3.5, () -> {
                     robot.absoluteasynchLift(robot.lifterY, 1, this);
                 })
-                .splineToLinearHeading(conePush, Math.toRadians(90), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .splineToLinearHeading(conePush, Math.toRadians(180-90), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))//first forward movement
                 .setReversed(true)
 
-                .splineToLinearHeading(pushToDrop1, Math.toRadians(90),  SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .splineToLinearHeading(pushToDrop1, Math.toRadians(180-90),  SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))  //Originally 90 spline from first forwards movement to high goal score pos
-                .splineToLinearHeading(drop1, Math.toRadians(90),  SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .splineToLinearHeading(drop1, Math.toRadians(180-90),  SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.6, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))  //-7.8
                 .setReversed(false)
                 .build();
@@ -194,10 +194,10 @@ public class CriMidLeftHeistOptimised extends LinearOpMode{
 //                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
 
                 //Optimized Spline to transformer traj
-                .lineToSplineHeading(new Pose2d(1,-13,Math.toRadians(180)), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
-                .splineToConstantHeading(TRANSFORMERVECTOR, Math.toRadians(180), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
+                .lineToSplineHeading(new Pose2d(-1,-13,Math.toRadians(0)), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
+                .splineToConstantHeading(TRANSFORMERVECTOR, Math.toRadians(0), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
                 .build();
 
         TrajectorySequence secureTransformer = drive.trajectorySequenceBuilder(toTransformer.end())
@@ -223,16 +223,20 @@ public class CriMidLeftHeistOptimised extends LinearOpMode{
 //                //.waitSeconds(0.5)
 
                 //Optimized spline to heist spot
-                .lineTo(new Vector2d(-30,0), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
-                .splineToSplineHeading(new Pose2d(-12,-12,Math.toRadians(-90)),Math.toRadians(0), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
-                .lineTo(new Vector2d(24, -12), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
-                .splineToLinearHeading(new Pose2d(35,-24,Math.toRadians(-90)),Math.toRadians(-90), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
-                .splineToLinearHeading(new Pose2d(35,-58-24,Math.toRadians(-90)),Math.toRadians(-90), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
+
+                .addTemporalMarker(0.1, () -> {
+                    robot.absoluteasynchLift(-290, 1, this);
+                })
+                .lineTo(new Vector2d(30-1,-1.5-1.8), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
+                .splineToSplineHeading(new Pose2d(12-2.5,-12,Math.toRadians(-90-1)),Math.toRadians(180), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
+                .lineTo(new Vector2d(-24-2.5, -12), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
+                .splineToLinearHeading(new Pose2d(-35-2.5,-24,Math.toRadians(-90-1)),Math.toRadians(-90), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
+                .splineToLinearHeading(new Pose2d(-35-2.5,-58,Math.toRadians(-90-1)),Math.toRadians(-90), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
 
                 .build();
 //        TrajectorySequence returnToPark = drive.trajectorySequenceBuilder(secureTransformer.end())
@@ -374,10 +378,10 @@ public class CriMidLeftHeistOptimised extends LinearOpMode{
 
 
                     //Optimized Parking Traj zone 1
-                    .lineTo(new Vector2d(35,-24),SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                            SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
-                    .splineToLinearHeading(zone1, Math.toRadians(180),SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                            SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
+                    .lineTo(new Vector2d(-35-1,-24),SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                            SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
+                    .splineToLinearHeading(zone1, Math.toRadians(0),SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                            SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
                     .build();
         }
         else if (tagOfInterest == null || tagOfInterest.id == MIDDLE){
@@ -402,10 +406,10 @@ public class CriMidLeftHeistOptimised extends LinearOpMode{
 
 
                     //Optimized Parking Traj zone 2
-                    .lineTo(new Vector2d(35,-22),SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                            SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
-                    .splineToLinearHeading(zone2, Math.toRadians(180),SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                            SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
+                    .lineTo(new Vector2d(-35-1,-22),SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                            SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
+                    .splineToLinearHeading(zone2, Math.toRadians(0),SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                            SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.6))
                     .build();
         }
         else {

@@ -48,7 +48,7 @@ import java.util.ArrayList;
 //@Disabled
 //changed all the speeds
 @Autonomous(name="CriLeft4Cone", group = "motion")
-public class CRILeft4Cone extends LinearOpMode{
+public class CRILeft4ConeFINAL extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -91,9 +91,11 @@ public class CRILeft4Cone extends LinearOpMode{
     Pose2d scoreBack = new Pose2d(-26 - 4 * Math.cos(Math.toRadians(70)), -6 - 4 * Math.sin(Math.toRadians(70)), Math.toRadians(70));
 
     Pose2d prePark = new Pose2d(-28.55, -13, Math.toRadians(70));
-    Pose2d zone1 = new Pose2d(-58, -14, Math.toRadians(90));
-    Pose2d zone2 = new Pose2d(-35.7, -14, Math.toRadians(90));
-    Pose2d zone3 = new Pose2d(-12, -14, Math.toRadians(90));
+
+
+    Pose2d zone1 = new Pose2d(-36,-13, Math.toRadians(90));
+    Pose2d zone2 = new Pose2d(-12,-13, Math.toRadians(90));
+    Pose2d zone3 = new Pose2d(12,-13, Math.toRadians(90));
 
 
 //    public  double NEW_P = 13;

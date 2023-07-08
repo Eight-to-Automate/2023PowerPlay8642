@@ -14,8 +14,8 @@ public class MeepMeepTesting {
         MeepMeep meepMeep = new MeepMeep(800);
 
 
-        // positions for localization
-        Pose2d startPos1 = new Pose2d(-35.7,-62.7 - 24, Math.toRadians(180-90));
+// positions for localization
+        //Pose2d startPos1 = new Pose2d(-35.7,-62.7 - 24, Math.toRadians(180-90));
         Pose2d conePush = new Pose2d(-35.7,-7.5, Math.toRadians(180-90));
         Pose2d drop1 = new Pose2d(-24.5,-5.5,Math.toRadians(180-90));//  was -6
 
@@ -27,12 +27,11 @@ public class MeepMeepTesting {
         Pose2d TransformPosition = new Pose2d(-12, -12.5, Math.toRadians(180));
 //    Vector2d TRANSFORMER = new Vector2d(-38.5, 0);
 
-        Pose2d TRANSFORMER = new Pose2d(39, -1.5-1.8, Math.toRadians(0));
-        Vector2d TRANSFORMERVECTOR = new Vector2d(39, -1.5-1.8);
-
-        Pose2d zone1 = new Pose2d(12,-13, Math.toRadians(180+90));
-        Pose2d zone2 = new Pose2d(-12,-13, Math.toRadians(180+90));
-        Pose2d zone3 = new Pose2d(-36,-13, Math.toRadians(180+90));
+        Pose2d TRANSFORMER = new Pose2d(39.5, 0, Math.toRadians(0));
+        Vector2d TRANSFORMERVECTOR = new Vector2d(39.5, 0);
+        Pose2d zone1 = new Pose2d(12,-13, Math.toRadians(-90));
+        Pose2d zone2 = new Pose2d(-12,-13, Math.toRadians(-90));
+        Pose2d zone3 = new Pose2d(-36,-13, Math.toRadians(-90));
 
         Pose2d laterDropsFirstHalf = new Pose2d(30, -12, Math.toRadians(110));
         Pose2d pushToDrop1 = new Pose2d(-24,-7.5-2,Math.toRadians(180-90));
@@ -48,19 +47,22 @@ public class MeepMeepTesting {
         Pose2d laterDropsSecondHalf = new Pose2d(26, -6.5, Math.toRadians(110));  //for testing 2/19/23
         Vector2d stack2LineTo1 = new Vector2d(30, -12);
         Pose2d stack2FirstSpline = new Pose2d(39, -12, Math.toRadians(0));
+
+        Pose2d startPos1 = new Pose2d(-35.7,-62.7, Math.toRadians(90));
+
         // our auto
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(0.8 * 50.18793796530113, 0.67 * 50.18793796530113, 3.3, 3.0, 13.9)
                 .setDimensions(16,16)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(TRANSFORMER)
+                        drive.trajectorySequenceBuilder(new Pose2d(-24.5,-5.5,Math.toRadians(180-90)))
                                 //.setReversed(true)
-                                .lineTo(new Vector2d(30-1,0-1.5-1.8))
-                                .splineToSplineHeading(new Pose2d(12-1.5,-12,Math.toRadians(-90)),Math.toRadians(180))
-                                .lineTo(new Vector2d(-24-1.5, -12))
-                                .splineToLinearHeading(new Pose2d(-35-1.5,-24,Math.toRadians(-90)),Math.toRadians(-90))
-                                .splineToLinearHeading(new Pose2d(-35-1.5,-58-24,Math.toRadians(-90)),Math.toRadians(-90))
+                                .back(7.5)
+                                .lineToSplineHeading(new Pose2d(-1,-13,Math.toRadians(0)))
+                                .splineToLinearHeading(TRANSFORMER, Math.toRadians(0))
+                                .lineTo(new Vector2d(39.5-12, -12))
+                                .lineToLinearHeading(zone3)
                                 .build()
                    );
 

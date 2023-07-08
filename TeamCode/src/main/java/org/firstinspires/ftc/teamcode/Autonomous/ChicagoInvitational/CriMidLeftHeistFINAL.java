@@ -44,7 +44,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import java.util.ArrayList;
 
 @Autonomous(name="CriMidLeftHeist2", group = "motion")
-public class CriMidLeftHeist2 extends LinearOpMode{
+public class CriMidLeftHeistFINAL extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -223,6 +223,9 @@ public class CriMidLeftHeist2 extends LinearOpMode{
 //                //.waitSeconds(0.5)
 
                 //Optimized spline to heist spot
+                .addTemporalMarker(0.01, () -> {
+                    robot.absoluteasynchLift(-290, 1, this);
+                })
                 .lineTo(new Vector2d(-30,0), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.8))
                 .splineToSplineHeading(new Pose2d(-12,-12,Math.toRadians(-90)),Math.toRadians(0), SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL * 0.8, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),

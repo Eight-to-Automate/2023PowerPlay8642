@@ -329,12 +329,10 @@ public class CriLeft3ConeFINAL extends LinearOpMode{
                     })
                     .setReversed(false)
                     .lineTo(new Vector2d(-30, -14))
-                    .splineToLinearHeading(zone1, Math.toRadians(0))
                     //.splineToLinearHeading(new Pose2d(-35.75, -12, Math.toRadians(90)), Math.toRadians(180))
-                    //.splineToLinearHeading(new Pose2d(-36, -14, Math.toRadians(90)), Math.toRadians(180))
+                    .splineToLinearHeading(new Pose2d(-36, -14, Math.toRadians(90)), Math.toRadians(180))
                     //.strafeLeft(23)
                     .build();
-
 
         }
         else if (tagOfInterest == null || tagOfInterest.id == MIDDLE){
@@ -349,7 +347,8 @@ public class CriLeft3ConeFINAL extends LinearOpMode{
                     .setReversed(false)
                     .lineTo(new Vector2d(-30, -14))
                     //.splineToLinearHeading(new Pose2d(-35.75, -12, Math.toRadians(90)), Math.toRadians(180))
-                    .splineToLinearHeading(zone2, Math.toRadians(180))
+                    .splineToLinearHeading(new Pose2d(-36, -14, Math.toRadians(90)), Math.toRadians(180))
+                    .strafeRight(24)
                     .build();
         }
         else {
@@ -364,9 +363,8 @@ public class CriLeft3ConeFINAL extends LinearOpMode{
                     .setReversed(false)
                     .lineTo(new Vector2d(-30, -14))
                     //.splineToLinearHeading(new Pose2d(-35.75, -12, Math.toRadians(90)), Math.toRadians(180))
-                    //.splineToLinearHeading(new Pose2d(-36, -14, Math.toRadians(90)), Math.toRadians(180))
-                    //.strafeRight(24)
-                    .splineToLinearHeading(zone3, Math.toRadians(180))
+                    .splineToLinearHeading(new Pose2d(-36, -14, Math.toRadians(90)), Math.toRadians(180))
+                    .strafeRight(48)
                     .build();
         }
 

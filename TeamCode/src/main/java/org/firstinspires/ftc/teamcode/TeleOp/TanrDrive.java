@@ -11,9 +11,9 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotPowerPlay;
 @Disabled
-@TeleOp(name="TeleStates", group="Iterative Opmode")
+@TeleOp(name="TanrDrive", group="Iterative Opmode")
 
-public class TeleStates extends OpMode {
+public class TanrDrive extends OpMode {
     RobotPowerPlay robot = new RobotPowerPlay();
 
     // Declare OpMode members
@@ -56,7 +56,7 @@ public class TeleStates extends OpMode {
     boolean movingintake = false;
     boolean intakePressed = false;
 
-     // lifter encoder positions
+    // lifter encoder positions
     // b is 0
     // a is -1150
     // x is -1700
@@ -79,6 +79,7 @@ public class TeleStates extends OpMode {
     boolean bumperPressed = false;
     boolean carouselMovingBlue = false;
     boolean carouselMovingRed = false;
+    long gripTimer = -1;
 
     //lifting motor new PIDF values
     public  double NEW_P = 10;//13; //15
@@ -92,6 +93,14 @@ public class TeleStates extends OpMode {
         return cubed * constant;
     }
 
+    enum StackButton{
+        Active, Inactive
+    }
+    TanrDrive.StackButton currStackButtonState = StackButton.Inactive;
+    enum DriveMode{
+        Manual, Auto
+    }
+    TanrDrive.DriveMode currDriveMode = DriveMode.Manual;
 
     @Override
     public void init() {
@@ -120,14 +129,32 @@ public class TeleStates extends OpMode {
     @Override
     public void loop() {
 
+//if gamepad1 A is pressed then change state to active
+
+        if(gamepad1.y) {
+            currStackButtonState = StackButton.Active;
+        }
+
+        if(!(robot.frontLeftMotor.isBusy() && robot.frontRightMotor.isBusy() && robot.backLeftMotor.isBusy() && robot.backRightMotor.isBusy())){
+            currDriveMode = DriveMode.Manual;
+        }
+
+        if ((gamepad1.right_stick_x !=0 || gamepad1.right_stick_y != 0|| gamepad1.left_stick_x != 0 || gamepad1.left_stick_y != 0)){
+            currDriveMode = DriveMode.Manual;
+            //order.clear();
+            robot.frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+
+
         // controller variables
         double y = gamepad1.left_stick_y;
         double x = -gamepad1.left_stick_x; //* strafingConstant; // coefficient counteracts imperfect strafing
         double rx = -gamepad1.right_stick_x;
         double ry2 = gamepad2.left_stick_y;
 
-        //**********************************************************************************************************************
-        // FlashFreeze
 
         // Toggle for FlashFreeze
         if (gamepad1.left_bumper && !leftBumperDown) {
@@ -223,7 +250,7 @@ public class TeleStates extends OpMode {
             movingLifter = false;
         }
 
-        if (gamepad2.b) { // Home Position
+        if (gamepad2.b && !gamepad2.start) { // Home Position
             if (!movingLifter) {
                 //robot.storage.setPosition(0); // closes storage automatically - caused issues sometimes
                 /*
@@ -438,6 +465,47 @@ public class TeleStates extends OpMode {
             }
         }
 
+        if((currStackButtonState == StackButton.Active) && currDriveMode != DriveMode.Auto){
+
+            currDriveMode = DriveMode.Auto;
+            if (!movingLifter|| targetLifterLocation == lifterStates.Home) {
+                if (lifterLocation != lifterStates.Low|| targetLifterLocation == lifterStates.Home) {
+                    telemetry.addData("Auto Stack Pickup Mode: ", currDriveMode);
+                    telemetry.update();
+
+                    robot.closeIntake(); robot.closeIntake();
+                    intakeUp = !intakeUp;
+
+                    TelewaitMilisec(250);
+
+                    telemetry.addData("Elapsed time: ", System.currentTimeMillis() - gripTimer);
+                    telemetry.update();
+
+
+                    movingLifter = true;
+
+                        robot.lifter.setTargetPosition(robot.lifterA); // Now using 20:1 motor was 3000 with 40:1 motor.
+                        robot.lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                        if (robot.lifter.getCurrentPosition() > robot.lifterA) { // Set the power to match with the goal direction
+                            robot.lifter.setPower(1.0);
+                        } else {
+                            robot.lifter.setPower(-1.0);
+                        }
+                        targetLifterLocation = lifterStates.Low;
+                        liftTimestart=runtime.milliseconds();
+                    teleGoDistanceS(-3, 0.3, false);
+                        //NEGATIVE IS BACKWARDS now
+
+
+
+
+                }
+            }
+            currStackButtonState = StackButton.Inactive;
+        }
+
+
+
 
         //}if(gamepad2.left_bumper){
         //    robot.lifter.setTargetPosition(-513);
@@ -497,6 +565,164 @@ public class TeleStates extends OpMode {
 
         // Update telemetry at end
         telemetry.update();
+
+    }
+
+    public void Telewait(long seconds) {
+        long startTime = System.currentTimeMillis();
+        long targetTime = startTime + (seconds * 1000);
+        while (System.currentTimeMillis() < targetTime) {
+            // Do nothing and wait
+            System.out.println(System.currentTimeMillis());
+        }
+    }
+
+
+    public void TelewaitMilisec(long miliseconds) {
+        long startTime = System.currentTimeMillis();
+        gripTimer = startTime;
+        long targetTime = startTime + miliseconds;
+        while (System.currentTimeMillis() < targetTime) {
+            // Do nothing and wait
+            System.out.println(System.currentTimeMillis());
+        }
+    }
+
+    public void teleGoDistanceS(double centimeters, double power, boolean handoff) {
+        //****************************************************************************
+
+        centimeters *= -1;  //makes negative backwards now
+
+        //double conversion_factor = 31.3;  old conversion factor using 3x3x3 cartridges on the drive motor
+        double conversion_factor = 17.59;  // new conversion factor using 4x5 gear cartridges
+        //This method is used for TeleOp
+        //was 31.3 for 3 3:1 cartridges
+
+        boolean backwards = centimeters < 0;
+        int TICKS = (int) Math.abs(Math.round(centimeters * conversion_factor));
+        int FLtarget = 0;
+        int FRtarget = 0;
+        int BLtarget = 0;
+        int BRtarget = 0;
+
+        power = Math.abs(power);
+
+        robot.resetDriveEncoders();
+
+        if (backwards) {
+            FLtarget = robot.frontLeftMotor.getCurrentPosition() - TICKS;
+            FRtarget = robot.frontRightMotor.getCurrentPosition() - TICKS;
+            BLtarget = robot.backLeftMotor.getCurrentPosition() - TICKS;
+            BRtarget = robot.backRightMotor.getCurrentPosition() - TICKS;
+        } else {
+            FLtarget = robot.frontLeftMotor.getCurrentPosition() + TICKS;
+            FRtarget = robot.frontRightMotor.getCurrentPosition() + TICKS;
+            BLtarget = robot.backLeftMotor.getCurrentPosition() + TICKS;
+            BRtarget = robot.backRightMotor.getCurrentPosition() + TICKS;
+        }
+        robot.frontLeftMotor.setTargetPosition(FLtarget);
+        robot.frontRightMotor.setTargetPosition(FRtarget);
+        robot.backLeftMotor.setTargetPosition(BLtarget);
+        robot.backRightMotor.setTargetPosition(BRtarget);
+
+        robot.frontLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.frontRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.backRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // start motion
+        if (backwards) {
+            robot.frontLeftMotor.setPower(-power);
+            robot.frontRightMotor.setPower(-power);
+            robot.backRightMotor.setPower(-power);
+            robot.backLeftMotor.setPower(-power);
+        } else {
+            robot.frontLeftMotor.setPower(power);
+            robot.frontRightMotor.setPower(power);
+            robot.backRightMotor.setPower(power);
+            robot.backLeftMotor.setPower(power);
+        }
+
+        // keep looping while we are still active, and there is time left, and all motors are running.
+        while (robot.frontLeftMotor.isBusy() && robot.frontRightMotor.isBusy() && robot.backLeftMotor.isBusy() && robot.backRightMotor.isBusy()) {
+
+
+            //Stop motors if Joystick moves
+
+            if ((gamepad1.right_stick_x !=0 || gamepad1.right_stick_y != 0|| gamepad1.left_stick_x != 0 || gamepad1.left_stick_y != 0)){
+                robot.stopDriveMotors();
+                currDriveMode = DriveMode.Manual;
+                //order.clear();
+                robot.frontLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                robot.frontRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                robot.backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                robot.backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                break;
+            }
+
+
+//            //check for button inputs while the robot is driving
+//            if (gamepad1.dpad_left && currStateL == premoveBackup.Left.Active) {
+//                order.add(premoveBackup.Move.Left);
+//                currStateL = premoveBackup.Left.Inactive;
+//            }
+//            if (gamepad1.dpad_right && currStateR == premoveBackup.Right.Active){
+//                order.add(premoveBackup.Move.Right);
+//                currStateR = premoveBackup.Right.Inactive;
+//            }
+//            if (gamepad1.dpad_up && currStateF == premoveBackup.Front.Active) {
+//                order.add(premoveBackup.Move.Front);
+//                currStateF = premoveBackup.Front.Inactive;
+//            }
+//            if (gamepad1.dpad_down && currStateB == premoveBackup.Back.Active) {
+//                order.add(premoveBackup.Move.Back);
+//                currStateB = premoveBackup.Back.Inactive;
+
+
+        }
+
+
+
+
+           /* if (gamepad1.right_bumper && currStateTR == TRight.Active){
+                order.add(Move.TRight);
+            }
+            if (gamepad1.left_bumper && currStateTL == TLeft.Active){
+                order.add(Move.TLeft);
+            }*/
+
+//            if (!gamepad1.dpad_left && currStateL == premoveBackup.Left.Inactive) {
+//                currStateL = premoveBackup.Left.Active;
+//            }
+//            if (!gamepad1.dpad_right && currStateR == premoveBackup.Right.Inactive){
+//                currStateR = premoveBackup.Right.Active;
+//            }
+//            if (!gamepad1.dpad_up && currStateF == premoveBackup.Front.Inactive) {
+//                currStateF = premoveBackup.Front.Active;
+//            }
+//            if (!gamepad1.dpad_down && currStateB == premoveBackup.Back.Inactive) {
+//                currStateB = premoveBackup.Back.Active;
+//            }
+           /* if (!gamepad1.left_bumper && currStateTL == TLeft.Inactive) {
+                currStateTL = TLeft.Active;
+            }
+            if (!gamepad1.left_bumper && currStateTR == TRight.Inactive) {
+                currStateTR = TRight.Active;
+            }*/
+        if ((gamepad1.left_stick_x != 0 || gamepad1.left_stick_y !=0 || gamepad1.right_stick_x !=0 || gamepad1.right_stick_y !=0)){
+            //currstateDrive = premoveBackup.DriveMode.Joystick;
+            currDriveMode = DriveMode.Manual;
+            robot.frontLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.frontRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            //break;
+        }
+
+        //}
+
+        if (!handoff) robot.stopDriveMotors(); currDriveMode = DriveMode.Manual;
+        // startDriveEncoders();
 
     }
 

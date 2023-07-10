@@ -477,12 +477,12 @@ public class CriTeleOp extends OpMode {
                     robot.closeIntake(); robot.closeIntake();
                     intakeUp = !intakeUp;
 
-                    TelewaitMilisec(800);
+                    TelewaitMilisec(250);
 
                     telemetry.addData("Elapsed time: ", System.currentTimeMillis() - gripTimer);
                     telemetry.update();
 
-                    teleGoDistanceS(-3.5, 0.3, false);
+
                     movingLifter = true;
 
                         robot.lifter.setTargetPosition(robot.lifterA); // Now using 20:1 motor was 3000 with 40:1 motor.
@@ -494,7 +494,7 @@ public class CriTeleOp extends OpMode {
                         }
                         targetLifterLocation = lifterStates.Low;
                         liftTimestart=runtime.milliseconds();
-
+                    teleGoDistanceS(-3, 0.3, false);
                         //NEGATIVE IS BACKWARDS now
 
 

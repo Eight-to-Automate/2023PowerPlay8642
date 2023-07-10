@@ -113,7 +113,7 @@ public class RobotPowerPlay {
     //bfr meet3 -1000
     public final int lifterA = -1328;//-950; //Old: -1150  11/1/2022  New: -1000    dropping by 150   in future potentially drop by 170
     //bfr meet3 -1600
-    public final int lifterX = -2100;//-2100 //-1500; //Old: -1700  11/1/2022  New: -1550 11/11/2022 new:-1600 //A
+    public final int lifterX = -2000;//-2100 //-1500; //Old: -1700  11/1/2022  New: -1550 11/11/2022 new:-1600 //A  -2100 07/10/2023
     //bfr meet3 -2580
     //bfr League championship -2530
 
@@ -122,7 +122,7 @@ public class RobotPowerPlay {
     public final int drivingHeight = -780;//-560//-400;  //Old: -400    11/1/2022 New: -250
 
     public final int fourStack = -455; //-490; // -447  //-320; //-370  Was 405 at meet 3   //4 cone height try -420
-    public final int twoStack =-290;//-370 //-240// -170;
+    public final int twoStack =-250;//-370 //-240// -170; //-290 07/10/2023
     public final int threeStack = -375;//-390;//-447 //- 364 //-260;
     public final int fiveStack = -545; //-560;//-545 //-390;  //Autonomous 4 cone height Kent state
 

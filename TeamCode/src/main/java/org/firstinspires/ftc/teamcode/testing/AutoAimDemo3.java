@@ -30,7 +30,9 @@
 package org.firstinspires.ftc.teamcode.testing;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -39,14 +41,15 @@ import org.firstinspires.ftc.teamcode.RobotPowerPlay;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.pipelines.JunctionDetectC;
 import org.firstinspires.ftc.teamcode.pipelines.VidPipeline;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.opencv.core.Point;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-
+@Disabled
 @Autonomous(name="AutoAimDemo3", group="Linear Opmode")
-//@Disabled
+
 public class AutoAimDemo3 extends LinearOpMode {
 
     // Declare OpMode members.
@@ -126,7 +129,7 @@ public class AutoAimDemo3 extends LinearOpMode {
         }
 
 
-        /*
+
         TrajectorySequence realign;
 
         if (movement[1] > 0)
@@ -145,7 +148,7 @@ public class AutoAimDemo3 extends LinearOpMode {
         drive.setPoseEstimate(new Pose2d(0,0, Math.toRadians(0)));
         drive.followTrajectorySequence(realign);
 
-         */
+
 
         while (opModeIsActive()) {}
 

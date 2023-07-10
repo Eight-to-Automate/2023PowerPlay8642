@@ -327,7 +327,8 @@ public class CriRight3ConeFINAL extends LinearOpMode{
                     .lineTo(new Vector2d(30, -14))
                     //.splineToLinearHeading(new Pose2d(-35.75, -12, Math.toRadians(90)), Math.toRadians(180))
                     .splineToLinearHeading(new Pose2d(36, -14, Math.toRadians(90)), Math.toRadians(0))
-                    .strafeLeft(24)
+                    .forward(2)
+                    .strafeLeft(48)
                     .build();
 
 
@@ -345,6 +346,7 @@ public class CriRight3ConeFINAL extends LinearOpMode{
                     .lineTo(new Vector2d(30, -14))
                     //.splineToLinearHeading(new Pose2d(-35.75, -12, Math.toRadians(90)), Math.toRadians(180))
                     .splineToLinearHeading(new Pose2d(36, -14, Math.toRadians(90)), Math.toRadians(0))
+                    .strafeLeft(24)
                     .build();
         }
         else {
@@ -360,7 +362,6 @@ public class CriRight3ConeFINAL extends LinearOpMode{
                     .lineTo(new Vector2d(30, -14))
                     //.splineToLinearHeading(new Pose2d(-35.75, -12, Math.toRadians(90)), Math.toRadians(180))
                     .splineToLinearHeading(new Pose2d(36, -14, Math.toRadians(90)), Math.toRadians(0))
-                    .strafeRight(22.5)
                     .build();
         }
 

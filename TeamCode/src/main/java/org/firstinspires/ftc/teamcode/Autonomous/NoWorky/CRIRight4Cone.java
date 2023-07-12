@@ -27,6 +27,7 @@ package org.firstinspires.ftc.teamcode.Autonomous.NoWorky;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
@@ -47,6 +48,7 @@ import java.util.ArrayList;
 
 //@Disabled
 //changed all the speeds
+@Disabled
 @Autonomous(name="NOTWORKINGCriRight4Cone", group = "motion")
 public class CRIRight4Cone extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();

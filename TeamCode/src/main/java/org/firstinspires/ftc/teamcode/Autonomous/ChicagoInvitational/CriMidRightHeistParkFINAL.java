@@ -43,7 +43,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
-@Autonomous(name="CriMidRightHeistPark", group = "motion")
+@Autonomous(name="CriMidRightHeistParkFINAL", group = "motion")
 public class CriMidRightHeistParkFINAL extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 

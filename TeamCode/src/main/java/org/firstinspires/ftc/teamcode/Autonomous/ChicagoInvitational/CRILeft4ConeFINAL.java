@@ -47,7 +47,7 @@ import java.util.ArrayList;
 
 //@Disabled
 //changed all the speeds
-@Autonomous(name="CriLeft4Cone", group = "motion")
+@Autonomous(name="CriLeft4ConeFINAL", group = "motion")
 public class CRILeft4ConeFINAL extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 

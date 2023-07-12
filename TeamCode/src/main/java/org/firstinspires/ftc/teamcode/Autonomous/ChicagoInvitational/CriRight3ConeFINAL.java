@@ -43,7 +43,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
-@Autonomous(name="CriRight3Cone", group = "motion")
+@Autonomous(name="CriRight3ConeFINAL", group = "motion")
 public class CriRight3ConeFINAL extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 

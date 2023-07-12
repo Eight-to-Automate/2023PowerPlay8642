@@ -44,7 +44,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import java.util.ArrayList;
 
 // path strafes into the final drop, gripper works in init
-@Autonomous(name="CriMidRight2", group = "motion")
+@Autonomous(name="CriMidRightFINAL", group = "motion")
 public class CriMidRightFINAL extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 

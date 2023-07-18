@@ -91,9 +91,9 @@ public class CriMidRightFINAL extends LinearOpMode{
 
     Pose2d TRANSFORMER = new Pose2d(39, -1.5-1.8, Math.toRadians(0));
 
-    Pose2d zone1 = new Pose2d(12,-13, Math.toRadians(180+90));
+    Pose2d zone1 = new Pose2d(-36,-13, Math.toRadians(180+90));
     Pose2d zone2 = new Pose2d(-12,-13, Math.toRadians(180+90));
-    Pose2d zone3 = new Pose2d(-36,-13, Math.toRadians(180+90));
+    Pose2d zone3 = new Pose2d(12,-13, Math.toRadians(180+90));
 
     Pose2d laterDropsFirstHalf = new Pose2d(-30, -12, Math.toRadians(180-110));
     Pose2d pushToDrop1 = new Pose2d(-24,-7.5-2,Math.toRadians(180-90));

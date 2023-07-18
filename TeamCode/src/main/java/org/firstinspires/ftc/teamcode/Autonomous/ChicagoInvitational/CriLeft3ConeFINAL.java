@@ -82,7 +82,7 @@ public class CriLeft3ConeFINAL extends LinearOpMode{
     Pose2d laterDropsFirstHalf = new Pose2d(-30, -12, Math.toRadians(70));
     Pose2d pushToDrop1 = new Pose2d(-26,-7.5-2,Math.toRadians(90));
     Pose2d cyclePose = new Pose2d(-35.75, -14, Math.toRadians(180));
-    Pose2d stackPos = new Pose2d(-62.5, -12, Math.toRadians(180));
+    Pose2d stackPos = new Pose2d(-62.5-0.75, -12, Math.toRadians(180));
     Vector2d laterScoresFirstLineTo = new Vector2d(-40, -12 );
 //    Pose2d laterDropsSecondHalf = new Pose2d(-26, -6, Math.toRadians(70));
     Pose2d laterDropsSecondHalf = new Pose2d(-26, -6.5, Math.toRadians(70));  //March 9

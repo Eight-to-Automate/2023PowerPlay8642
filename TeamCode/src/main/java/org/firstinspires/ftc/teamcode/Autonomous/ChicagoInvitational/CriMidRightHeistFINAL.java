@@ -25,6 +25,7 @@ package org.firstinspires.ftc.teamcode.Autonomous.ChicagoInvitational;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
@@ -42,7 +43,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
-
+@Disabled
 @Autonomous(name="CriMidRightHeistFINAL", group = "motion")
 public class CriMidRightHeistFINAL extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
@@ -87,11 +88,12 @@ public class CriMidRightHeistFINAL extends LinearOpMode{
     Pose2d TransformPosition = new Pose2d(-12, -12.5, Math.toRadians(180));
 //    Vector2d TRANSFORMER = new Vector2d(-38.5, 0);
 
-    Pose2d TRANSFORMER = new Pose2d(39.5, -1.5-1.8, Math.toRadians(0)); // new Pose2d(-38.5, 0, Math.toRadians(180));
+    Pose2d TRANSFORMER = new Pose2d(39.5, -1.5-1.8, Math.toRadians(0)); // new Pose2d(-38.5, 0, Math.toRadians(180));   y= -1.5-1.8
     Vector2d TRANSFORMERVECTOR = new Vector2d(39.5, -1.5-1.8);
-    Pose2d zone1 = new Pose2d(12,-13, Math.toRadians(-90-1));
+    Pose2d zone1 = new Pose2d(-36,-13, Math.toRadians(-90-1));
     Pose2d zone2 = new Pose2d(-12,-13, Math.toRadians(-90-1));
-    Pose2d zone3 = new Pose2d(-36,-13, Math.toRadians(-90-1));
+    Pose2d zone3 = new Pose2d(12,-13, Math.toRadians(-90-1));
+
 
     Pose2d laterDropsFirstHalf = new Pose2d(30, -12, Math.toRadians(110));
     Pose2d pushToDrop1 = new Pose2d(-24,-7.5-2,Math.toRadians(180-90));

@@ -22,7 +22,7 @@
 //states left but I fixed the trajectories to be more smooth
 // works except for third cone
 
-package org.firstinspires.ftc.teamcode.Autonomous.NoWorky;
+package org.firstinspires.ftc.teamcode.Autonomous.ChicagoInvitational;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -45,11 +45,11 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
-
+//WORKY RIGHT 4 CONE
 //@Disabled
 //changed all the speeds
-@Disabled
-@Autonomous(name="NOTWORKINGCriRight4Cone", group = "motion")
+//@Disabled
+@Autonomous(name="CriRight4Cone", group = "motion")
 public class CRIRight4Cone extends LinearOpMode{
     RobotPowerPlay robot = new RobotPowerPlay();
 
@@ -87,7 +87,7 @@ public class CRIRight4Cone extends LinearOpMode{
     Pose2d pushToDrop1 = new Pose2d(26,-7.5-2,Math.toRadians(90));
     Pose2d drop1 = new Pose2d(25-1,-5.5,Math.toRadians(90));
 
-    Pose2d stackPos = new Pose2d(62.5, -12, Math.toRadians(0));
+    Pose2d stackPos = new Pose2d(62.5+0.75, -12, Math.toRadians(0));
 
     Pose2d scorePos = new Pose2d(26,-6.5, Math.toRadians(110));
     Pose2d scoreBack = new Pose2d(-26 - 4 * Math.cos(Math.toRadians(70)), -6 - 4 * Math.sin(Math.toRadians(70)), Math.toRadians(70));

@@ -85,7 +85,7 @@ public class CRILeft4ConeFINAL extends LinearOpMode{
     Pose2d pushToDrop1 = new Pose2d(-26,-7.5-2,Math.toRadians(90));
     Pose2d drop1 = new Pose2d(-25,-5.5,Math.toRadians(90));
 
-    Pose2d stackPos = new Pose2d(-62.5, -12, Math.toRadians(180));
+    Pose2d stackPos = new Pose2d(-62.5-0.75, -12, Math.toRadians(180));
 
     Pose2d scorePos = new Pose2d(-26,-6.5, Math.toRadians(70));
     Pose2d scoreBack = new Pose2d(-26 - 4 * Math.cos(Math.toRadians(70)), -6 - 4 * Math.sin(Math.toRadians(70)), Math.toRadians(70));
